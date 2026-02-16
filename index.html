@@ -1,247 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MSFG Loan Calculator Hub</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSFG Loan Calculator Hub</title>
 
-    <!-- Shared base styles -->
-    <link rel="stylesheet" href="/css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
 
-    <!-- Hub-only styles -->
-    <link rel="stylesheet" href="/css/hub.css" />
-  </head>
+  <link rel="stylesheet" href="css/hub.css" />
+</head>
 
-  <body>
-    <div class="main-container">
-      <div class="header">
-        <img
-          src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/MSFG+Home+Loans/MSFGHL+Clear+Outline+white+thin+50.png"
-          alt="Mountain States Financial Group Home Loans"
-          class="header-logo"
-        />
-        <h1>Loan Calculator Hub</h1>
-        <p>
-          Access all your mortgage and income calculation tools in one place.
-          Select a calculator below to get started with your loan analysis.
-        </p>
+<body class="hub-page">
+
+  <!-- HEADER -->
+  <header class="hub-header">
+    <img
+      src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/MSFG+Home+Loans/MSFGHL+Clear+Outline+white+thin+50.png"
+      alt="Mountain States Financial Group Home Loans"
+      class="hub-header-logo"
+    />
+    <h1>Loan Calculator Hub</h1>
+    <p class="hub-header-sub">
+      Select a calculator to explore its capabilities, preview the interface, and launch it when ready.
+    </p>
+    <div class="hub-counter-row">
+      <span class="hub-counter"><span class="hub-counter-dot hub-counter-dot--general"></span> <span id="hubCountGeneral">0</span> General</span>
+      <span class="hub-counter"><span class="hub-counter-dot hub-counter-dot--government"></span> <span id="hubCountGov">0</span> Government</span>
+      <span class="hub-counter"><span class="hub-counter-dot hub-counter-dot--income"></span> <span id="hubCountIncome">0</span> Income</span>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="hub-main">
+
+    <!-- Favorites -->
+    <div class="hub-favorites">
+      <div class="hub-favorites-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Favorites
       </div>
+      <div class="hub-pills" id="hubPills">
+        <span class="hub-favorites-empty">Star a calculator to add it here</span>
+      </div>
+    </div>
 
-      <div class="content">
-        <!-- =========================
-             General Calculators
-        ========================== -->
-        <div class="category-section">
-          <h2 class="category-title">General Calculators</h2>
-          <p class="category-description">
-            Essential mortgage and loan comparison tools
-          </p>
-
-          <div class="calculator-grid">
-            <!-- FIRST CARD -->
-            <a href="amort-calc/index.html" class="calculator-card">
-              <div class="calculator-icon">📈</div>
-              <h3>Amortization Calculator</h3>
-              <p>
-                Interactive amortization schedules with charts, payment
-                breakdowns, and loan comparisons.
-              </p>
-            </a>
-
-            <a href="gen-calc/blended_rate_calculator.html" class="calculator-card">
-              <div class="calculator-icon">📊</div>
-              <h3>Blended Rate Calculator</h3>
-              <p>
-                Calculate weighted average interest rates across multiple loans
-                or rate structures.
-              </p>
-            </a>
-
-            <a href="gen-calc/buy_vs_rent_calculator.html" class="calculator-card">
-              <div class="calculator-icon">🏠</div>
-              <h3>Buy vs Rent Calculator</h3>
-              <p>
-                Compare the long-term financial impact of buying versus renting a
-                property.
-              </p>
-            </a>
-
-            <a href="gen-calc/cashvmortcomp.html" class="calculator-card">
-              <div class="calculator-icon">💰</div>
-              <h3>Cash vs Mortgage Comparison</h3>
-              <p>
-                Analyze the financial trade-offs between paying cash versus
-                financing a purchase.
-              </p>
-            </a>
-
-            <a href="gen-calc/mismo-calc/MISMO_Document_Analyzer.html" class="calculator-card">
-              <div class="calculator-icon">📄</div>
-              <h3>MISMO Document Analyzer</h3>
-              <p>
-                Upload a MISMO 3.4 XML file to generate income and documentation
-                checklists.
-              </p>
-            </a>
-
-            <a href="calc-reo/index.html" class="calculator-card">
-              <div class="calculator-icon">🏚️</div>
-              <h3>REO Investment ROI</h3>
-              <p>
-                REO / investment worksheet with NOI, cap rate, DCR, cash-on-cash,
-                equity, and 5-year projections.
-              </p>
-            </a>
-          </div>
+    <!-- Selector (always visible) -->
+    <div class="hub-selector">
+      <div class="hub-selector-row">
+        <div class="hub-selector-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
         </div>
+        <h2>Choose a Calculator</h2>
 
-        <!-- =========================
-             Government Calculators
-        ========================== -->
-        <div class="category-section">
-          <h2 class="category-title">Government Calculators</h2>
-          <p class="category-description">
-            FHA and VA tools for eligibility, cash to close, escrow, and refinance scenarios
-          </p>
-
-          <div class="calculator-grid">
-            <!-- FHA -->
-            <a href="fha-calc/Escrow_Calculator.html" class="calculator-card">
-              <div class="calculator-icon">🧾</div>
-              <h3>Escrow Prepaids Calculator</h3>
-              <p>
-                Calculate initial escrow deposits, aggregate adjustment, and LE
-                Section F vs G escrow figures.
-              </p>
-            </a>
-
-            <a href="fha-calc/FHA_Calculator.html" class="calculator-card">
-              <div class="calculator-icon">🏦</div>
-              <h3>FHA Loan Calculator</h3>
-              <p>
-                FHA loan analysis including UFMIP, cash to close, and eligibility
-                calculations.
-              </p>
-            </a>
-
-            <a href="fha-calc/FHA_Refinance_Calculator.html" class="calculator-card">
-              <div class="calculator-icon">🏦</div>
-              <h3>FHA Refinance Calculator</h3>
-              <p>
-                Calculate FHA Rate &amp; Term, Cash-Out, and Streamline refinance
-                scenarios.
-              </p>
-            </a>
-
-            <!-- VA -->
-            <a href="va-calc/va-prequal-calculator.html" class="calculator-card">
-              <div class="calculator-icon">🎖️</div>
-              <h3>VA Pre-Qualification Calculator</h3>
-              <p>
-                VA loan pre-qualification tool including entitlement usage,
-                funding fee scenarios, and veteran-specific calculations.
-              </p>
-            </a>
+        <div class="hub-select-wrap">
+          <div class="hub-select-trigger" id="hubTrigger" tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+            <span class="hub-trigger-icon" id="hubTriggerIcon"></span>
+            <span class="hub-trigger-label placeholder" id="hubTriggerLabel">Select a calculator...</span>
+            <span class="hub-trigger-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
           </div>
-        </div>
 
-        <!-- =========================
-             Income Calculators
-        ========================== -->
-        <div class="category-section">
-          <h2 class="category-title">Income Calculators</h2>
-          <p class="category-description">
-            Tax form and self-employment income analysis tools
-          </p>
+          <div class="hub-dropdown" id="hubDropdown" role="listbox">
+            <div class="hub-dropdown-search">
+              <div class="hub-dropdown-search-inner">
+                <span class="hub-dropdown-search-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </span>
+                <input type="text" id="hubSearch" placeholder="Search calculators..." autocomplete="off" />
+              </div>
+            </div>
 
-          <div class="calculator-grid">
-            <!-- MOVED TO FIRST -->
-            <a href="income/IncomeCalculatorQuestionnaire.html" class="calculator-card">
-              <div class="calculator-icon">❓</div>
-              <h3>Income Questionnaire</h3>
-              <p>Guided tool to determine the correct income calculator.</p>
-            </a>
+            <!-- General -->
+            <div class="hub-opt-group" data-category="general">
+              <div class="hub-opt-group-label">General Calculators</div>
+              <div class="hub-opt" data-value="amort"     role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4C8;</span><span class="hub-opt-label">Amortization Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="apr"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4AF;</span><span class="hub-opt-label">APR Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="blended"   role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4CA;</span><span class="hub-opt-label">Blended Rate Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="buydown"   role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4B2;</span><span class="hub-opt-label">Buydown Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="buyvsrent" role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3E0;</span><span class="hub-opt-label">Buy vs Rent Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="cashvmort" role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4B0;</span><span class="hub-opt-label">Cash vs Mortgage Comparison</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="llpm"      role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4CB;</span><span class="hub-opt-label">LLPM Tool</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="mismo"     role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4C4;</span><span class="hub-opt-label">MISMO Document Analyzer</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="reo"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3DA;</span><span class="hub-opt-label">REO Investment ROI</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="refi"      role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F501;</span><span class="hub-opt-label">Refinance Analysis Tool</span><span class="hub-opt-check">&#x2713;</span></div>
+            </div>
 
-            <a href="income/IncomeCalculator1065.html" class="calculator-card">
-              <div class="calculator-icon">📝</div>
-              <h3>Form 1065 Income Calculator</h3>
-              <p>Calculate qualifying income from partnership tax returns.</p>
-            </a>
+            <!-- Government -->
+            <div class="hub-opt-group" data-category="government">
+              <div class="hub-opt-group-label">Government Calculators</div>
+              <div class="hub-opt" data-value="escrow"    role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F9FE;</span><span class="hub-opt-label">Escrow Prepaids Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="fha"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3E6;</span><span class="hub-opt-label">FHA Loan Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="fharefi"   role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3E6;</span><span class="hub-opt-label">FHA Refinance Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="vaprequal" role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F396;</span><span class="hub-opt-label">VA Pre-Qualification Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+            </div>
 
-            <a href="income/IncomeCalculator1120.html" class="calculator-card">
-              <div class="calculator-icon">🏢</div>
-              <h3>Form 1120 Income Calculator</h3>
-              <p>Determine qualifying income from C-Corporation returns.</p>
-            </a>
+            <!-- Income -->
+            <div class="hub-opt-group" data-category="income">
+              <div class="hub-opt-group-label">Income Calculators</div>
+              <div class="hub-opt" data-value="incomeq"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x2753;</span><span class="hub-opt-label">Income Questionnaire</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="income1040"    role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4DD;</span><span class="hub-opt-label">Form 1040 Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="income1065"    role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4DD;</span><span class="hub-opt-label">Form 1065 Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="income1120"    role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3E2;</span><span class="hub-opt-label">Form 1120 Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="income1120s"   role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3DB;</span><span class="hub-opt-label">Form 1120S Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="income1120sk1" role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4C3;</span><span class="hub-opt-label">1120S K-1 Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomek1"      role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4CB;</span><span class="hub-opt-label">Schedule K-1 Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomerental"  role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3D8;</span><span class="hub-opt-label">Rental Property Income (1038)</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomeb"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4B5;</span><span class="hub-opt-label">Schedule B Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomec"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F454;</span><span class="hub-opt-label">Schedule C Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomed"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F4C8;</span><span class="hub-opt-label">Schedule D Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomee"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3D7;</span><span class="hub-opt-label">Schedule E Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomeesub"    role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F3DA;</span><span class="hub-opt-label">Schedule E (Subject Property)</span><span class="hub-opt-check">&#x2713;</span></div>
+              <div class="hub-opt" data-value="incomef"       role="option" tabindex="-1"><span class="hub-opt-icon">&#x1F33E;</span><span class="hub-opt-label">Schedule F Income Calculator</span><span class="hub-opt-check">&#x2713;</span></div>
+            </div>
 
-            <a href="income/IncomeCalculator1120S.html" class="calculator-card">
-              <div class="calculator-icon">🏛️</div>
-              <h3>Form 1120S Income Calculator</h3>
-              <p>Calculate qualifying income from S-Corporation returns.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorK1.html" class="calculator-card">
-              <div class="calculator-icon">📋</div>
-              <h3>Schedule K-1 Income Calculator</h3>
-              <p>Analyze partner or shareholder income from Schedule K-1.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorRental1038.html" class="calculator-card">
-              <div class="calculator-icon">🏘️</div>
-              <h3>Rental Property Income (1038)</h3>
-              <p>Calculate qualifying rental income.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleB.html" class="calculator-card">
-              <div class="calculator-icon">💵</div>
-              <h3>Schedule B Income Calculator</h3>
-              <p>Calculate interest and dividend income.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleC.html" class="calculator-card">
-              <div class="calculator-icon">👔</div>
-              <h3>Schedule C Income Calculator</h3>
-              <p>Determine qualifying self-employment income.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleD.html" class="calculator-card">
-              <div class="calculator-icon">📈</div>
-              <h3>Schedule D Income Calculator</h3>
-              <p>Calculate capital gains and losses.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleE.html" class="calculator-card">
-              <div class="calculator-icon">🏗️</div>
-              <h3>Schedule E Income Calculator</h3>
-              <p>Calculate rental real estate and royalty income.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleESubject.html" class="calculator-card">
-              <div class="calculator-icon">🏚️</div>
-              <h3>Schedule E (Subject Property)</h3>
-              <p>Analyze Schedule E income for the subject property.</p>
-            </a>
-
-            <a href="income/IncomeCalculatorScheduleF.html" class="calculator-card">
-              <div class="calculator-icon">🌾</div>
-              <h3>Schedule F Income Calculator</h3>
-              <p>Calculate farm income and expenses.</p>
-            </a>
+            <div class="hub-no-results" id="hubNoResults">No calculators match your search.</div>
           </div>
-        </div>
-
-        <!-- =========================
-             Footer
-        ========================== -->
-        <div class="footer">
-          <div class="footer-title">Mountain States Financial Group</div>
-          <p>
-            These calculators are provided as tools to assist with mortgage
-            qualification and analysis. All calculations should be verified with
-            official underwriting guidelines.
-          </p>
         </div>
       </div>
     </div>
-  </body>
+
+    <!-- Empty state (shown when no cards open) -->
+    <div class="hub-empty" id="hubEmpty">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+      <h3>Select a calculator above</h3>
+      <p>Choose from 28 specialized mortgage, government, and income calculators. You can open multiple calculators at once.</p>
+    </div>
+
+    <!-- Calculator card stack (cards added here dynamically) -->
+    <div class="hub-stack" id="hubStack"></div>
+
+    <!-- Footer -->
+    <footer class="hub-footer">
+      <div class="hub-footer-brand">Mountain States Financial Group</div>
+      <p>
+        These calculators are provided as tools to assist with mortgage
+        qualification and analysis. All calculations should be verified with
+        official underwriting guidelines.
+      </p>
+    </footer>
+
+  </main>
+
+  <script src="js/hub.js"></script>
+</body>
 </html>
