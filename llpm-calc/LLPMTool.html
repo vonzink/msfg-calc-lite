@@ -1,322 +1,297 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MSFG • LLPMTool (Pricing Adjustments)</title>
-  <style>
-    :root {
-      --bg: #0b0f14; --panel: #121821; --muted: #a4b1c2; --text: #e9eef5;
-      --ok: #2ecc71; --warn: #f39c12; --need: #e74c3c; --accent: #00d4ff; --border: #223042; --chip: #1a2230;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLPA / LLPM Calculator - MSFG Home Loans</title>
+  <link rel="stylesheet" href="/css/main.css" />
+<style>
+    /* LLPA Tool Specific Styles (inherits main.css) */
+    .chips-row { display:flex; flex-wrap:wrap; gap:.75rem; margin: 0 0 1.25rem 0; }
+    .chip {
+      display:inline-flex; align-items:center; gap:.4rem;
+      background: var(--light); border:1px solid var(--border);
+      padding:.5rem .9rem; border-radius: 999px; font-size:.9rem; font-weight:600;
     }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif; background: radial-gradient(80vw 80vh at 75% -10%, #0f1724, var(--bg)); color: var(--text); }
-    header { padding: 24px 20px 8px; position: sticky; top: 0; background: linear-gradient(180deg, rgba(11,15,20,.95), rgba(11,15,20,.75) 60%, transparent); backdrop-filter: blur(4px); }
-    .brand { display:flex; align-items:center; gap:12px; }
-    .back-link { display:flex; align-items:center; gap:6px; color: var(--muted); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 6px; transition: .2s ease; border: 1px solid var(--border); }
-    .back-link:hover { color: var(--text); border-color: var(--accent); background: #00d4ff11; }
-    .logo { width: 40px; height: 40px; border-radius: 10px; background-image: url('/images/msfg-logo.png'); background-size: contain; background-repeat: no-repeat; background-position: center; box-shadow: 0 0 24px #00d4ff33; }
-    h1 { font-size: 20px; margin: 0; letter-spacing: .3px; }
-    main { max-width: 1200px; margin: 0 auto; padding: 12px 20px 60px; }
-    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
-    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
-    .card h2 { font-size: 16px; margin: 0 0 12px; font-weight: 650; letter-spacing: .2px; }
-    .subtle { color: var(--muted); font-size: 13px; }
-    .btn { display:inline-flex; gap:8px; align-items:center; background: linear-gradient(180deg, #0f2533, #0a1a25); border:1px solid #2a425b; color: var(--text); padding: 10px 14px; border-radius: 12px; cursor: pointer; text-decoration: none; font-weight:600; }
-    .btn:hover { border-color: var(--accent); box-shadow: 0 0 0 3px #00d4ff22 inset; }
-    .summary { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
-    @media (max-width: 700px){ .summary{ grid-template-columns: repeat(2, 1fr);} }
-    .kv { background: var(--chip); border: 1px solid var(--border); padding: 12px; border-radius: 12px; }
-    .kv .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
-    .kv .v { font-size: 14px; margin-top: 6px; }
-    .chips { display:flex; flex-wrap: wrap; gap: 8px; }
-    .chip { background: var(--chip); border: 1px solid var(--border); padding: 8px 10px; border-radius: 999px; font-size: 12px; }
-    .chip.ok { border-color: #2d5d3a; } .chip.warn { border-color: #564214; } .chip.need { border-color: #5d2d2d; }
-    .section { margin-top: 8px; }
-    .section h3 { margin: 14px 0 8px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid #213046; text-align: left; font-size: 14px; vertical-align: top; }
-    tr:hover td { background: #0f1520; }
-    .actions { display:flex; gap: 8px; justify-content: flex-end; margin-top: 10px; }
-    .small { font-size: 12px; color: var(--muted); }
-    .hidden { display:none; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; color: #9fc4ff; }
-    
-    /* Form controls */
-    .input-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    @media (max-width: 600px) { .input-row { grid-template-columns: 1fr; } }
-    .input-group { display: flex; flex-direction: column; gap: 4px; }
-    .input-group label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
-    .input-group input, .input-group select { background: var(--chip); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 8px; font-size: 14px; }
-    .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px #00d4ff22 inset; }
-    
-    /* Radio pills */
-    .radio-pills { display: flex; gap: 8px; }
-    .radio-pills label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-    .radio-pills input[type="radio"] { display: none; }
-    .radio-pills span { background: var(--chip); border: 1px solid var(--border); padding: 6px 12px; border-radius: 999px; font-size: 12px; transition: .2s ease; }
-    .radio-pills input[type="radio"]:checked + span { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    
-    /* Toggles */
-    .toggle-group { display: flex; align-items: center; gap: 8px; }
-    .toggle { position: relative; width: 40px; height: 20px; background: var(--border); border-radius: 999px; cursor: pointer; transition: .2s ease; }
-    .toggle.active { background: var(--accent); }
-    .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: var(--text); border-radius: 50%; transition: .2s ease; }
-    .toggle.active::after { transform: translateX(20px); }
-    
-    .btn-small { padding: 4px 8px; font-size: 11px; }
-    .ami-status { font-size: 11px; margin-top: 4px; }
-    .ami-status.loading { color: var(--accent); }
-    .ami-status.success { color: #2ecc71; }
-    .ami-status.error { color: #e74c3c; }
-    
-    /* Checkboxes */
-    .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
-    .checkbox-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
-    .checkbox-group input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); }
-    
-    /* Admin section */
-    details { margin-top: 16px; }
-    details summary { cursor: pointer; color: var(--muted); font-size: 13px; padding: 8px 0; }
-    details textarea { width: 100%; height: 200px; background: var(--chip); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; resize: vertical; }
-    
-    /* Warning chip */
-    .warning { background: #3a1c1c; border: 1px solid #5d2d2d; color: #ffb3a8; padding: 8px 12px; border-radius: 8px; font-size: 12px; margin-top: 8px; }
+    .chip strong { color: var(--primary); font-weight:800; }
+    .grid-2 { display:grid; grid-template-columns: 1.1fr .9fr; gap: 1.25rem; }
+    @media (max-width: 980px){ .grid-2 { grid-template-columns: 1fr; } }
+    .section h3 { margin-top: 0; }
+    .radio-row { display:flex; flex-wrap:wrap; gap:.75rem; }
+    .radio-pill {
+      border: 1px solid var(--border);
+      background: var(--light);
+      border-radius: 999px;
+      padding: .45rem .75rem;
+      display:flex; align-items:center; gap:.5rem;
+      cursor:pointer;
+      user-select:none;
+      font-weight:600;
+    }
+    .radio-pill input { margin:0; }
+    .toggle-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.65rem .75rem; border:1px solid var(--border); border-radius:10px; background: var(--light); }
+    .toggle-row .label { font-weight:700; color: var(--dark); }
+    .toggle-row .hint { font-size:.85rem; color: var(--gray); margin-top:.15rem; }
+    .toggle-row .meta { display:flex; flex-direction:column; }
+    .right { text-align:right; }
+    .center { text-align:center; }
+    .muted { color: var(--gray); }
+    #warnings {
+      display:none;
+      background: #fff7e6;
+      border: 1px solid #ffe0a3;
+      color: #8a5a00;
+      padding: .75rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    #warnings ul { margin: .5rem 0 0 1.2rem; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: .6rem .6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { text-align:left; color: var(--primary); font-size:.9rem; }
+    .kv-grid { display:grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .kv { background: var(--light); border:1px solid var(--border); border-radius: 10px; padding: .85rem; }
+    .kv .k { color: var(--gray); font-size:.85rem; margin-bottom:.25rem; }
+    .kv .v { font-size: 1.1rem; font-weight: 800; color: var(--dark); }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="brand">
-      <a href="http://loan-tools-hub.s3-website-us-west-1.amazonaws.com" class="back-link">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-        </svg>
-        Back to Hub
-      </a>
-      <div class="logo" aria-hidden="true"></div>
-      <div>
-        <h1>MSFG • LLPMTool (Pricing Adjustments)</h1>
-        <div class="subtle">Select characteristics to see total adjustments, final price, and $ cost/credit. Runs fully in-browser.</div>
+  <div class="main-container">
+    <div class="header">
+      <img class="header-logo" src="/images/msfg-logo.png" alt="MSFG Home Loans" />
+      <div class="header-text">
+        <h1>LLPA / LLPM Calculator</h1>
+        <p>Fannie Mae LLPA Matrix (01.28.2026). Conventional only. Values are in points.</p>
       </div>
     </div>
-  </header>
 
-  <main>
-    <div class="grid">
-      <div class="card">
-        <h2>Inputs</h2>
-        
-        <div class="input-row">
+    <div id="warnings"></div>
+
+    <div class="chips-row">
+      <div class="chip" id="chipLTV">Gross LTV: <strong>0.00%</strong></div>
+      <div class="chip" id="chipTotal">Total LLPAs: <strong>0.000</strong></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="section">
+        <h3>Inputs</h3>
+
+        <div class="input-grid">
           <div class="input-group">
-            <label for="baseRate">Base Rate (%)</label>
-            <input type="number" id="baseRate" step="0.001" value="6.750" />
+            <label>Loan Amount</label>
+            <input id="loanAmount" type="number" value="400000" min="0" step="1000" />
           </div>
+
           <div class="input-group">
-            <label for="startingPoints">Starting Points (±)</label>
-            <input type="number" id="startingPoints" step="0.001" value="0.000" />
+            <label>Property Value</label>
+            <input id="propertyValue" type="number" value="500000" min="0" step="1000" />
           </div>
+
           <div class="input-group">
-            <label for="loanAmount">Loan Amount ($)</label>
-            <input type="number" id="loanAmount" step="100" value="450000" />
+            <label>Credit Score</label>
+            <input id="creditScore" type="number" value="740" min="300" max="850" step="1" />
           </div>
-        </div>
 
-        <div class="input-row">
           <div class="input-group">
-            <label for="propertyValue">Property Value ($)</label>
-            <input type="number" id="propertyValue" step="1000" value="500000" />
+            <label>Amortization Term (years)</label>
+            <select id="termYears">
+              <option value="30" selected>30</option>
+              <option value="25">25</option>
+              <option value="20">20</option>
+              <option value="15">15</option>
+              <option value="10">10</option>
+            </select>
           </div>
+
           <div class="input-group">
-            <label for="borrowerIncome">Borrower Income ($)</label>
-            <input type="number" id="borrowerIncome" step="1000" value="75000" />
+            <label>Base Rate</label>
+            <input id="baseRate" type="number" value="6.750" step="0.001" />
           </div>
+
           <div class="input-group">
-            <label for="zipCode">Zip Code</label>
-            <input type="text" id="zipCode" maxlength="5" placeholder="12345" />
-            <button type="button" id="fetchAMI" class="btn btn-small">Fetch AMI</button>
+            <label>Starting Points</label>
+            <input id="startingPoints" type="number" value="0.000" step="0.001" />
           </div>
-        </div>
-        
-        <div class="input-row">
+
           <div class="input-group">
-            <label for="areaMedianIncome">Area Median Income ($)</label>
-            <input type="number" id="areaMedianIncome" step="1000" value="85000" />
-            <div class="ami-status" id="amiStatus"></div>
+            <label>Base (Net) LTV for MMI (optional)</label>
+            <input id="baseLTVForMMI" type="number" value="" placeholder="Defaults to gross LTV" step="0.01" />
+          </div>
+
+          <div class="input-group">
+            <label>Units</label>
+            <select id="units">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
           </div>
         </div>
 
-        <div class="section">
-          <h3>Credit Score</h3>
-          <select id="creditScore" class="input-group">
-            <option value=">=780">≥780</option>
-            <option value="760-779">760–779</option>
-            <option value="740-759">740–759</option>
-            <option value="720-739">720–739</option>
-            <option value="700-719">700–719</option>
-            <option value="680-699" selected>680–699</option>
-            <option value="660-679">660–679</option>
-            <option value="640-659">640–659</option>
-            <option value="<640"><640</option>
-          </select>
-        </div>
-
-        <div class="section">
-          <h3>Loan Program</h3>
-          <div class="radio-pills">
-            <label><input type="radio" name="loanProgram" value="Conventional" checked /><span>Conventional</span></label>
-            <label><input type="radio" name="loanProgram" value="FHA" /><span>FHA</span></label>
-            <label><input type="radio" name="loanProgram" value="VA" /><span>VA</span></label>
-            <label><input type="radio" name="loanProgram" value="USDA" /><span>USDA</span></label>
+        <div style="margin-top:1rem;">
+          <label style="display:block; margin-bottom:.5rem; font-weight:700;">Purpose</label>
+          <div class="radio-row">
+            <label class="radio-pill"><input type="radio" name="purpose" value="Purchase" checked /> Purchase</label>
+            <label class="radio-pill"><input type="radio" name="purpose" value="LimitedCashOut" /> Limited cash-out</label>
+            <label class="radio-pill"><input type="radio" name="purpose" value="CashOut" /> Cash-out</label>
           </div>
         </div>
 
-        <div class="section">
-          <h3>Product Type</h3>
-          <div class="radio-pills">
-            <label><input type="radio" name="productType" value="Fixed" checked /><span>Fixed</span></label>
-            <label><input type="radio" name="productType" value="ARM" /><span>ARM</span></label>
+        <div style="margin-top:1rem;">
+          <label style="display:block; margin-bottom:.5rem; font-weight:700;">Product</label>
+          <div class="radio-row">
+            <label class="radio-pill"><input type="radio" name="productType" value="Fixed" checked /> Fixed</label>
+            <label class="radio-pill"><input type="radio" name="productType" value="ARM" /> ARM</label>
           </div>
         </div>
 
-        <div class="section">
-          <h3>Property Characteristics</h3>
-          <div class="toggle-group">
-            <div class="toggle" id="highBalance"></div>
-            <label for="highBalance">High-Balance</label>
-          </div>
-          
-          <div class="checkbox-group" style="margin-top: 12px;">
-            <label><input type="checkbox" id="condo" /> Condo</label>
-            <label><input type="checkbox" id="manufacturedHome" /> Manufactured Home</label>
+        <div style="margin-top:1rem;">
+          <label style="display:block; margin-bottom:.5rem; font-weight:700;">Occupancy</label>
+          <div class="radio-row">
+            <label class="radio-pill"><input type="radio" name="occupancy" value="Primary" checked /> Primary</label>
+            <label class="radio-pill"><input type="radio" name="occupancy" value="SecondHome" /> Second home</label>
+            <label class="radio-pill"><input type="radio" name="occupancy" value="Investment" /> Investment</label>
           </div>
         </div>
 
-        <div class="section">
-          <h3>Occupancy</h3>
-          <div class="radio-pills">
-            <label><input type="radio" name="occupancy" value="Primary" checked /><span>Primary</span></label>
-            <label><input type="radio" name="occupancy" value="SecondHome" /><span>Second Home</span></label>
-            <label><input type="radio" name="occupancy" value="Investment" /><span>Investment</span></label>
+        <div style="margin-top:1rem; display:grid; gap:.75rem;">
+          <div class="toggle-row">
+            <div class="meta">
+              <div class="label">Condo</div>
+              <div class="hint">Applies Condo LLPA row</div>
+            </div>
+            <input id="isCondo" type="checkbox" />
+          </div>
+
+          <div class="toggle-row">
+            <div class="meta">
+              <div class="label">Manufactured home</div>
+              <div class="hint">Applies Manufactured home LLPA row (SFC 235)</div>
+            </div>
+            <input id="isManufacturedHome" type="checkbox" />
+          </div>
+
+          <div class="toggle-row">
+            <div class="meta">
+              <div class="label">High-balance loan</div>
+              <div class="hint">Uses High-balance fixed/ARM row (SFC 808)</div>
+            </div>
+            <input id="isHighBalance" type="checkbox" />
+          </div>
+
+          <div class="toggle-row">
+            <div class="meta">
+              <div class="label">Subordinate financing</div>
+              <div class="hint">Applies Subordinate financing LLPA row</div>
+            </div>
+            <input id="hasSubordinateFinancing" type="checkbox" />
+          </div>
+
+          <div class="toggle-row" id="hlvrRow">
+            <div class="meta">
+              <div class="label">High LTV Refinance</div>
+              <div class="hint">Applies cap table (Tables 1–3) and disables MMI</div>
+            </div>
+            <input id="isHighLTVRefi" type="checkbox" />
+          </div>
+
+          <div class="toggle-row" id="mmiRow">
+            <div class="meta">
+              <div class="label">Minimum MI coverage option (MMI)</div>
+              <div class="hint">Applies the MMI grid (based on base/net LTV)</div>
+            </div>
+            <input id="applyMMI" type="checkbox" />
           </div>
         </div>
 
-        <div class="section">
-          <h3>Units</h3>
-          <select id="units" class="input-group">
-            <option value="1" selected>1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </div>
-
-        <div class="section">
-          <h3>Refinance Type</h3>
-          <div class="radio-pills">
-            <label><input type="radio" name="refinanceType" value="RateTerm" checked /><span>Rate/Term</span></label>
-            <label><input type="radio" name="refinanceType" value="CashOut" /><span>Cash-Out</span></label>
-            <label><input type="radio" name="refinanceType" value="Purchase" /><span>Purchase</span></label>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Additional Factors</h3>
-          <div class="toggle-group">
-            <div class="toggle" id="subordinateFinancing"></div>
-            <label for="subordinateFinancing">Subordinate Financing</label>
-          </div>
-          
-          <div class="toggle-group" style="margin-top: 8px;">
-            <div class="toggle" id="lowModIncome"></div>
-            <label for="lowModIncome">Low/Moderate Income</label>
-          </div>
-          
-          <div class="toggle-group" id="mmiSection" style="margin-top: 8px; display: none;">
-            <div class="toggle" id="minimumMI"></div>
-            <label for="minimumMI">Minimum Mortgage Insurance (LTV > 80%)</label>
-          </div>
-        </div>
-
-        <div class="section">
+        <div style="margin-top:1.25rem;">
           <h3>LLPA Waivers</h3>
-          <div class="toggle-group">
-            <div class="toggle" id="llpaWaiver"></div>
-            <label for="llpaWaiver">HomeReady® / Duty to Serve Waiver</label>
-          </div>
-          
-          <div class="small" style="margin-top: 8px; color: var(--muted);">
-            <strong>HomeReady®:</strong> First-time homebuyers ≤100% AMI (120% in high-cost areas)<br>
-            <strong>DTS:</strong> Manufactured housing, rural areas, tribal lands, small institutions, energy improvements<br>
-            <strong>Credit:</strong> Offsets total adjustments when eligible
+          <p class="muted" style="margin-top:-.5rem;">If toggled on, waives all LLPAs except MMI (per matrix).</p>
+
+          <div style="display:grid; gap:.75rem;">
+            <div class="toggle-row">
+              <div class="meta">
+                <div class="label">HomeReady®</div>
+              </div>
+              <input id="waiverHomeReady" type="checkbox" />
+            </div>
+
+            <div class="toggle-row">
+              <div class="meta">
+                <div class="label">First-time homebuyer</div>
+                <div class="hint">Income/AMI checks not included (user decides)</div>
+              </div>
+              <input id="waiverFirstTimeHB" type="checkbox" />
+            </div>
+
+            <div class="toggle-row">
+              <div class="meta">
+                <div class="label">Duty to Serve</div>
+                <div class="hint">User confirms eligibility</div>
+              </div>
+              <input id="waiverDutyToServe" type="checkbox" />
+            </div>
           </div>
         </div>
-
-        <details>
-          <summary>Adjustment Matrix (Admin)</summary>
-          <textarea id="adminMatrix" placeholder="Paste JSON adjustment matrix here..."></textarea>
-          <div style="margin-top: 8px;">
-            <button id="btnValidate" class="btn">Validate & Apply</button>
-          </div>
-        </details>
-
-        <div id="warning" class="warning hidden"></div>
       </div>
 
-      <div class="card">
-        <h2>Snapshot</h2>
-        
-        <div class="chips">
-          <div class="chip" id="chipBaseRate">Base Rate: 6.750%</div>
-          <div class="chip" id="chipStartingPoints">Starting Points: 0.000</div>
-          <div class="chip" id="chipLTV">LTV: 90.00%</div>
-          <div class="chip" id="chipTotalAdjustments">Total Adjustments: 0.000</div>
-          <div class="chip" id="chipFinalPoints">Final Points: 0.000</div>
-        </div>
+      <div class="section">
+        <h3>Results</h3>
 
-        <div class="summary" style="margin-top: 16px;">
+        <div class="kv-grid" style="margin-bottom:1rem;">
           <div class="kv">
-            <div class="k">Final Price</div>
+            <div class="k">Final Points (starting + LLPAs)</div>
+            <div class="v" id="kvFinalPoints">0.000</div>
+          </div>
+          <div class="kv">
+            <div class="k">Final Price (100 - points)</div>
             <div class="v" id="kvFinalPrice">100.000</div>
           </div>
           <div class="kv">
-            <div class="k">$ Cost/Credit</div>
+            <div class="k">Dollar Impact</div>
             <div class="v" id="kvDollarImpact">$0</div>
+          </div>
+          <div class="kv">
+            <div class="k">Matrix Version</div>
+            <div class="v">01.28.2026</div>
           </div>
         </div>
 
-        <div class="section">
-          <h3>Breakdown</h3>
-          <table id="breakdownTable">
-            <thead>
-              <tr><th>Adjustment</th><th>Points</th><th>Reason</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+        <div class="results-section">
+          <h4>Breakdown</h4>
+          <div style="overflow:auto;">
+            <table id="breakdownTable">
+              <thead>
+                <tr>
+                  <th>Adjustment</th>
+                  <th class="right">Points</th>
+                  <th>Why</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="actions">
-          <button id="btnRefresh" class="btn">Refresh</button>
-          <button id="btnClear" class="btn">Clear All</button>
-          <button id="btnCsv" class="btn">Export CSV</button>
-          <button id="btnPrint" class="btn">Print</button>
-          <button id="btnShare" class="btn">Copy Share Link</button>
+        <p class="muted" style="margin-top:1rem; font-size:.9rem;">
+          Notes: Base tables are credit score × gross LTV (terms ≤ 15 years use 0.00 for the base table). MMI is based on base/net LTV.
+        </p>
+        <div class="section" style="margin-top:1rem;">
+          <h3>Footnotes / Exclusions (disclosed, not enforced)</h3>
+          <ul class="muted" style="margin: .5rem 0 0 1.1rem; font-size:.9rem; line-height:1.4;">
+            <li><b>Condo</b> LLPA is not applicable to <b>co-ops</b> or <b>detached condo units</b> (SFC 588).</li>
+            <li><b>Manufactured home</b> LLPA is not applicable to <b>MH Advantage</b> (SFC 859 combined with SFC 235).</li>
+            <li><b>Subordinate financing</b> LLPA applies only when <b>CLTV &gt; LTV</b>, and is not applicable to <b>Community Seconds</b> (SFC 118).</li>
+            <li><b>Student loan cash-out refinance</b> (SFC 841) uses <b>limited cash-out</b> refinance pricing.</li>
+          </ul>
         </div>
+
       </div>
     </div>
+  </div>
 
-    <div class="card">
-      <h2>How It Calculates</h2>
-      <ul class="small">
-        <li><strong>Points:</strong> Positive points = cost to borrower (price down), negative points = credit to borrower (price up)</li>
-        <li><strong>Final Price:</strong> Par (100.000) minus final points</li>
-        <li><strong>Dollar Impact:</strong> Loan amount × (final points ÷ 100)</li>
-        <li><strong>Combos:</strong> Some adjustments stack (e.g., High-Balance ARM gets additional adjustment)</li>
-      </ul>
-    </div>
-  </main>
-
-  <script type="module" src="llpm.js"></script>
+  <script type="module" src="./llpm-tool.js"></script>
 </body>
 </html>
