@@ -1,0 +1,75 @@
+/* =====================================================
+   MSFG Hub Page Styles
+   Keep main.css clean; hub-only layout + cards live here
+   ===================================================== */
+
+.category-section {
+  margin-bottom: 3rem;
+}
+
+.category-title {
+  color: var(--primary);
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--accent);
+}
+
+.category-description {
+  color: var(--gray);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.calculator-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.calculator-card {
+  background: var(--light);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: block;
+  color: var(--dark);
+}
+
+.calculator-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(45, 106, 79, 0.2);
+  border-color: var(--accent);
+}
+
+.calculator-card h3 {
+  color: var(--primary);
+  margin: 0 0 0.75rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.calculator-card p {
+  color: var(--gray);
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.calculator-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: var(--light);
+}

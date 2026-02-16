@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSFG • Rental Income Worksheet (1038)</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+        body { padding: 0; }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--light);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--light);
+            transform: translateX(-2px);
+        }
+        .logo { display: flex; align-items: center; gap: 1rem; }
+        .logo img { height: 60px; width: auto; }
+        .logo h1 { margin: 0; font-size: 1.5rem; font-weight: 300; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .description { text-align: center; color: var(--gray); max-width: 800px; margin: 0 auto 2rem; font-size: 1rem; line-height: 1.6; }
+        .info-note {
+            background: var(--light-gray);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        }
+        .info-note p { margin: 0.5rem 0; color: var(--gray); font-size: 0.9rem; line-height: 1.5; }
+        .method-selector {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .method-selector h3 { color: var(--primary); margin: 0 0 1rem 0; }
+        .method-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        .method-btn {
+            flex: 1;
+            padding: 1rem;
+            background: var(--light-gray);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        .method-btn:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        .method-btn.active {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.2);
+        }
+        .method-btn h4 { margin: 0 0 0.5rem 0; color: var(--primary); }
+        .method-btn p { margin: 0; color: var(--gray); font-size: 0.9rem; }
+        .method-content { display: none; }
+        .method-content.active { display: block; }
+        .property-block {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .property-block h3 { color: var(--primary); margin: 0 0 1rem 0; }
+        .input-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .input-row label { font-weight: 600; color: var(--dark); }
+        .subtract-row { background: #ffebee; border-radius: 4px; padding: 0.5rem; }
+        .add-row { background: #e8f5e9; border-radius: 4px; padding: 0.5rem; }
+        .step-label {
+            background: var(--primary);
+            color: var(--light);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="IncomeCalculatorQuestionnaire.html" class="back-link">← Back to Questionnaire</a>
+        <div class="logo">
+            <img src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png" alt="MSFG Logo">
+            <h1>Rental Income Worksheet (1038)</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <p class="description">Calculate investment property income with time-in-service adjustments for self-employed borrowers.</p>
+
+        <div class="info-note">
+            <p><strong>Documentation Required:</strong></p>
+            <p>§ Schedule E (IRS Form 1040) OR</p>
+            <p>§ Lease Agreement or Fannie Mae Form 1007 or Form 1025</p>
+        </div>
+
+        <div class="method-selector">
+            <h3>Select Calculation Method</h3>
+            <div class="method-buttons">
+                <div class="method-btn active" onclick="selectMethod('scheduleE')">
+                    <h4>Method A: Schedule E</h4>
+                    <p>Use tax return Schedule E data</p>
+                </div>
+                <div class="method-btn" onclick="selectMethod('lease')">
+                    <h4>Method B: Lease Agreement</h4>
+                    <p>Use lease or Form 1007/1025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method A: Schedule E -->
+        <div id="methodA" class="method-content active">
+            <div class="property-block">
+                <div class="form-group">
+                    <label>Investment Property Address</label>
+                    <input type="text" id="methodA_address" placeholder="Enter property address">
+                </div>
+
+                <h3 style="margin-top: 1.5rem;"><span class="step-label">Step 1</span>Months in Service</h3>
+                <div class="input-row">
+                    <label>Number of months property was in service (Fair Rental Days ÷ 30)</label>
+                    <input type="number" id="methodA_months" value="12" oninput="calculate()" class="input-highlight">
+                </div>
+                <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">If Fair Rental Days not reported, property is considered in service for 12 months.</p>
+
+                <h3 style="margin-top: 1.5rem;"><span class="step-label">Step 2A</span>Schedule E - Part I</h3>
+                
+                <div class="input-row add-row">
+                    <label>A1. Total rents received</label>
+                    <input type="number" id="methodA_rents" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row subtract-row">
+                    <label>A2. Total expenses (SUBTRACT)</label>
+                    <input type="number" id="methodA_expenses" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A3. Insurance expense (ADD BACK)</label>
+                    <input type="number" id="methodA_insurance" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A4. Mortgage interest paid (ADD BACK)</label>
+                    <input type="number" id="methodA_mortint" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A5. Tax expense (ADD BACK)</label>
+                    <input type="number" id="methodA_taxes" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A6. HOA dues (ADD BACK - must be identified on Schedule E)</label>
+                    <input type="number" id="methodA_hoa" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A7. Depreciation expense or depletion (ADD BACK)</label>
+                    <input type="number" id="methodA_deprec" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="input-row add-row">
+                    <label>A8. One-time extraordinary expense (ADD BACK - requires evidence)</label>
+                    <input type="number" id="methodA_onetime" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+
+                <div class="input-row" style="margin-top: 1.5rem; background: var(--light-gray); padding: 0.75rem; border-radius: 6px;">
+                    <label><strong>Adjusted Monthly Rental Income (A1+A3-A8 minus A2, divided by months)</strong></label>
+                    <div id="methodA_adjusted" style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">$0</div>
+                </div>
+
+                <div class="input-row subtract-row" style="margin-top: 1rem;">
+                    <label>A10. Proposed PITIA (subject) or Existing PITIA (non-subject)</label>
+                    <input type="number" id="methodA_pitia" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2>Method A Results</h2>
+                <div class="results-grid">
+                    <div class="result-card highlight">
+                        <h3>Monthly Qualifying Rental Income (or Loss)</h3>
+                        <div class="result-value" id="methodA_result">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method B: Lease Agreement -->
+        <div id="methodB" class="method-content">
+            <div class="property-block">
+                <div class="form-group">
+                    <label>Investment Property Address</label>
+                    <input type="text" id="methodB_address" placeholder="Enter property address">
+                </div>
+
+                <p style="color: var(--gray); margin-top: 1rem;">This method is used when the transaction is a purchase, the property was acquired subsequent to the most recent tax filing, or the lender has justification for using a lease agreement.</p>
+
+                <h3 style="margin-top: 1.5rem;"><span class="step-label">Step 2B</span>Lease Agreement or Form 1007/1025</h3>
+                
+                <div class="input-row add-row">
+                    <label>B1. Gross monthly rent (lease) or market rent (Form 1007/1025)</label>
+                    <input type="number" id="methodB_grossrent" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">For multi-unit properties, combine gross rent from all rental units.</p>
+
+                <div class="input-row" style="margin-top: 1rem; background: var(--light-gray); padding: 0.75rem; border-radius: 6px;">
+                    <label><strong>B2. Adjusted Monthly Rental Income (Gross Rent × 75%)</strong></label>
+                    <div id="methodB_adjusted" style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">$0</div>
+                </div>
+                <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">The remaining 25% accounts for vacancy loss, maintenance, and management expenses.</p>
+
+                <div class="input-row subtract-row" style="margin-top: 1rem;">
+                    <label>B3. Proposed PITIA (subject) or Existing PITIA (non-subject)</label>
+                    <input type="number" id="methodB_pitia" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2>Method B Results</h2>
+                <div class="results-grid">
+                    <div class="result-card highlight">
+                        <h3>Monthly Qualifying Rental Income (or Loss)</h3>
+                        <div class="result-value" id="methodB_result">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>
+                Detailed Calculations
+                <button class="toggle-button" onclick="toggleCalculations()">
+                    <span id="toggleText">Hide Details</span>
+                </button>
+            </h3>
+            <div id="mathCalculations"></div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-title">Step 3: Determine Qualifying Impact</div>
+            <p><strong>If positive:</strong> Add to borrower's monthly qualifying income. PITIA expense is already included, so don't add it to DTI ratio.</p>
+            <p><strong>If negative:</strong> Include the amount of the loss in borrower's monthly expenses when calculating DTI ratio.</p>
+            <p><strong>DU Data Entry:</strong> Enter amount in "Subject Net Cash" (subject property) or "Net Rental" (non-subject property).</p>
+        </div>
+    </div>
+
+    <script>
+        let currentMethod = 'scheduleE';
+
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function parseNum(val) {
+            const n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function selectMethod(method) {
+            currentMethod = method;
+            
+            // Update button states
+            document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.method-content').forEach(content => content.classList.remove('active'));
+            
+            if (method === 'scheduleE') {
+                document.querySelectorAll('.method-btn')[0].classList.add('active');
+                document.getElementById('methodA').classList.add('active');
+            } else {
+                document.querySelectorAll('.method-btn')[1].classList.add('active');
+                document.getElementById('methodB').classList.add('active');
+            }
+            
+            calculate();
+        }
+
+        function toggleCalculations() {
+            const calc = document.getElementById('mathCalculations');
+            const text = document.getElementById('toggleText');
+            if (calc.classList.contains('hidden')) {
+                calc.classList.remove('hidden');
+                text.textContent = 'Hide Details';
+            } else {
+                calc.classList.add('hidden');
+                text.textContent = 'Show Details';
+            }
+        }
+
+        function calculate() {
+            if (currentMethod === 'scheduleE') {
+                calculateMethodA();
+            } else {
+                calculateMethodB();
+            }
+        }
+
+        function calculateMethodA() {
+            const months = parseNum(document.getElementById('methodA_months').value);
+            const rents = parseNum(document.getElementById('methodA_rents').value);
+            const expenses = parseNum(document.getElementById('methodA_expenses').value);
+            const insurance = parseNum(document.getElementById('methodA_insurance').value);
+            const mortint = parseNum(document.getElementById('methodA_mortint').value);
+            const taxes = parseNum(document.getElementById('methodA_taxes').value);
+            const hoa = parseNum(document.getElementById('methodA_hoa').value);
+            const deprec = parseNum(document.getElementById('methodA_deprec').value);
+            const onetime = parseNum(document.getElementById('methodA_onetime').value);
+            const pitia = parseNum(document.getElementById('methodA_pitia').value);
+
+            // Adjusted rental income = (rents + addbacks) - expenses
+            const adjustedIncome = (rents + insurance + mortint + taxes + hoa + deprec + onetime) - expenses;
+            
+            // Monthly adjusted = adjusted income / months in service
+            const monthlyAdjusted = months > 0 ? adjustedIncome / months : 0;
+            
+            // Final result = monthly adjusted - PITIA
+            const finalResult = monthlyAdjusted - pitia;
+
+            // Update display
+            document.getElementById('methodA_adjusted').textContent = formatCurrency(monthlyAdjusted);
+            document.getElementById('methodA_result').textContent = formatCurrency(finalResult);
+
+            // Update math
+            updateMathMethodA(rents, expenses, insurance, mortint, taxes, hoa, deprec, onetime, adjustedIncome, months, monthlyAdjusted, pitia, finalResult);
+        }
+
+        function calculateMethodB() {
+            const grossRent = parseNum(document.getElementById('methodB_grossrent').value);
+            const pitia = parseNum(document.getElementById('methodB_pitia').value);
+
+            // Adjusted monthly = gross rent × 0.75
+            const adjustedMonthly = grossRent * 0.75;
+            
+            // Final result = adjusted monthly - PITIA
+            const finalResult = adjustedMonthly - pitia;
+
+            // Update display
+            document.getElementById('methodB_adjusted').textContent = formatCurrency(adjustedMonthly);
+            document.getElementById('methodB_result').textContent = formatCurrency(finalResult);
+
+            // Update math
+            updateMathMethodB(grossRent, adjustedMonthly, pitia, finalResult);
+        }
+
+        function updateMathMethodA(rents, expenses, insurance, mortint, taxes, hoa, deprec, onetime, adjustedIncome, months, monthlyAdjusted, pitia, finalResult) {
+            const mathDiv = document.getElementById('mathCalculations');
+            
+            mathDiv.innerHTML = `
+                <div class="calculation-step">
+                    <h4>Step 1: Calculate Adjusted Rental Income</h4>
+                    <p>Rents Received: ${formatCurrency(rents)}</p>
+                    <p>Add Back Insurance: ${formatCurrency(insurance)}</p>
+                    <p>Add Back Mortgage Interest: ${formatCurrency(mortint)}</p>
+                    <p>Add Back Taxes: ${formatCurrency(taxes)}</p>
+                    <p>Add Back HOA: ${formatCurrency(hoa)}</p>
+                    <p>Add Back Depreciation: ${formatCurrency(deprec)}</p>
+                    <p>Add Back One-time Expenses: ${formatCurrency(onetime)}</p>
+                    <p>Subtract Total Expenses: ${formatCurrency(expenses)}</p>
+                    <p><strong>Adjusted Income = ${formatCurrency(adjustedIncome)}</strong></p>
+                </div>
+                <div class="calculation-step">
+                    <h4>Step 2: Calculate Monthly Amount</h4>
+                    <p>Adjusted Income: ${formatCurrency(adjustedIncome)}</p>
+                    <p>Months in Service: ${months}</p>
+                    <p>Monthly Adjusted = ${formatCurrency(adjustedIncome)} ÷ ${months} = <strong>${formatCurrency(monthlyAdjusted)}</strong></p>
+                </div>
+                <div class="calculation-step">
+                    <h4>Step 3: Subtract PITIA</h4>
+                    <p>Monthly Adjusted Income: ${formatCurrency(monthlyAdjusted)}</p>
+                    <p>PITIA Payment: ${formatCurrency(pitia)}</p>
+                    <p>Final Result = ${formatCurrency(monthlyAdjusted)} - ${formatCurrency(pitia)} = <strong>${formatCurrency(finalResult)}</strong></p>
+                    ${finalResult > 0 ? 
+                        '<p style="color: var(--success); font-weight: 600;">✓ Positive rental income - add to qualifying income</p>' : 
+                        '<p style="color: var(--danger); font-weight: 600;">⚠ Negative rental income - include in monthly expenses for DTI</p>'}
+                </div>
+            `;
+        }
+
+        function updateMathMethodB(grossRent, adjustedMonthly, pitia, finalResult) {
+            const mathDiv = document.getElementById('mathCalculations');
+            
+            mathDiv.innerHTML = `
+                <div class="calculation-step">
+                    <h4>Step 1: Calculate Adjusted Monthly Rental Income</h4>
+                    <p>Gross Monthly Rent: ${formatCurrency(grossRent)}</p>
+                    <p>Multiply by 75% (accounts for 25% vacancy/maintenance/management)</p>
+                    <p>Adjusted Monthly = ${formatCurrency(grossRent)} × 0.75 = <strong>${formatCurrency(adjustedMonthly)}</strong></p>
+                </div>
+                <div class="calculation-step">
+                    <h4>Step 2: Subtract PITIA</h4>
+                    <p>Adjusted Monthly Income: ${formatCurrency(adjustedMonthly)}</p>
+                    <p>PITIA Payment: ${formatCurrency(pitia)}</p>
+                    <p>Final Result = ${formatCurrency(adjustedMonthly)} - ${formatCurrency(pitia)} = <strong>${formatCurrency(finalResult)}</strong></p>
+                    ${finalResult > 0 ? 
+                        '<p style="color: var(--success); font-weight: 600;">✓ Positive rental income - add to qualifying income</p>' : 
+                        '<p style="color: var(--danger); font-weight: 600;">⚠ Negative rental income - include in monthly expenses for DTI</p>'}
+                </div>
+            `;
+        }
+
+        // Initialize
+        calculate();
+    </script>
+</body>
+</html>

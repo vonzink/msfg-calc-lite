@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSFG • Schedule B Income Calculator</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+        body {
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--light);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--light);
+            transform: translateX(-2px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo img {
+            height: 60px;
+            width: auto;
+        }
+
+        .logo h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .description {
+            text-align: center;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .info-note {
+            background: var(--light-gray);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        }
+
+        .info-note p {
+            margin: 0.5rem 0;
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .institution-block {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .institution-block h3 {
+            color: var(--primary);
+            margin: 0 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .year-columns {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .year-columns label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .year-header {
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="IncomeCalculatorQuestionnaire.html" class="back-link">
+            ← Back to Questionnaire
+        </a>
+        <div class="logo">
+            <img src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png" alt="MSFG Logo">
+            <h1>Schedule B Income Calculator</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <p class="description">Calculate interest and dividend income from Schedule B. Must have recurring 2-year history.</p>
+
+        <div class="section">
+            <h2>Borrower Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Borrower Name</label>
+                    <input type="text" id="borrowerName" placeholder="Enter borrower name">
+                </div>
+                <div class="form-group">
+                    <label>Loan Number</label>
+                    <input type="text" id="loanNumber" placeholder="Enter loan number">
+                </div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <p><strong>NOTE:</strong> For all schedules, the Bank will require either one or two years Tax Returns for Temp QM and two years for Gen QM or Non QM.</p>
+            <p>Use the most recent year's income if one year is required. If two years are required, use an average of the two.</p>
+            <p>If Income from a business is declining by more than 20%, it cannot be used or the loan must be classified as a non-QM loan and the most conservative income amount is used.</p>
+        </div>
+
+        <div class="section">
+            <h2>Institution Income Details</h2>
+            
+            <!-- Institution 1 -->
+            <div class="institution-block">
+                <div class="form-group">
+                    <label>Institution Name</label>
+                    <input type="text" id="inst1_name" placeholder="Enter institution name">
+                </div>
+                <div class="year-columns" style="margin-top: 1rem;">
+                    <div></div>
+                    <div class="year-header">Year 1</div>
+                    <div class="year-header">Year 2</div>
+                </div>
+                <div class="year-columns">
+                    <label>Interest Income (Line 1 or 1040 line 8a)</label>
+                    <input type="number" id="inst1_interest_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst1_interest_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Tax Exempt Interest (1040 line 8b)</label>
+                    <input type="number" id="inst1_taxexempt_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst1_taxexempt_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Dividend Income (Line 5 or 1040 line 9a)</label>
+                    <input type="number" id="inst1_dividend_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst1_dividend_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+            </div>
+
+            <!-- Institution 2 -->
+            <div class="institution-block">
+                <div class="form-group">
+                    <label>Institution Name</label>
+                    <input type="text" id="inst2_name" placeholder="Enter institution name">
+                </div>
+                <div class="year-columns" style="margin-top: 1rem;">
+                    <div></div>
+                    <div class="year-header">Year 1</div>
+                    <div class="year-header">Year 2</div>
+                </div>
+                <div class="year-columns">
+                    <label>Interest Income (Line 1 or 1040 line 8a)</label>
+                    <input type="number" id="inst2_interest_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst2_interest_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Tax Exempt Interest (1040 line 8b)</label>
+                    <input type="number" id="inst2_taxexempt_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst2_taxexempt_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Dividend Income (Line 5 or 1040 line 9a)</label>
+                    <input type="number" id="inst2_dividend_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst2_dividend_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+            </div>
+
+            <!-- Institution 3 -->
+            <div class="institution-block">
+                <div class="form-group">
+                    <label>Institution Name</label>
+                    <input type="text" id="inst3_name" placeholder="Enter institution name">
+                </div>
+                <div class="year-columns" style="margin-top: 1rem;">
+                    <div></div>
+                    <div class="year-header">Year 1</div>
+                    <div class="year-header">Year 2</div>
+                </div>
+                <div class="year-columns">
+                    <label>Interest Income (Line 1 or 1040 line 8a)</label>
+                    <input type="number" id="inst3_interest_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst3_interest_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Tax Exempt Interest (1040 line 8b)</label>
+                    <input type="number" id="inst3_taxexempt_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst3_taxexempt_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns">
+                    <label>Dividend Income (Line 5 or 1040 line 9a)</label>
+                    <input type="number" id="inst3_dividend_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="inst3_dividend_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+            </div>
+
+            <!-- Institutions 4-6 follow same pattern... -->
+        </div>
+
+        <div class="results-section">
+            <h2>Income Calculation Results</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h3>Total Year 1 Income</h3>
+                    <div class="result-value" id="totalYear1">$0</div>
+                </div>
+                <div class="result-card">
+                    <h3>Total Year 2 Income</h3>
+                    <div class="result-value" id="totalYear2">$0</div>
+                </div>
+                <div class="result-card">
+                    <h3>Monthly Income (Year 1)</h3>
+                    <div class="result-value" id="monthlyYear1">$0</div>
+                </div>
+                <div class="result-card">
+                    <h3>Monthly Income (Year 2)</h3>
+                    <div class="result-value" id="monthlyYear2">$0</div>
+                </div>
+                <div class="result-card highlight">
+                    <h3>Income To Be Used</h3>
+                    <div class="result-value" id="incomeToUse">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>
+                Detailed Calculations
+                <button class="toggle-button" onclick="toggleCalculations()">
+                    <span id="toggleText">Hide Details</span>
+                </button>
+            </h3>
+            <div id="mathCalculations">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-title">Entering Income in UniFi</div>
+            <p>Use Dividend/Interest field on Monthly Income Screen</p>
+            <p><strong>NOTE:</strong> Must have documentation that income will continue from the listed asset for a minimum of three years.</p>
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function parseNum(val) {
+            const n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function toggleCalculations() {
+            const calc = document.getElementById('mathCalculations');
+            const text = document.getElementById('toggleText');
+            if (calc.classList.contains('hidden')) {
+                calc.classList.remove('hidden');
+                text.textContent = 'Hide Details';
+            } else {
+                calc.classList.add('hidden');
+                text.textContent = 'Show Details';
+            }
+        }
+
+        function calculate() {
+            let totalY1 = 0;
+            let totalY2 = 0;
+            let year2Count = 0;
+
+            // Sum all institutions
+            for (let i = 1; i <= 3; i++) {
+                totalY1 += parseNum(document.getElementById(`inst${i}_interest_y1`).value);
+                totalY1 += parseNum(document.getElementById(`inst${i}_taxexempt_y1`).value);
+                totalY1 += parseNum(document.getElementById(`inst${i}_dividend_y1`).value);
+
+                const interestY2 = parseNum(document.getElementById(`inst${i}_interest_y2`).value);
+                const taxexemptY2 = parseNum(document.getElementById(`inst${i}_taxexempt_y2`).value);
+                const dividendY2 = parseNum(document.getElementById(`inst${i}_dividend_y2`).value);
+                
+                totalY2 += interestY2 + taxexemptY2 + dividendY2;
+                
+                if (interestY2 > 0 || taxexemptY2 > 0 || dividendY2 > 0) {
+                    year2Count++;
+                }
+            }
+
+            // Calculate monthly income
+            const monthlyY1 = Math.round(totalY1 / 12);
+            const monthlyY2 = Math.round(totalY2 / 12);
+
+            // Income to be used formula: =ROUND(IF(AND(F37>=1,D37>E37),SUM(D37:E37)/24,D37/12),0)
+            // If year 2 has data AND year1 > year2, average both years /24, else year1/12
+            let incomeToUse;
+            if (year2Count >= 1 && totalY1 > totalY2) {
+                incomeToUse = Math.round((totalY1 + totalY2) / 24);
+            } else {
+                incomeToUse = Math.round(totalY1 / 12);
+            }
+
+            // Update display
+            document.getElementById('totalYear1').textContent = formatCurrency(totalY1);
+            document.getElementById('totalYear2').textContent = formatCurrency(totalY2);
+            document.getElementById('monthlyYear1').textContent = formatCurrency(monthlyY1);
+            document.getElementById('monthlyYear2').textContent = formatCurrency(monthlyY2);
+            document.getElementById('incomeToUse').textContent = formatCurrency(incomeToUse);
+
+            // Update math details
+            updateMathDetails(totalY1, totalY2, monthlyY1, monthlyY2, incomeToUse, year2Count);
+        }
+
+        function updateMathDetails(totalY1, totalY2, monthlyY1, monthlyY2, incomeToUse, year2Count) {
+            const mathDiv = document.getElementById('mathCalculations');
+            
+            let formula = '';
+            if (year2Count >= 1 && totalY1 > totalY2) {
+                formula = `
+                    <div class="calculation-step">
+                        <h4>Income Calculation Method</h4>
+                        <p>Since Year 2 data exists and Year 1 income (${formatCurrency(totalY1)}) is greater than Year 2 income (${formatCurrency(totalY2)}), we average both years:</p>
+                        <p><strong>Income To Be Used = (Year 1 + Year 2) ÷ 24 months</strong></p>
+                        <p>Income To Be Used = (${formatCurrency(totalY1)} + ${formatCurrency(totalY2)}) ÷ 24</p>
+                        <p>Income To Be Used = ${formatCurrency(totalY1 + totalY2)} ÷ 24</p>
+                        <p>Income To Be Used = <strong>${formatCurrency(incomeToUse)}</strong></p>
+                    </div>
+                `;
+            } else {
+                formula = `
+                    <div class="calculation-step">
+                        <h4>Income Calculation Method</h4>
+                        <p>Using most recent year's income:</p>
+                        <p><strong>Income To Be Used = Year 1 ÷ 12 months</strong></p>
+                        <p>Income To Be Used = ${formatCurrency(totalY1)} ÷ 12</p>
+                        <p>Income To Be Used = <strong>${formatCurrency(incomeToUse)}</strong></p>
+                    </div>
+                `;
+            }
+
+            mathDiv.innerHTML = `
+                <div class="calculation-step">
+                    <h4>Step 1: Total Annual Income</h4>
+                    <p>Year 1 Total: ${formatCurrency(totalY1)}</p>
+                    <p>Year 2 Total: ${formatCurrency(totalY2)}</p>
+                </div>
+                <div class="calculation-step">
+                    <h4>Step 2: Monthly Income</h4>
+                    <p>Year 1 Monthly = ${formatCurrency(totalY1)} ÷ 12 = ${formatCurrency(monthlyY1)}</p>
+                    <p>Year 2 Monthly = ${formatCurrency(totalY2)} ÷ 12 = ${formatCurrency(monthlyY2)}</p>
+                </div>
+                ${formula}
+            `;
+        }
+
+        // Initialize
+        calculate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>1120S K-1 Income Calculator - MSFG Home Loans</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+      .income-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; background: var(--light); border-radius: 8px; overflow: hidden; }
+      .income-table th { background: var(--primary); color: var(--light); padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.85rem; }
+      .income-table td { padding: 0.75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+      .income-table tr:last-child td { border-bottom: none; }
+      .income-table tr:hover td { background: var(--light-gray); }
+      .income-table input[type="number"] { width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; background: var(--light-gray); }
+      .income-table input[type="number"]:focus { outline: none; border-color: var(--accent); background: var(--light); }
+      .line-number { font-weight: 600; color: var(--primary); white-space: nowrap; font-size: 0.85rem; }
+      .sign-col { text-align: center; font-weight: 700; width: 50px; }
+      .sign-col.add { color: var(--success); }
+      .k1-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+      .k1-result-item { background: var(--light); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
+      .k1-result-item .label { font-size: 0.85rem; color: var(--gray); margin-bottom: 0.5rem; }
+      .k1-result-item .value { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+      .math-steps { display: flex; flex-direction: column; gap: 1rem; }
+      .math-step { background: var(--light-gray); border-radius: 8px; padding: 1.25rem; border-left: 4px solid var(--accent); }
+      .math-step.highlight { background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%); border-left-color: var(--primary); }
+      .math-step h4 { color: var(--primary); margin: 0 0 0.75rem 0; font-size: 1rem; }
+      .math-formula { font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--dark); line-height: 1.8; }
+      .math-values { display: block; margin-top: 0.5rem; padding: 0.75rem; background: var(--light); border-radius: 4px; color: var(--primary); font-weight: 600; }
+      .policy-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+      .policy-box h5 { color: #856404; margin-bottom: 0.5rem; }
+      .policy-box p { color: #856404; font-size: 0.9rem; margin: 0; }
+      .info-box { background: #d1ecf1; border: 1px solid #17a2b8; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+      .info-box p { color: #0c5460; font-size: 0.9rem; margin: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="header">
+        <img src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png" alt="Compass Home Loan" class="header-logo" />
+        <h1>1120S K-1 Income Calculator</h1>
+        <p>Calculate monthly income from Schedule K-1 (Form 1120S) S-Corporation distributions for up to 4 S-Corps.</p>
+      </div>
+      
+      <div class="content">
+        
+        <div class="policy-box">
+          <h5>📋 K-1 Income Policy (S-Corporation)</h5>
+          <p>S-Corp K-1 income includes ordinary business income/loss and rental income/loss. Unlike partnerships, S-Corps do not have guaranteed payments. If Year 1 exceeds Year 2, both years are averaged over 24 months.</p>
+        </div>
+
+        <div class="info-box">
+          <p>💡 <strong>Note:</strong> S-Corporation shareholders receive wages via W-2, not guaranteed payments. Include W-2 wages from the 1040 calculator separately.</p>
+        </div>
+
+        <!-- K-1 Sections Container -->
+        <div id="k1Container"></div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+          <h2>Combined K-1 Income</h2>
+          
+          <div class="results-grid">
+            <div class="result-card" id="resultK1">
+              <h3>K-1 #1</h3>
+              <div class="result-value">$0.00</div>
+            </div>
+            <div class="result-card" id="resultK2">
+              <h3>K-1 #2</h3>
+              <div class="result-value">$0.00</div>
+            </div>
+            <div class="result-card" id="resultK3">
+              <h3>K-1 #3</h3>
+              <div class="result-value">$0.00</div>
+            </div>
+            <div class="result-card" id="resultK4">
+              <h3>K-1 #4</h3>
+              <div class="result-value">$0.00</div>
+            </div>
+            <div class="result-card highlight" style="grid-column: span 2;">
+              <h3>Total Monthly K-1 Income</h3>
+              <div class="result-value" id="combinedK1">$0.00</div>
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button type="button" class="btn btn-primary" onclick="exportCSV()">📄 Export CSV</button>
+            <button type="button" class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+            <button type="button" class="btn btn-secondary" onclick="clearAll()">🗑️ Clear All</button>
+          </div>
+        </div>
+
+        <!-- Show Calculations -->
+        <div class="chart-section">
+          <div class="chart-header" onclick="toggleMath()">
+            <h2>📐 Show Calculation Steps</h2>
+            <button class="chart-toggle" id="mathToggle">Show Math</button>
+          </div>
+          <div class="chart-content" id="mathSection">
+            <div class="math-steps">
+              <div class="math-step">
+                <h4>1120S K-1 Income Formula</h4>
+                <div class="math-formula">
+                  <div class="math-values">
+                    Annual = Ordinary Income + Rental Income + Other Rental<br>
+                    <span style="font-style: italic; color: #666;">(No guaranteed payments for S-Corps)</span><br><br>
+                    IF Year 2 provided AND Year 1 > Year 2:<br>
+                    &nbsp;&nbsp;Monthly = (Year 1 + Year 2) / 24<br>
+                    ELSE:<br>
+                    &nbsp;&nbsp;Monthly = Year 1 / 12
+                  </div>
+                </div>
+              </div>
+              
+              <div class="math-step" id="mathK1"></div>
+              <div class="math-step" id="mathK2"></div>
+              <div class="math-step" id="mathK3"></div>
+              <div class="math-step" id="mathK4"></div>
+
+              <div class="math-step highlight">
+                <h4>Total Monthly Income</h4>
+                <div class="math-formula" id="mathTotal"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="footer-title">Schedule K-1 (1120S) Guidelines</div>
+          <p>S-Corporation K-1 income represents the shareholder's pro-rata share of corporate income. Unlike partnership K-1s, there are no guaranteed payments. S-Corp shareholders receive compensation via W-2 wages. Include ordinary business income/loss (Line 1) and net rental real estate income/loss (Lines 2-3).</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const K1_COUNT = 4;
+
+      function parseNum(id) {
+        const el = document.getElementById(id);
+        if (!el) return 0;
+        const val = parseFloat(el.value);
+        return isNaN(val) ? 0 : val;
+      }
+
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+      }
+
+      // Generate K-1 sections
+      function generateK1Sections() {
+        const container = document.getElementById('k1Container');
+        for (let i = 1; i <= K1_COUNT; i++) {
+          const section = document.createElement('div');
+          section.className = 'section';
+          section.innerHTML = `
+            <h2>K-1 #${i}${i > 1 ? ' (Optional)' : ''}</h2>
+            <table class="income-table">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Line #</th>
+                  <th>Sign</th>
+                  <th>Year 1 (Most Recent)</th>
+                  <th>Year 2 (Prior)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Ordinary Business Income or Loss</td>
+                  <td class="line-number">1</td>
+                  <td class="sign-col add">+/−</td>
+                  <td><input type="number" id="k${i}_ord1" value="0" oninput="calculate()" /></td>
+                  <td><input type="number" id="k${i}_ord2" value="0" oninput="calculate()" /></td>
+                </tr>
+                <tr>
+                  <td>Net Rental Real Estate Income/Loss</td>
+                  <td class="line-number">2/3</td>
+                  <td class="sign-col add">+/−</td>
+                  <td><input type="number" id="k${i}_rent1" value="0" oninput="calculate()" /></td>
+                  <td><input type="number" id="k${i}_rent2" value="0" oninput="calculate()" /></td>
+                </tr>
+                <tr>
+                  <td>Other Net Rental Income/Loss</td>
+                  <td class="line-number">—</td>
+                  <td class="sign-col add">+/−</td>
+                  <td><input type="number" id="k${i}_other1" value="0" oninput="calculate()" /></td>
+                  <td><input type="number" id="k${i}_other2" value="0" oninput="calculate()" /></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="k1-results">
+              <div class="k1-result-item">
+                <div class="label">Year 1 Total</div>
+                <div class="value" id="k${i}_yr1">$0.00</div>
+              </div>
+              <div class="k1-result-item">
+                <div class="label">Year 2 Total</div>
+                <div class="value" id="k${i}_yr2">$0.00</div>
+              </div>
+              <div class="k1-result-item">
+                <div class="label">Monthly Income</div>
+                <div class="value" id="k${i}_month">$0.00</div>
+              </div>
+            </div>
+          `;
+          container.appendChild(section);
+        }
+      }
+
+      function computeK1(num) {
+        const prefix = 'k' + num;
+        const ord1 = parseNum(prefix + '_ord1'), ord2 = parseNum(prefix + '_ord2');
+        const rent1 = parseNum(prefix + '_rent1'), rent2 = parseNum(prefix + '_rent2');
+        const other1 = parseNum(prefix + '_other1'), other2 = parseNum(prefix + '_other2');
+
+        // S-Corp K-1: Only 3 items (no guaranteed payments)
+        const year1 = ord1 + rent1 + other1;
+        const year2 = ord2 + rent2 + other2;
+
+        const hasYr2 = [ord2, rent2, other2].some(v => v !== 0);
+
+        let monthly, method;
+        if (hasYr2 && year1 > year2) {
+          monthly = (year1 + year2) / 24;
+          method = 'average';
+        } else {
+          monthly = year1 / 12;
+          method = 'recent';
+        }
+
+        return { year1, year2, monthly, method, ord1, ord2, rent1, rent2, other1, other2 };
+      }
+
+      function calculate() {
+        const results = [];
+        let combined = 0;
+
+        for (let i = 1; i <= K1_COUNT; i++) {
+          const k = computeK1(i);
+          results.push(k);
+
+          document.getElementById('k' + i + '_yr1').textContent = formatCurrency(k.year1);
+          document.getElementById('k' + i + '_yr2').textContent = formatCurrency(k.year2);
+          document.getElementById('k' + i + '_month').textContent = formatCurrency(k.monthly);
+
+          const resultCard = document.getElementById('resultK' + i);
+          if (resultCard) {
+            resultCard.querySelector('.result-value').textContent = formatCurrency(k.monthly);
+          }
+
+          combined += k.monthly;
+        }
+
+        document.getElementById('combinedK1').textContent = formatCurrency(combined);
+        updateMathSteps(results, combined);
+      }
+
+      function updateMathSteps(results, combined) {
+        for (let i = 0; i < K1_COUNT; i++) {
+          const k = results[i];
+          const num = i + 1;
+          const method = k.method === 'average' ? '24-month average' : 'Year 1 / 12';
+          document.getElementById('mathK' + num).innerHTML = `
+            <h4>K-1 #${num} Calculation</h4>
+            <div class="math-formula">
+              Ordinary: ${formatCurrency(k.ord1)} / ${formatCurrency(k.ord2)}<br>
+              Rental: ${formatCurrency(k.rent1)} / ${formatCurrency(k.rent2)}<br>
+              Other: ${formatCurrency(k.other1)} / ${formatCurrency(k.other2)}<br>
+              <div class="math-values">
+                Year 1 = ${formatCurrency(k.year1)}, Year 2 = ${formatCurrency(k.year2)}<br>
+                Method: ${method}<br>
+                <strong>Monthly: ${formatCurrency(k.monthly)}</strong>
+              </div>
+            </div>
+          `;
+        }
+
+        document.getElementById('mathTotal').innerHTML = `
+          ${results.map((k, i) => `K-1 #${i + 1}: ${formatCurrency(k.monthly)}`).join('<br>')}<br>
+          <div class="math-values"><strong>Total Monthly: ${formatCurrency(combined)}</strong></div>
+        `;
+      }
+
+      function toggleMath() {
+        const section = document.getElementById('mathSection');
+        const toggle = document.getElementById('mathToggle');
+        section.classList.toggle('open');
+        toggle.textContent = section.classList.contains('open') ? 'Hide Math' : 'Show Math';
+      }
+
+      function exportCSV() {
+        const data = [['1120S K-1 Income Calculator'], ['']];
+        data.push(['K-1', 'Year 1', 'Year 2', 'Monthly']);
+        
+        let combined = 0;
+        for (let i = 1; i <= K1_COUNT; i++) {
+          const k = computeK1(i);
+          data.push(['K-1 #' + i, k.year1, k.year2, k.monthly]);
+          combined += k.monthly;
+        }
+        
+        data.push(['']);
+        data.push(['Total Monthly', '', '', combined]);
+        data.push(['Generated', new Date().toLocaleString()]);
+
+        const csv = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `1120s-k1-income-${Date.now()}.csv`;
+        a.click();
+      }
+
+      function clearAll() {
+        document.querySelectorAll('input[type="number"]').forEach(input => input.value = '0');
+        calculate();
+      }
+
+      // Initialize
+      document.addEventListener('DOMContentLoaded', () => {
+        generateK1Sections();
+        calculate();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,505 @@
+/* =====================================================
+   REFI CALCULATOR — Page-Specific Styles
+   Extends main.css shared styles
+   ===================================================== */
+
+/* =====================================================
+   OPTIONAL BADGE
+   ===================================================== */
+.optional-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--light);
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15rem 0.6rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 0.75rem;
+    vertical-align: middle;
+}
+
+/* =====================================================
+   CASH OUT / DEBT ROWS
+   ===================================================== */
+#cashOutSection {
+    border-left-color: var(--accent);
+}
+
+.debt-row {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.debt-row:last-child {
+    border-bottom: none;
+}
+
+.debt-row input[type="text"] {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.debt-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+}
+
+/* =====================================================
+   CALCULATE BUTTON
+   ===================================================== */
+.btn-calculate {
+    font-size: 1.15rem;
+    padding: 1rem 2.5rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.btn-calculate:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(45, 106, 79, 0.35);
+}
+
+.btn-calculate:active {
+    transform: translateY(-1px);
+}
+
+/* =====================================================
+   PAYMENT TOGGLE
+   ===================================================== */
+.payment-toggle-row {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--light);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--dark);
+    font-size: 0.95rem;
+}
+
+.toggle-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.toggle-text {
+    user-select: none;
+}
+
+/* =====================================================
+   FEE SECTIONS — EXCLUDED STYLING
+   ===================================================== */
+.fee-section-excluded {
+    position: relative;
+    opacity: 0.75;
+    border-left: 3px dashed var(--gray);
+    padding-left: 1rem;
+}
+
+.fee-section-excluded:hover {
+    opacity: 1;
+}
+
+.excluded-badge {
+    display: inline-block;
+    background: var(--warning);
+    color: var(--dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+.excluded-total {
+    border-color: var(--gray) !important;
+}
+
+.excluded-total label {
+    color: var(--gray) !important;
+}
+
+.excluded-total .total-value {
+    color: var(--gray) !important;
+}
+
+/* =====================================================
+   RESULTS ENTRANCE ANIMATION
+   ===================================================== */
+#resultsContainer {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+#resultsContainer.hidden {
+    display: none;
+}
+
+#resultsContainer.visible {
+    display: block;
+    animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =====================================================
+   RESULT CARD STATUS COLORING (dynamic)
+   ===================================================== */
+.result-card.favorable {
+    border: 2px solid var(--success);
+    background: linear-gradient(135deg, #f0fff4 0%, #f8fff8 100%);
+}
+
+.result-card.favorable .result-value {
+    color: var(--success);
+}
+
+.result-card.unfavorable {
+    border: 2px solid var(--danger);
+    background: linear-gradient(135deg, #fff5f5 0%, #fff8f8 100%);
+}
+
+.result-card.unfavorable .result-value {
+    color: var(--danger);
+}
+
+.result-card.neutral {
+    border: 2px solid var(--warning);
+    background: linear-gradient(135deg, #fffff0 0%, #fffef8 100%);
+}
+
+.result-card.neutral .result-value {
+    color: #b8860b;
+}
+
+/* =====================================================
+   ADVICE SECTION VARIANTS
+   ===================================================== */
+.conclusion.advice-now {
+    background: linear-gradient(135deg, #d4edda 0%, #f0fff0 100%);
+    border-color: var(--success);
+}
+
+.conclusion.advice-now .recommendation {
+    color: var(--success);
+    border-color: var(--success);
+}
+
+.conclusion.advice-wait {
+    background: linear-gradient(135deg, #fff3cd 0%, #fffef0 100%);
+    border-color: var(--warning);
+}
+
+.conclusion.advice-wait .recommendation {
+    color: #b8860b;
+    border-color: var(--warning);
+}
+
+.conclusion.advice-caution {
+    background: linear-gradient(135deg, #f8d7da 0%, #fff5f5 100%);
+    border-color: var(--danger);
+}
+
+.conclusion.advice-caution .recommendation {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+
+.advice-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.advice-bullets li {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    color: var(--dark);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.advice-bullets li::before {
+    content: "\2713";
+    color: var(--success);
+    font-weight: 700;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.advice-bullets li.con::before {
+    content: "\2717";
+    color: var(--danger);
+}
+
+.advice-bullets li.neutral-point::before {
+    content: "\25CB";
+    color: var(--warning);
+}
+
+/* =====================================================
+   CHART CANVASES
+   ===================================================== */
+.chart-content canvas {
+    max-width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+/* =====================================================
+   MATH STEPS (Calculation Details)
+   ===================================================== */
+.math-group {
+    margin-bottom: 1.5rem;
+}
+
+.math-group h4 {
+    color: var(--primary);
+    font-size: 1.05rem;
+    margin: 0 0 0.75rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.math-step {
+    background: var(--light-gray);
+    padding: 0.75rem 1rem;
+    margin: 0.4rem 0;
+    border-radius: 4px;
+    border-left: 3px solid var(--accent);
+    font-size: 0.9rem;
+}
+
+.math-step .step-label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 0.25rem;
+}
+
+.math-step .step-formula {
+    font-family: 'Courier New', Courier, monospace;
+    color: var(--gray);
+    font-size: 0.85rem;
+}
+
+.math-step .step-result {
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 0.25rem;
+}
+
+/* =====================================================
+   CLOSING COST SUMMARY TABLE
+   ===================================================== */
+.closing-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.closing-summary-table th {
+    background: var(--primary);
+    color: var(--light);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+}
+
+.closing-summary-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.closing-summary-table tr:nth-child(even) {
+    background: var(--light-gray);
+}
+
+.closing-summary-table tr.section-header td {
+    background: #e8f5e9;
+    font-weight: 700;
+    color: var(--primary);
+    border-top: 2px solid var(--accent);
+}
+
+.closing-summary-table tr.subtotal td {
+    font-weight: 700;
+    border-top: 1px solid var(--accent);
+}
+
+.closing-summary-table tr.grand-total td {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary);
+    border-top: 3px solid var(--primary);
+}
+
+.closing-summary-table tr.excluded-row td {
+    color: var(--gray);
+    font-style: italic;
+}
+
+.closing-summary-table .amount-col {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* =====================================================
+   PDF EXPORT STYLES
+   ===================================================== */
+.pdf-generating {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pdf-generating-content {
+    background: var(--light);
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.pdf-generating-content h3 {
+    color: var(--primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.pdf-generating-content p {
+    color: var(--gray);
+    margin: 0;
+}
+
+.pdf-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* =====================================================
+   PRINT STYLES
+   ===================================================== */
+@media print {
+    body {
+        background: white !important;
+        padding: 0 !important;
+    }
+
+    .main-container {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        max-width: 100% !important;
+    }
+
+    .header {
+        background: var(--primary) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .section {
+        break-inside: avoid;
+    }
+
+    .btn, .action-buttons,
+    .chart-toggle, .toggle-button,
+    .payment-toggle-row,
+    #btnCalculate, #btnReset {
+        display: none !important;
+    }
+
+    .chart-content,
+    .collapsible-content {
+        display: block !important;
+    }
+
+    #resultsContainer.visible {
+        display: block !important;
+    }
+
+    #resultsContainer.hidden {
+        display: none !important;
+    }
+
+    .chart-section,
+    .collapsible-section {
+        break-inside: avoid;
+    }
+
+    .results-section {
+        break-inside: avoid;
+    }
+
+    .conclusion {
+        break-inside: avoid;
+    }
+
+    .fee-section-excluded {
+        opacity: 1 !important;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE ADJUSTMENTS
+   ===================================================== */
+@media (max-width: 768px) {
+    .fee-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-calculate {
+        font-size: 1rem;
+        padding: 0.85rem 1.5rem;
+    }
+
+    .difference-value {
+        font-size: 1.6rem;
+    }
+
+    .result-value {
+        font-size: 1.3rem;
+    }
+}

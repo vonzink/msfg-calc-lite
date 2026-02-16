@@ -1,0 +1,102 @@
+/* Small shared add-on styles used by calculators (keeps main.css untouched) */
+
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  color: var(--light);
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: help;
+  margin-left: 0.5rem;
+  position: relative;
+  line-height: 1;
+}
+
+.help-icon:hover::after {
+  content: attr(data-help);
+  position: absolute;
+  left: 50%;
+  top: 120%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  max-width: 320px;
+  padding: 0.5rem;
+  background: #333;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  z-index: 1000;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.months-owned {
+  color: var(--gray);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.result-pill {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.result-pill.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 2px solid #a5d6a7;
+}
+
+.result-pill.warning {
+  background: #fff3e0;
+  color: #e65100;
+  border: 2px solid #ffcc80;
+}
+
+.result-pill.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 2px solid #ef9a9a;
+}
+
+.result-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.result-list li {
+  margin-bottom: 0.5rem;
+}
+
+.two-col-grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.section-title {
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+}
+
+.actions-right {
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.muted {
+  color: var(--gray);
+}

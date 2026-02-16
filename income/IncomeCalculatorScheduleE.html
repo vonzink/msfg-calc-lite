@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSFG • Schedule E Income Calculator</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+        body { padding: 0; }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--light);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--light);
+            transform: translateX(-2px);
+        }
+        .logo { display: flex; align-items: center; gap: 1rem; }
+        .logo img { height: 60px; width: auto; }
+        .logo h1 { margin: 0; font-size: 1.5rem; font-weight: 300; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .description { text-align: center; color: var(--gray); max-width: 800px; margin: 0 auto 2rem; font-size: 1rem; line-height: 1.6; }
+        .info-note {
+            background: var(--light-gray);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 6px;
+        }
+        .info-note p { margin: 0.5rem 0; color: var(--gray); font-size: 0.9rem; line-height: 1.5; }
+        .property-block {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .property-block h3 { color: var(--primary); margin: 0 0 1rem 0; font-size: 1.2rem; }
+        .year-columns {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .year-columns label { font-weight: 600; color: var(--dark); }
+        .year-header { text-align: center; font-weight: 600; color: var(--primary); font-size: 0.95rem; }
+        .subtract-row { background: #ffebee; border-radius: 4px; padding: 0.5rem; }
+        .add-row { background: #e8f5e9; border-radius: 4px; padding: 0.5rem; }
+        .property-result {
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border: 2px solid var(--accent);
+        }
+        .property-result h4 { margin: 0 0 0.5rem 0; color: var(--primary); }
+        .property-result .value { font-size: 1.5rem; font-weight: 600; color: var(--primary); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="IncomeCalculatorQuestionnaire.html" class="back-link">← Back to Questionnaire</a>
+        <div class="logo">
+            <img src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png" alt="MSFG Logo">
+            <h1>Schedule E - Non-Subject Property</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <p class="description">Calculate rental real estate and royalty income from Schedule E for non-subject properties.</p>
+
+        <div class="section">
+            <h2>Borrower Information</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Borrower Name</label>
+                    <input type="text" id="borrowerName" placeholder="Enter borrower name">
+                </div>
+                <div class="form-group">
+                    <label>Loan Number</label>
+                    <input type="text" id="loanNumber" placeholder="Enter loan number">
+                </div>
+            </div>
+        </div>
+
+        <div class="info-note">
+            <p><strong>NOTE:</strong> Only add lines 9 & 16 for income purposes if Borrower needs it to qualify. If adding line 9 & 16 back, a Mortgage Statement or Lender's Activity Statement will be required to verify payment includes PITI.</p>
+            <p>For all schedules, the Bank will require either one or two years Tax Returns for Temp QM and two years for Gen QM or Non QM.</p>
+        </div>
+
+        <div class="section">
+            <h2>Property Details</h2>
+            
+            <!-- Property 1 -->
+            <div class="property-block">
+                <div class="form-group">
+                    <label>Property Address</label>
+                    <input type="text" id="prop1_address" placeholder="Enter property address">
+                </div>
+                <div class="year-columns" style="margin-top: 1rem;">
+                    <div></div>
+                    <div class="year-header">Year 1</div>
+                    <div class="year-header">Year 2</div>
+                </div>
+                
+                <div class="year-columns add-row">
+                    <label>Rents Received (Line 3)</label>
+                    <input type="number" id="prop1_rents_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_rents_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Royalties Received (Line 4)</label>
+                    <input type="number" id="prop1_royalties_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_royalties_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Amortization/Casualty Loss (Line 19)</label>
+                    <input type="number" id="prop1_amort_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_amort_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns subtract-row">
+                    <label>Total Expenses (Line 20) - SUBTRACT</label>
+                    <input type="number" id="prop1_expenses_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_expenses_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Depreciation (Line 18)</label>
+                    <input type="number" id="prop1_deprec_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_deprec_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Insurance (Line 9) - If PITI</label>
+                    <input type="number" id="prop1_insurance_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_insurance_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Mortgage Interest (Line 12)</label>
+                    <input type="number" id="prop1_mortint_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_mortint_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                <div class="year-columns add-row">
+                    <label>Taxes (Line 16) - If PITI</label>
+                    <input type="number" id="prop1_taxes_y1" value="0" oninput="calculate()" class="input-highlight">
+                    <input type="number" id="prop1_taxes_y2" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+                
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label>Monthly Payment on Credit Report</label>
+                    <input type="number" id="prop1_monthly_pmt" value="0" oninput="calculate()" class="input-highlight">
+                </div>
+
+                <div class="property-result">
+                    <h4>Property 1 - Monthly Rental Income (or Loss)</h4>
+                    <div class="value" id="prop1_result">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <h2>Total Income Summary</h2>
+            <div class="results-grid">
+                <div class="result-card highlight">
+                    <h3>Total Monthly Income (or Loss)</h3>
+                    <div class="result-value" id="totalMonthly">$0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="math-section">
+            <h3>
+                Detailed Calculations
+                <button class="toggle-button" onclick="toggleCalculations()">
+                    <span id="toggleText">Hide Details</span>
+                </button>
+            </h3>
+            <div id="mathCalculations"></div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-title">Entering Income in UniFi</div>
+            <p>Use Present/Proposed Ratios Tool for information on inputting income in UniFi</p>
+        </div>
+    </div>
+
+    <script>
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function parseNum(val) {
+            const n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function toggleCalculations() {
+            const calc = document.getElementById('mathCalculations');
+            const text = document.getElementById('toggleText');
+            if (calc.classList.contains('hidden')) {
+                calc.classList.remove('hidden');
+                text.textContent = 'Hide Details';
+            } else {
+                calc.classList.add('hidden');
+                text.textContent = 'Show Details';
+            }
+        }
+
+        function calculateProperty(propNum) {
+            // Get all values for this property
+            const rentsY1 = parseNum(document.getElementById(`prop${propNum}_rents_y1`).value);
+            const rentsY2 = parseNum(document.getElementById(`prop${propNum}_rents_y2`).value);
+            const royaltiesY1 = parseNum(document.getElementById(`prop${propNum}_royalties_y1`).value);
+            const royaltiesY2 = parseNum(document.getElementById(`prop${propNum}_royalties_y2`).value);
+            const amortY1 = parseNum(document.getElementById(`prop${propNum}_amort_y1`).value);
+            const amortY2 = parseNum(document.getElementById(`prop${propNum}_amort_y2`).value);
+            const expensesY1 = parseNum(document.getElementById(`prop${propNum}_expenses_y1`).value);
+            const expensesY2 = parseNum(document.getElementById(`prop${propNum}_expenses_y2`).value);
+            const deprecY1 = parseNum(document.getElementById(`prop${propNum}_deprec_y1`).value);
+            const deprecY2 = parseNum(document.getElementById(`prop${propNum}_deprec_y2`).value);
+            const insuranceY1 = parseNum(document.getElementById(`prop${propNum}_insurance_y1`).value);
+            const insuranceY2 = parseNum(document.getElementById(`prop${propNum}_insurance_y2`).value);
+            const mortIntY1 = parseNum(document.getElementById(`prop${propNum}_mortint_y1`).value);
+            const mortIntY2 = parseNum(document.getElementById(`prop${propNum}_mortint_y2`).value);
+            const taxesY1 = parseNum(document.getElementById(`prop${propNum}_taxes_y1`).value);
+            const taxesY2 = parseNum(document.getElementById(`prop${propNum}_taxes_y2`).value);
+            const monthlyPmt = parseNum(document.getElementById(`prop${propNum}_monthly_pmt`).value);
+
+            // Calculate total year income
+            // Formula: =SUM(income lines) - expenses
+            const totalY1 = (rentsY1 + royaltiesY1 + amortY1 + deprecY1 + insuranceY1 + mortIntY1 + taxesY1) - expensesY1;
+            const totalY2 = (rentsY2 + royaltiesY2 + amortY2 + deprecY2 + insuranceY2 + mortIntY2 + taxesY2) - expensesY2;
+
+            // Count year 2 entries
+            const year2Count = (rentsY2 + royaltiesY2 + amortY2 + expensesY2 + deprecY2 + insuranceY2 + mortIntY2 + taxesY2) > 0 ? 1 : 0;
+
+            // Monthly income
+            const monthlyY1 = Math.round(totalY1 / 12);
+            const monthlyY2 = Math.round(totalY2 / 12);
+
+            // Monthly average: IF(AND(year2exists, y1 > y2), average/24, y1/12)
+            let monthlyAvg;
+            if (year2Count >= 1 && totalY1 > totalY2) {
+                monthlyAvg = Math.round((totalY1 + totalY2) / 24);
+            } else {
+                monthlyAvg = Math.round(totalY1 / 12);
+            }
+
+            // Final result: monthly average - monthly payment
+            const finalResult = monthlyAvg - monthlyPmt;
+
+            return {
+                totalY1,
+                totalY2,
+                monthlyY1,
+                monthlyY2,
+                monthlyAvg,
+                monthlyPmt,
+                finalResult,
+                year2Count
+            };
+        }
+
+        function calculate() {
+            const prop1 = calculateProperty(1);
+
+            // Update display
+            document.getElementById('prop1_result').textContent = formatCurrency(prop1.finalResult);
+            document.getElementById('totalMonthly').textContent = formatCurrency(prop1.finalResult);
+
+            // Update math details
+            updateMathDetails(prop1);
+        }
+
+        function updateMathDetails(prop1) {
+            const mathDiv = document.getElementById('mathCalculations');
+            
+            let method = '';
+            if (prop1.year2Count >= 1 && prop1.totalY1 > prop1.totalY2) {
+                method = `
+                    <p>Since Year 2 data exists and Year 1 (${formatCurrency(prop1.totalY1)}) > Year 2 (${formatCurrency(prop1.totalY2)}), we average both years:</p>
+                    <p>Monthly Average = (Year 1 + Year 2) ÷ 24</p>
+                    <p>Monthly Average = (${formatCurrency(prop1.totalY1)} + ${formatCurrency(prop1.totalY2)}) ÷ 24 = ${formatCurrency(prop1.monthlyAvg)}</p>
+                `;
+            } else {
+                method = `
+                    <p>Using Year 1 income:</p>
+                    <p>Monthly Average = Year 1 ÷ 12</p>
+                    <p>Monthly Average = ${formatCurrency(prop1.totalY1)} ÷ 12 = ${formatCurrency(prop1.monthlyAvg)}</p>
+                `;
+            }
+
+            mathDiv.innerHTML = `
+                <div class="calculation-step">
+                    <h4>Property 1 Calculation</h4>
+                    <p><strong>Year 1 Total Income:</strong> ${formatCurrency(prop1.totalY1)}</p>
+                    <p><strong>Year 2 Total Income:</strong> ${formatCurrency(prop1.totalY2)}</p>
+                    ${method}
+                    <p><strong>Less Monthly Payment:</strong> ${formatCurrency(prop1.monthlyPmt)}</p>
+                    <p><strong>Final Monthly Income:</strong> ${formatCurrency(prop1.monthlyAvg)} - ${formatCurrency(prop1.monthlyPmt)} = <strong>${formatCurrency(prop1.finalResult)}</strong></p>
+                </div>
+            `;
+        }
+
+        // Initialize
+        calculate();
+    </script>
+</body>
+</html>

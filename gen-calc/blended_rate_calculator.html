@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blended Rate Calculator</title>
+    <link rel="stylesheet" href="/css/main.css" />
+    <style>
+      /* Additional styles specific to debt table */
+      .debt-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1.5rem;
+        background: var(--light);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      
+      .debt-table th {
+        background: var(--primary);
+        color: var(--light);
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      
+      .debt-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      
+      .debt-table tr:nth-child(even) td {
+        background: var(--light-gray);
+      }
+      
+      .debt-table tr:last-child td {
+        border-bottom: none;
+      }
+      
+      .debt-table input[type="number"] {
+        width: 100%;
+      }
+      
+      @media (max-width: 768px) {
+        .debt-table, .debt-table thead, .debt-table tbody, .debt-table th, .debt-table td, .debt-table tr {
+          display: block;
+        }
+        
+        .debt-table th {
+          display: none;
+        }
+        
+        .debt-table tr {
+          margin-bottom: 1rem;
+          border: 1px solid var(--border);
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .debt-table td {
+          padding-left: 50%;
+          position: relative;
+          border-bottom: 1px solid var(--border);
+        }
+        
+        .debt-table td:last-child {
+          border-bottom: none;
+        }
+        
+        .debt-table td::before {
+          content: attr(data-label);
+          position: absolute;
+          left: 1rem;
+          width: 45%;
+          font-weight: 600;
+          color: var(--gray);
+          white-space: nowrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="header">
+        <img src="https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png" 
+             alt="Compass Home Loan" 
+             class="header-logo" />
+        <h1>Blended Rate Calculator</h1>
+        <p>
+          Calculate the weighted average interest rate across multiple debts. This blended rate 
+          helps you understand your overall borrowing cost and evaluate debt consolidation opportunities.
+        </p>
+      </div>
+      
+      <div class="content">
+        <div class="section">
+          <h2>Debt Information</h2>
+          <p style="margin-bottom: 1.5rem; color: var(--gray);">
+            Enter details for up to five debts. The calculator computes the total balance, 
+            total monthly payment, and the blended (weighted average) interest rate.
+          </p>
+          
+          <table class="debt-table">
+            <thead>
+              <tr>
+                <th>Debt #</th>
+                <th>Balance ($)</th>
+                <th>Interest Rate (%)</th>
+                <th>Monthly Payment ($)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Debt 1 -->
+              <tr>
+                <td data-label="Debt #">1</td>
+                <td data-label="Balance ($)">
+                  <input type="number" id="d1_bal" value="5000" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Interest Rate (%)">
+                  <input type="number" id="d1_rate" value="18.5" step="0.01" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Monthly Payment ($)">
+                  <input type="number" id="d1_pay" value="150" onchange="calcDebt()" class="input-highlight" />
+                </td>
+              </tr>
+              <!-- Debt 2 -->
+              <tr>
+                <td data-label="Debt #">2</td>
+                <td data-label="Balance ($)">
+                  <input type="number" id="d2_bal" value="15000" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Interest Rate (%)">
+                  <input type="number" id="d2_rate" value="6.5" step="0.01" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Monthly Payment ($)">
+                  <input type="number" id="d2_pay" value="300" onchange="calcDebt()" class="input-highlight" />
+                </td>
+              </tr>
+              <!-- Debt 3 -->
+              <tr>
+                <td data-label="Debt #">3</td>
+                <td data-label="Balance ($)">
+                  <input type="number" id="d3_bal" value="8000" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Interest Rate (%)">
+                  <input type="number" id="d3_rate" value="12.0" step="0.01" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Monthly Payment ($)">
+                  <input type="number" id="d3_pay" value="200" onchange="calcDebt()" class="input-highlight" />
+                </td>
+              </tr>
+              <!-- Debt 4 -->
+              <tr>
+                <td data-label="Debt #">4</td>
+                <td data-label="Balance ($)">
+                  <input type="number" id="d4_bal" value="0" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Interest Rate (%)">
+                  <input type="number" id="d4_rate" value="0" step="0.01" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Monthly Payment ($)">
+                  <input type="number" id="d4_pay" value="0" onchange="calcDebt()" class="input-highlight" />
+                </td>
+              </tr>
+              <!-- Debt 5 -->
+              <tr>
+                <td data-label="Debt #">5</td>
+                <td data-label="Balance ($)">
+                  <input type="number" id="d5_bal" value="0" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Interest Rate (%)">
+                  <input type="number" id="d5_rate" value="0" step="0.01" onchange="calcDebt()" class="input-highlight" />
+                </td>
+                <td data-label="Monthly Payment ($)">
+                  <input type="number" id="d5_pay" value="0" onchange="calcDebt()" class="input-highlight" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="results-section">
+          <h2>Blended Rate Analysis</h2>
+          <div class="results-grid">
+            <div class="result-card">
+              <h3>Total Balance</h3>
+              <div class="result-value" id="totalBal">$0</div>
+            </div>
+            <div class="result-card">
+              <h3>Total Monthly Payment</h3>
+              <div class="result-value" id="totalPay">$0</div>
+            </div>
+            <div class="result-card">
+              <h3>Blended Interest Rate</h3>
+              <div class="result-value" id="blendedRate">0.000%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Show the Math Section -->
+        <div class="math-section">
+          <h3>
+            Detailed Calculations
+            <button class="toggle-button" onclick="toggleCalculations()">
+              <span id="toggleText">Show Details</span>
+            </button>
+          </h3>
+          <div id="mathCalculations" class="hidden">
+            <!-- Math calculations will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="footer-title">Understanding Your Blended Rate</div>
+          <p><strong>Blended Interest Rate:</strong> The weighted average interest rate calculated as the sum of each balance multiplied by its rate, divided by the total balance. This gives more weight to larger debts in the calculation.</p>
+          <p><strong>Debt Consolidation:</strong> If you can find a consolidation loan or balance transfer with a rate lower than your blended rate, you may save money on interest.</p>
+          <p><strong>Payment Strategy:</strong> Focus extra payments on your highest interest rate debts first to minimize total interest costs over time.</p>
+          <p><strong>Formula:</strong> Blended Rate = Σ(Balance × Rate) ÷ Total Balance</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amount);
+      }
+      
+      function parseNum(v) {
+        const n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+      }
+      
+      function toggleCalculations() {
+        const calculations = document.getElementById('mathCalculations');
+        const toggleText = document.getElementById('toggleText');
+        
+        if (calculations.classList.contains('hidden')) {
+          calculations.classList.remove('hidden');
+          toggleText.textContent = 'Hide Details';
+        } else {
+          calculations.classList.add('hidden');
+          toggleText.textContent = 'Show Details';
+        }
+      }
+      
+      function calcDebt() {
+        let totalBal = 0;
+        let totalPay = 0;
+        let weightedRate = 0;
+        let debts = [];
+        
+        // Collect all debt information
+        for (let i = 1; i <= 5; i++) {
+          const bal = parseNum(document.getElementById('d' + i + '_bal').value);
+          const rate = parseNum(document.getElementById('d' + i + '_rate').value) / 100;
+          const pay = parseNum(document.getElementById('d' + i + '_pay').value);
+          
+          if (bal > 0) {
+            debts.push({
+              num: i,
+              balance: bal,
+              rate: rate,
+              payment: pay,
+              weightedContribution: bal * rate
+            });
+          }
+          
+          totalBal += bal;
+          totalPay += pay;
+          weightedRate += bal * rate;
+        }
+        
+        const blended = totalBal > 0 ? (weightedRate / totalBal) * 100 : 0;
+        
+        // Update results
+        document.getElementById('totalBal').textContent = formatCurrency(totalBal);
+        document.getElementById('totalPay').textContent = formatCurrency(totalPay);
+        document.getElementById('blendedRate').textContent = blended.toFixed(3) + '%';
+        
+        // Update calculation details
+        updateMathCalculations(debts, totalBal, totalPay, weightedRate, blended);
+      }
+      
+      function updateMathCalculations(debts, totalBal, totalPay, weightedRate, blended) {
+        const mathDiv = document.getElementById('mathCalculations');
+        
+        if (debts.length === 0) {
+          mathDiv.innerHTML = `
+            <div class="calculation-step">
+              <h4>No Debts Entered</h4>
+              <p>Enter at least one debt with a balance greater than zero to see the calculation details.</p>
+            </div>
+          `;
+          return;
+        }
+        
+        let debtBreakdown = '';
+        debts.forEach(debt => {
+          debtBreakdown += `
+            <div class="calculation-step">
+              <h4>Debt ${debt.num} Weighted Contribution</h4>
+              <p>Balance: ${formatCurrency(debt.balance)}</p>
+              <p>Interest Rate: ${(debt.rate * 100).toFixed(3)}%</p>
+              <p>Monthly Payment: ${formatCurrency(debt.payment)}</p>
+              <p>Weighted Contribution = Balance × Rate</p>
+              <p>Weighted Contribution = ${formatCurrency(debt.balance)} × ${(debt.rate * 100).toFixed(3)}%</p>
+              <p>Weighted Contribution = ${debt.weightedContribution.toFixed(2)}</p>
+            </div>
+          `;
+        });
+        
+        mathDiv.innerHTML = `
+          ${debtBreakdown}
+          
+          <div class="calculation-step">
+            <h4>Total Weighted Rate Calculation</h4>
+            <p>Sum of all weighted contributions: ${weightedRate.toFixed(2)}</p>
+            <p>Total Balance: ${formatCurrency(totalBal)}</p>
+            <p>Total Monthly Payments: ${formatCurrency(totalPay)}</p>
+          </div>
+          
+          <div class="calculation-step">
+            <h4>Blended Interest Rate Formula</h4>
+            <p>Blended Rate = (Sum of Weighted Contributions ÷ Total Balance) × 100</p>
+            <p>Blended Rate = (${weightedRate.toFixed(2)} ÷ ${totalBal.toFixed(2)}) × 100</p>
+            <p>Blended Rate = ${blended.toFixed(3)}%</p>
+          </div>
+          
+          <div class="calculation-step">
+            <h4>What This Means</h4>
+            <p>Your effective interest rate across all debts is <strong>${blended.toFixed(3)}%</strong>.</p>
+            <p>If you consolidate these debts into a single loan with an interest rate lower than ${blended.toFixed(3)}%, you will save money on interest charges.</p>
+            <p>Consider focusing extra payments on your highest-rate debts first to reduce your overall interest costs faster.</p>
+          </div>
+        `;
+      }
+      
+      // Initialize calculator
+      calcDebt();
+    </script>
+  </body>
+</html>
