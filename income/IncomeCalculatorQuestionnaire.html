@@ -317,9 +317,6 @@
 </head>
 <body>
     <header class="header">
-        <a href="../index.html" class="back-link">
-            ← Back to Calculator Hub
-        </a>
         <div class="logo">
             <img src="/images/msfg-logo.png" alt="MSFG Logo">
         </div>
@@ -528,6 +525,9 @@
             <div class="navigation">
                 <button class="btn secondary" onclick="restartQuestionnaire()">Start Over</button>
                 <button class="btn" onclick="exportRecommendations()">Export Recommendations</button>
+                <button class="btn" onclick="openInWorkspace()" style="background: var(--accent);">
+                    Open All in Workspace →
+                </button>
             </div>
         </div>
     </main>
@@ -546,19 +546,35 @@
         };
 
         const calculatorUrls = {
-            '1040': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculator1040.html',
-            'schedule-c': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleC.html',
-            'schedule-e': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleE.html',
-            'schedule-e-subject': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleESubject.html',
-            'schedule-b': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleB.html',
-            'schedule-d': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleD.html',
-            'schedule-f': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorScheduleF.html',
-            'form-1065': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculator1065.html',
-            '1065-k1': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorK1.html',
-            'form-1120': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculator1120.html',
-            'form-1120s': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculator1120S.html',
-            '1120s-k1': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculator1120SK1.html',
-            'rental-1038': 'https://msfg-calc.s3.us-west-1.amazonaws.com/income/IncomeCalculatorRental1038.html'
+            '1040': '/calculators/income/1040',
+            'schedule-c': '/calculators/income/schedule-c',
+            'schedule-e': '/calculators/income/schedule-e',
+            'schedule-e-subject': '/calculators/income/schedule-e-subject',
+            'schedule-b': '/calculators/income/schedule-b',
+            'schedule-d': '/calculators/income/schedule-d',
+            'schedule-f': '/calculators/income/schedule-f',
+            'form-1065': '/calculators/income/1065',
+            '1065-k1': '/calculators/income/k1',
+            'form-1120': '/calculators/income/1120',
+            'form-1120s': '/calculators/income/1120s',
+            '1120s-k1': '/calculators/income/1120s-k1',
+            'rental-1038': '/calculators/income/rental-1038'
+        };
+
+        const workspaceSlugs = {
+            '1040': 'income/1040',
+            'schedule-c': 'income/schedule-c',
+            'schedule-e': 'income/schedule-e',
+            'schedule-e-subject': 'income/schedule-e-subject',
+            'schedule-b': 'income/schedule-b',
+            'schedule-d': 'income/schedule-d',
+            'schedule-f': 'income/schedule-f',
+            'form-1065': 'income/1065',
+            '1065-k1': 'income/k1',
+            'form-1120': 'income/1120',
+            'form-1120s': 'income/1120s',
+            '1120s-k1': 'income/1120s-k1',
+            'rental-1038': 'income/rental-1038'
         };
 
         const calculatorInfo = {
@@ -893,6 +909,17 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+        }
+
+        function openInWorkspace() {
+            const recommendations = generateRecommendations();
+            const slugs = recommendations.map(key => workspaceSlugs[key]).filter(Boolean);
+            const url = '/workspace?add=' + encodeURIComponent(slugs.join(','));
+            try {
+                window.top.location.href = url;
+            } catch (e) {
+                window.location.href = url;
+            }
         }
 
         // Initialize

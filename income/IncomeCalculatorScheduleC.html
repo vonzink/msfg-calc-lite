@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule C Income Calculator</title>
+    <title>MSFG • Schedule C Income Calculator</title>
     <link rel="stylesheet" href="/css/main.css" />
     <style>
-        /* Income calculator specific styles */
-        body {
-            padding: 0;
-        }
-
+        body { padding: 0; }
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: var(--light);
@@ -23,66 +19,119 @@
             z-index: 100;
             box-shadow: var(--shadow);
         }
-
-        .back-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--light);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            padding: 0.5rem 1rem;
+        .logo { display: flex; align-items: center; gap: 1rem; }
+        .logo img { height: 60px; width: auto; }
+        .logo h1 { margin: 0; font-size: 1.5rem; font-weight: 300; color: var(--light); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .description { text-align: center; color: var(--gray); max-width: 800px; margin: 0 auto 2rem; font-size: 1rem; line-height: 1.6; }
+        .info-note {
+            background: var(--light-gray);
+            border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
             border-radius: 6px;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
         }
-
-        .back-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--light);
-            transform: translateX(-2px);
+        .info-note p { margin: 0.5rem 0; color: var(--gray); font-size: 0.9rem; line-height: 1.5; }
+        .section {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .section h3 { color: var(--primary); margin: 0 0 1rem 0; font-size: 1.2rem; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
-
-        .logo img {
-            height: 60px;
-            width: auto;
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--dark);
+            font-size: 0.9rem;
         }
-
-        .logo h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            font-weight: 300;
+        tr:hover td { background: var(--light-gray); }
+        input[type="number"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.9rem;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.15);
         }
-
-        .description {
+        .sign-positive { color: var(--secondary); font-weight: 600; }
+        .sign-negative { color: var(--danger, #e74c3c); font-weight: 600; }
+        .sign-both { color: var(--accent); font-weight: 600; }
+        .result-label { font-weight: 600; color: var(--dark); margin-right: 0.5rem; }
+        .result {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        #b1_totals p, #b2_totals p {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: var(--light-gray);
+            border-radius: 4px;
+        }
+        .combined-total {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
             text-align: center;
+        }
+        .combined-total h3 { color: white; margin: 0 0 0.75rem 0; }
+        .combined-total .result { color: white; font-size: 1.5rem; }
+        .actions { display: flex; gap: 1rem; margin-top: 2rem; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: var(--primary); color: white; padding: 0.75rem 1.5rem;
+            border-radius: 6px; font-weight: 500; border: none; cursor: pointer;
+            font-size: 0.875rem; transition: all 0.3s ease; text-decoration: none;
+        }
+        .btn:hover { background: var(--secondary); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .btn.secondary { background: var(--accent); }
+        .btn.secondary:hover { background: #27ae60; }
+        .footer-note {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
             color: var(--gray);
-            max-width: 800px;
-            margin: 0 auto 2rem;
-            font-size: 1rem;
+            font-size: 0.875rem;
             line-height: 1.6;
+        }
+        .status-badge {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .section { padding: 1rem; }
+            th, td { padding: 0.5rem; font-size: 0.8rem; }
+            .actions { flex-direction: column; align-items: center; }
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <a href="IncomeCalculatorQuestionnaire.html" class="back-link">
-            ← Back to Questionnaire
-        </a>
         <div class="logo">
             <img src="/images/msfg-logo.png" alt="MSFG Logo">
             <h1>Schedule C Income Calculator</h1>
@@ -90,35 +139,16 @@
     </header>
 
     <div class="container">
-        <p class="description">Calculate qualifying income from sole proprietorship business income and expenses.</p>
-</head>
-<body>
-    <header class="header">
-        <a href="http://loan-tools-hub.s3-website-us-west-1.amazonaws.com" class="back-link">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            Back to Hub
-        </a>
-        <div class="logo">
-            <img src="/images/msfg-logo.png" alt="MSFG Logo">
-        </div>
-    </header>
+        <p class="description">Calculate monthly income from Schedule C (Sole Proprietorship) tax returns. Enter figures and get policy-based monthly calculations.</p>
 
-    <main class="container">
-        <section class="hero">
-            <h2>Schedule C Income Calculator</h2>
-            <p>Calculate monthly income from Schedule C (Sole Proprietorship) tax returns. Enter figures and get policy-based monthly calculations.</p>
-        </section>
-
-        <div class="notes">
-            <strong>Instructions:</strong> Enter figures from the borrower's Schedule C tax return. Positive values (income) should be entered without signs; 
+        <div class="info-note">
+            <p><strong>Instructions:</strong> Enter figures from the borrower's Schedule C tax return. Positive values (income) should be entered without signs; 
             negative values (losses) should be entered with a leading minus sign. Lines designated "+/–" may be either positive or negative. 
-            Meal and entertainment exclusion amounts should be entered as positive numbers—the calculator will subtract them automatically.
+            Meal and entertainment exclusion amounts should be entered as positive numbers — the calculator will subtract them automatically.</p>
         </div>
 
         <!-- Business 1 -->
-        <section class="section">
+        <div class="section">
             <h3>Business 1 <span class="status-badge">Live</span></h3>
             <table>
                 <thead>
@@ -133,71 +163,62 @@
                     <tr>
                         <td>Net Profit or Loss (Line 31)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_np1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_np2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_np1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_np2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Other Income or Loss (Line 6 – non‑recurring)</td>
                         <td class="sign-both">+/–</td>
-                        <td><input type="number" id="b1_oth1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_oth2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_oth1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_oth2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Depletion (Line 12)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_depl1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_depl2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_depl1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_depl2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Depreciation (Line 13)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_depr1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_depr2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_depr1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_depr2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Meal & Entertainment Exclusion (Line 24b)</td>
                         <td class="sign-negative">–</td>
-                        <td><input type="number" id="b1_meals1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_meals2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_meals1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_meals2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Business Use of Home (Line 30)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_home1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_home2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_home1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_home2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Mileage Depreciation</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_mile1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_mile2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_mile1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_mile2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Amortization/Casualty Loss</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b1_amort1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b1_amort2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_amort1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b1_amort2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                 </tbody>
             </table>
             <div id="b1_totals">
-                <p>
-                    <span class="result-label">Total Year 1 Income:</span>
-                    <span id="b1_year1" class="result">$0.00</span>
-                </p>
-                <p>
-                    <span class="result-label">Total Year 2 Income:</span>
-                    <span id="b1_year2" class="result">$0.00</span>
-                </p>
-                <p>
-                    <span class="result-label">Income To Be Used (monthly):</span>
-                    <span id="b1_final" class="result">$0.00</span>
-                </p>
+                <p><span class="result-label">Total Year 1 Income:</span> <span id="b1_year1" class="result">$0.00</span></p>
+                <p><span class="result-label">Total Year 2 Income:</span> <span id="b1_year2" class="result">$0.00</span></p>
+                <p><span class="result-label">Income To Be Used (monthly):</span> <span id="b1_final" class="result">$0.00</span></p>
             </div>
-        </section>
+        </div>
 
         <!-- Business 2 -->
-        <section class="section">
+        <div class="section">
             <h3>Business 2</h3>
             <table>
                 <thead>
@@ -212,243 +233,88 @@
                     <tr>
                         <td>Net Profit or Loss (Line 31)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_np1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_np2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_np1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_np2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Other Income or Loss (Line 6 – non‑recurring)</td>
                         <td class="sign-both">+/–</td>
-                        <td><input type="number" id="b2_oth1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_oth2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_oth1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_oth2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Depletion (Line 12)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_depl1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_depl2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_depl1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_depl2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Depreciation (Line 13)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_depr1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_depr2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_depr1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_depr2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Meal & Entertainment Exclusion (Line 24b)</td>
                         <td class="sign-negative">–</td>
-                        <td><input type="number" id="b2_meals1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_meals2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_meals1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_meals2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Business Use of Home (Line 30)</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_home1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_home2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_home1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_home2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Mileage Depreciation</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_mile1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_mile2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_mile1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_mile2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                     <tr>
                         <td>Amortization/Casualty Loss</td>
                         <td class="sign-positive">+</td>
-                        <td><input type="number" id="b2_amort1" value="0" onchange="calcC()" placeholder="0"></td>
-                        <td><input type="number" id="b2_amort2" value="0" onchange="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_amort1" value="0" oninput="calcC()" placeholder="0"></td>
+                        <td><input type="number" id="b2_amort2" value="0" oninput="calcC()" placeholder="0"></td>
                     </tr>
                 </tbody>
             </table>
             <div id="b2_totals">
-                <p>
-                    <span class="result-label">Total Year 1 Income:</span>
-                    <span id="b2_year1" class="result">$0.00</span>
-                </p>
-                <p>
-                    <span class="result-label">Total Year 2 Income:</span>
-                    <span id="b2_year2" class="result">$0.00</span>
-                </p>
-                <p>
-                    <span class="result-label">Income To Be Used (monthly):</span>
-                    <span id="b2_final" class="result">$0.00</span>
-                </p>
+                <p><span class="result-label">Total Year 1 Income:</span> <span id="b2_year1" class="result">$0.00</span></p>
+                <p><span class="result-label">Total Year 2 Income:</span> <span id="b2_year2" class="result">$0.00</span></p>
+                <p><span class="result-label">Income To Be Used (monthly):</span> <span id="b2_final" class="result">$0.00</span></p>
             </div>
-        </section>
+        </div>
 
         <!-- Combined totals -->
-        <section class="combined-total">
+        <div class="combined-total">
             <h3>Combined Schedule C Income</h3>
-            <p>
-                <span class="result-label">Combined Monthly Income:</span>
-                <span id="combined_c" class="result">$0.00</span>
-            </p>
-        </section>
+            <p><span class="result-label" style="color:white">Combined Monthly Income:</span> <span id="combined_c" class="result">$0.00</span></p>
+        </div>
 
         <div class="actions">
             <button class="btn" onclick="exportCSV()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Export CSV
             </button>
             <button class="btn secondary" onclick="printView()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                </svg>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Print View
             </button>
             <button class="btn secondary" onclick="clearAll()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                 Clear All
             </button>
         </div>
 
-        <div class="footer">
+        <div class="footer-note">
             <strong>Calculation Policy:</strong> Income to be used is calculated as follows: the total year 1 income is divided by 12 to determine a monthly amount. 
             If at least one year 2 figure is provided and year 1 income exceeds year 2 income, the average of the two year totals is divided by 24 months instead. 
             Meal and entertainment exclusions are subtracted from income. Results are provided for each business and combined.
         </div>
-    </main>
-
-    <script>
-        function parseNum(v) {
-            const n = parseFloat(v);
-            return isNaN(n) ? 0 : n;
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-
-        function computeSection(prefix) {
-            // Fetch values using element IDs built from prefix
-            const np1 = parseNum(document.getElementById(prefix + '_np1').value);
-            const np2 = parseNum(document.getElementById(prefix + '_np2').value);
-            const oth1 = parseNum(document.getElementById(prefix + '_oth1').value);
-            const oth2 = parseNum(document.getElementById(prefix + '_oth2').value);
-            const depl1 = parseNum(document.getElementById(prefix + '_depl1').value);
-            const depl2 = parseNum(document.getElementById(prefix + '_depl2').value);
-            const depr1 = parseNum(document.getElementById(prefix + '_depr1').value);
-            const depr2 = parseNum(document.getElementById(prefix + '_depr2').value);
-            const meals1 = parseNum(document.getElementById(prefix + '_meals1').value);
-            const meals2 = parseNum(document.getElementById(prefix + '_meals2').value);
-            const home1 = parseNum(document.getElementById(prefix + '_home1').value);
-            const home2 = parseNum(document.getElementById(prefix + '_home2').value);
-            const mile1 = parseNum(document.getElementById(prefix + '_mile1').value);
-            const mile2 = parseNum(document.getElementById(prefix + '_mile2').value);
-            const amort1 = parseNum(document.getElementById(prefix + '_amort1').value);
-            const amort2 = parseNum(document.getElementById(prefix + '_amort2').value);
-
-            // Sum Year1: add plus values, subtract meals (neg sign) but treat input positive
-            const year1 = np1 + oth1 + depl1 + depr1 + home1 + mile1 + amort1 - meals1;
-            const year2 = np2 + oth2 + depl2 + depr2 + home2 + mile2 + amort2 - meals2;
-
-            // Determine if there is at least one year2 value
-            const year2vals = [np2, oth2, depl2, depr2, home2, mile2, amort2, meals2];
-            const hasYr2 = year2vals.some((v) => v !== 0);
-
-            // Compute monthly income to be used
-            let monthly;
-            if (hasYr2 && year1 > year2) {
-                monthly = (year1 + year2) / 24;
-            } else {
-                monthly = year1 / 12;
-            }
-
-            return { year1, year2, monthly };
-        }
-
-        function calcC() {
-            // Compute each business section
-            const s1 = computeSection('b1');
-            document.getElementById('b1_year1').textContent = formatCurrency(s1.year1);
-            document.getElementById('b1_year2').textContent = formatCurrency(s1.year2);
-            document.getElementById('b1_final').textContent = formatCurrency(s1.monthly);
-
-            const s2 = computeSection('b2');
-            document.getElementById('b2_year1').textContent = formatCurrency(s2.year1);
-            document.getElementById('b2_year2').textContent = formatCurrency(s2.year2);
-            document.getElementById('b2_final').textContent = formatCurrency(s2.monthly);
-
-            // Combined monthly income
-            const combined = s1.monthly + s2.monthly;
-            document.getElementById('combined_c').textContent = formatCurrency(combined);
-        }
-
-        function exportCSV() {
-            const s1 = computeSection('b1');
-            const s2 = computeSection('b2');
-            const combined = s1.monthly + s2.monthly;
-
-            const data = [
-                ['Schedule C Income Calculator'],
-                [''],
-                ['Business', 'Year 1', 'Year 2', 'Monthly Income'],
-                ['Business 1', s1.year1, s1.year2, s1.monthly],
-                ['Business 2', s2.year1, s2.year2, s2.monthly],
-                [''],
-                ['Combined Monthly Income', '', '', combined]
-            ];
-
-            const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('
-');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'schedule_c_income_calculator.csv';
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function printView() {
-            window.print();
-        }
-
-        function clearAll() {
-            const inputs = document.querySelectorAll('input[type="number"]');
-            inputs.forEach(input => {
-                input.value = '0';
-            });
-            calcC();
-        }
-
-        // Initialize
-        calcC();
-
-        // Expose debug function
-        window.IncomeCalculatorScheduleC = {
-            debug: function() {
-                const s1 = computeSection('b1');
-                const s2 = computeSection('b2');
-                return {
-                    business1: {
-                        year1: s1.year1,
-                        year2: s1.year2,
-                        monthly: s1.monthly
-                    },
-                    business2: {
-                        year1: s2.year1,
-                        year2: s2.year2,
-                        monthly: s2.monthly
-                    },
-                    combined: s1.monthly + s2.monthly,
-                    version: '1.0.0'
-                };
-            }
-        };
-    </script>
-    <!-- ZZ Signature -->
-    <div style="position: fixed; bottom: 20px; right: 20px; font-size: 12px; color: var(--text-muted); font-family: monospace; z-index: 1000;">
-        ZZ
     </div>
+
     <script>
         function parseNum(v) {
             const n = parseFloat(v);
@@ -457,15 +323,12 @@
 
         function formatCurrency(amount) {
             return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
+                style: 'currency', currency: 'USD',
+                minimumFractionDigits: 2, maximumFractionDigits: 2
             }).format(amount);
         }
 
         function computeSection(prefix) {
-            // Fetch values using element IDs built from prefix
             const np1 = parseNum(document.getElementById(prefix + '_np1').value);
             const np2 = parseNum(document.getElementById(prefix + '_np2').value);
             const oth1 = parseNum(document.getElementById(prefix + '_oth1').value);
@@ -483,15 +346,12 @@
             const amort1 = parseNum(document.getElementById(prefix + '_amort1').value);
             const amort2 = parseNum(document.getElementById(prefix + '_amort2').value);
 
-            // Sum Year1: add plus values, subtract meals (neg sign) but treat input positive
             const year1 = np1 + oth1 + depl1 + depr1 + home1 + mile1 + amort1 - meals1;
             const year2 = np2 + oth2 + depl2 + depr2 + home2 + mile2 + amort2 - meals2;
 
-            // Determine if there is at least one year2 value
             const year2vals = [np2, oth2, depl2, depr2, home2, mile2, amort2, meals2];
-            const hasYr2 = year2vals.some((v) => v !== 0);
+            const hasYr2 = year2vals.some(v => v !== 0);
 
-            // Compute monthly income to be used
             let monthly;
             if (hasYr2 && year1 > year2) {
                 monthly = (year1 + year2) / 24;
@@ -503,7 +363,6 @@
         }
 
         function calcC() {
-            // Compute each business section
             const s1 = computeSection('b1');
             document.getElementById('b1_year1').textContent = formatCurrency(s1.year1);
             document.getElementById('b1_year2').textContent = formatCurrency(s1.year2);
@@ -514,7 +373,6 @@
             document.getElementById('b2_year2').textContent = formatCurrency(s2.year2);
             document.getElementById('b2_final').textContent = formatCurrency(s2.monthly);
 
-            // Combined monthly income
             const combined = s1.monthly + s2.monthly;
             document.getElementById('combined_c').textContent = formatCurrency(combined);
         }
@@ -523,19 +381,14 @@
             const s1 = computeSection('b1');
             const s2 = computeSection('b2');
             const combined = s1.monthly + s2.monthly;
-
             const data = [
-                ['Schedule C Income Calculator'],
-                [''],
+                ['Schedule C Income Calculator'], [''],
                 ['Business', 'Year 1', 'Year 2', 'Monthly Income'],
                 ['Business 1', s1.year1, s1.year2, s1.monthly],
                 ['Business 2', s2.year1, s2.year2, s2.monthly],
-                [''],
-                ['Combined Monthly Income', '', '', combined]
+                [''], ['Combined Monthly Income', '', '', combined]
             ];
-
-            const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('
-');
+            const csvContent = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -545,42 +398,14 @@
             window.URL.revokeObjectURL(url);
         }
 
-        function printView() {
-            window.print();
-        }
+        function printView() { window.print(); }
 
         function clearAll() {
-            const inputs = document.querySelectorAll('input[type="number"]');
-            inputs.forEach(input => {
-                input.value = '0';
-            });
+            document.querySelectorAll('input[type="number"]').forEach(input => { input.value = '0'; });
             calcC();
         }
 
-        // Initialize
         calcC();
-
-        // Expose debug function
-        window.IncomeCalculatorScheduleC = {
-            debug: function() {
-                const s1 = computeSection('b1');
-                const s2 = computeSection('b2');
-                return {
-                    business1: {
-                        year1: s1.year1,
-                        year2: s1.year2,
-                        monthly: s1.monthly
-                    },
-                    business2: {
-                        year1: s2.year1,
-                        year2: s2.year2,
-                        monthly: s2.monthly
-                    },
-                    combined: s1.monthly + s2.monthly,
-                    version: '1.0.0'
-                };
-            }
-        };
     </script>
 </body>
 </html>

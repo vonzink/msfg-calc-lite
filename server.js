@@ -31,6 +31,19 @@ app.use('/js', express.static(path.join(__dirname, 'js')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Mount standalone apps BEFORE the calculator router
+app.use('/calculators/amortization', express.static(path.join(__dirname, 'amort-calc')));
+
+app.get('/calculators/llpm', (req, res) => {
+  res.sendFile(path.join(__dirname, 'llpm-calc', 'LLPMTool.html'));
+});
+app.use('/calculators/llpm', express.static(path.join(__dirname, 'llpm-calc')));
+
+app.get('/calculators/mismo', (req, res) => {
+  res.sendFile(path.join(__dirname, 'gen-calc', 'mismo-calc', 'MISMO_Document_Analyzer.html'));
+});
+app.use('/calculators/mismo', express.static(path.join(__dirname, 'gen-calc', 'mismo-calc')));
+
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/calculators', require('./routes/calculators'));
@@ -39,13 +52,6 @@ app.use('/settings', require('./routes/settings'));
 
 // Serve legacy calculator files (for iframe stubs during migration)
 app.use('/legacy', express.static(path.join(__dirname)));
-
-// Mount amort-calc React app at its route
-app.use('/calculators/amortization', express.static(path.join(__dirname, 'amort-calc')));
-
-// Mount LLPM and MISMO with minimal integration
-app.use('/calculators/llpm', express.static(path.join(__dirname, 'llpm-calc')));
-app.use('/calculators/mismo', express.static(path.join(__dirname, 'gen-calc', 'mismo-calc')));
 
 // 404 handler
 app.use((req, res) => {

@@ -62,6 +62,23 @@
         updateTallyFromMessage(e.data);
       }
     });
+
+    // Auto-add calculators from URL query params (e.g., ?add=income/1040,income/schedule-c)
+    var urlParams = new URLSearchParams(window.location.search);
+    var addParam = urlParams.get('add');
+    if (addParam) {
+      var slugsToAdd = addParam.split(',').map(function(s) { return s.trim(); });
+      slugsToAdd.forEach(function(slug) {
+        var btn = document.querySelector('.workspace__selector-btn[data-slug="' + slug + '"]');
+        if (btn && !btn.classList.contains('active')) {
+          btn.click();
+        }
+      });
+      // Clean the URL so refreshing doesn't re-add
+      if (window.history.replaceState) {
+        window.history.replaceState({}, '', '/workspace');
+      }
+    }
   });
 
   function addPanel(slug, name, icon) {
