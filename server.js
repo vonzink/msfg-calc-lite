@@ -35,6 +35,7 @@ app.use(helmet({
         "https://cdnjs.cloudflare.com",
         "https://cdn.jsdelivr.net"
       ],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: [
         "'self'",
         "'unsafe-inline'",
