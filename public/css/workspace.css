@@ -273,6 +273,7 @@
   color: var(--color-gray-700);
 }
 
+.ws-panel__btn--report:hover { color: var(--brand-primary); }
 .ws-panel__btn--remove:hover { color: var(--color-danger); }
 
 .ws-panel__body {

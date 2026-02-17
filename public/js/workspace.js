@@ -163,6 +163,9 @@
           '<span class="ws-panel__zoom-label">' + DEFAULT_ZOOM + '%</span>' +
         '</div>' +
         '<div class="ws-panel__actions">' +
+          '<button class="ws-panel__btn ws-panel__btn--report" title="Add to Report">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>' +
+          '</button>' +
           '<a href="/calculators/' + slug + '" target="_blank" class="ws-panel__standalone" title="Open standalone">↗</a>' +
           '<button class="ws-panel__btn ws-panel__btn--collapse" title="Collapse">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>' +
@@ -210,6 +213,52 @@
       body.classList.toggle('collapsed');
     });
 
+    // Report capture
+    var reportBtn = el.querySelector('.ws-panel__btn--report');
+    reportBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      reportBtn.disabled = true;
+      reportBtn.style.opacity = '0.5';
+
+      var target = null;
+      try {
+        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc && iframeDoc.body) target = iframeDoc.body;
+      } catch (err) { /* cross-origin */ }
+
+      if (!target) {
+        showWsToast('Could not capture — try opening standalone', 'error');
+        reportBtn.disabled = false;
+        reportBtn.style.opacity = '';
+        return;
+      }
+
+      if (typeof html2canvas === 'undefined') {
+        showWsToast('Capture library not loaded', 'error');
+        reportBtn.disabled = false;
+        reportBtn.style.opacity = '';
+        return;
+      }
+
+      html2canvas(target, {
+        useCORS: true, allowTaint: true, scale: 1.5,
+        backgroundColor: '#ffffff', logging: false
+      }).then(function(canvas) {
+        var imageData = canvas.toDataURL('image/jpeg', 0.65);
+        MSFG.Report.addItem({ name: name, icon: icon, imageData: imageData });
+        reportBtn.disabled = false;
+        reportBtn.style.opacity = '';
+        reportBtn.style.color = 'var(--brand-primary)';
+        showWsToast('Added to report');
+        setTimeout(function() { reportBtn.style.color = ''; }, 1500);
+      }).catch(function(err) {
+        console.error('Workspace report capture failed:', err);
+        reportBtn.disabled = false;
+        reportBtn.style.opacity = '';
+        showWsToast('Capture failed', 'error');
+      });
+    });
+
     // Remove
     el.querySelector('.ws-panel__btn--remove').addEventListener('click', function(e) {
       e.stopPropagation();
@@ -245,6 +294,22 @@
     if (data.cashToClose !== undefined) panel.tally.cashToClose = data.cashToClose;
     if (data.monthlyIncome !== undefined) panel.tally.monthlyIncome = data.monthlyIncome;
     updateTally();
+  }
+
+  function showWsToast(msg, type) {
+    var t = document.createElement('div');
+    t.style.cssText =
+      'position:fixed;bottom:24px;right:24px;display:flex;align-items:center;gap:8px;' +
+      'padding:12px 20px;background:' + (type === 'error' ? '#dc3545' : '#2d6a4f') + ';color:#fff;' +
+      'font-size:.88rem;font-weight:500;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.18);' +
+      'z-index:10000;transform:translateY(20px);opacity:0;transition:all .3s ease;pointer-events:none;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(function() { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; });
+    setTimeout(function() {
+      t.style.transform = 'translateY(20px)'; t.style.opacity = '0';
+      setTimeout(function() { t.remove(); }, 300);
+    }, 2500);
   }
 
   function updateTally() {
