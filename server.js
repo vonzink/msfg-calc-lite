@@ -50,6 +50,7 @@ app.use('/calculators/mismo', express.static(path.join(__dirname, 'gen-calc', 'm
 app.use('/', require('./routes/index'));
 app.use('/calculators', require('./routes/calculators'));
 app.use('/workspace', require('./routes/workspace'));
+app.use('/report', require('./routes/report'));
 app.use('/settings', require('./routes/settings'));
 
 // Serve legacy calculator files (for iframe stubs during migration)

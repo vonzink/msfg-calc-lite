@@ -23,7 +23,12 @@
 
   <%- include('../partials/footer') %>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <% if (typeof calc !== 'undefined' && calc && calc.icon) { %>
+  <script>window.__calcIcon = '<%= calc.icon %>';</script>
+  <% } %>
   <script src="/js/shared/utils.js"></script>
+  <script src="/js/shared/report.js"></script>
   <%- typeof extraScripts !== 'undefined' ? extraScripts : '' %>
 </body>
 </html>
