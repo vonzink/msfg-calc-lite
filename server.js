@@ -74,8 +74,8 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mount standalone apps BEFORE the calculator router
-app.use('/calculators/amortization', express.static(path.join(__dirname, 'amort-calc')));
+// Legacy standalone apps (served via iframe from EJS wrappers)
+app.use('/legacy/amort-calc', express.static(path.join(__dirname, 'amort-calc')));
 
 app.get('/calculators/llpm', (req, res) => {
   res.sendFile(path.join(__dirname, 'llpm-calc', 'LLPMTool.html'));

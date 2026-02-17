@@ -1120,6 +1120,83 @@
     );
   };
 
+  /* ---- General: Amortization ---- */
+  extractors['amortization'] = function (doc) {
+    // React SPA — extract by reading inputs and visible text
+    var inputs = doc.querySelectorAll('input[type="number"]');
+    var labels = [];
+    inputs.forEach(function (inp) {
+      var lbl = inp.closest('label') || (inp.parentElement && inp.parentElement.querySelector('label'));
+      var labelText = '';
+      if (inp.previousElementSibling && inp.previousElementSibling.tagName === 'LABEL') labelText = inp.previousElementSibling.textContent.trim();
+      else if (inp.closest('.flex') && inp.closest('.flex').querySelector('label')) labelText = inp.closest('.flex').querySelector('label').textContent.trim();
+      else if (lbl) labelText = lbl.textContent.trim();
+      labels.push({ label: labelText, value: parseFloat(inp.value) || 0 });
+    });
+
+    var homeValue = 0, downPct = 0, rate = 0, term = 0, taxYr = 0, insYr = 0;
+    labels.forEach(function (item) {
+      var l = item.label.toLowerCase();
+      if (l.indexOf('home') >= 0 && l.indexOf('value') >= 0) homeValue = item.value;
+      else if (l.indexOf('down') >= 0 && l.indexOf('%') >= 0) downPct = item.value;
+      else if (l.indexOf('rate') >= 0 || l.indexOf('interest') >= 0) rate = item.value;
+      else if (l.indexOf('term') >= 0 || l.indexOf('years') >= 0) term = item.value;
+      else if (l.indexOf('tax') >= 0 && l.indexOf('year') >= 0) taxYr = item.value;
+      else if (l.indexOf('insurance') >= 0 || l.indexOf('ins') >= 0) insYr = item.value;
+    });
+
+    var loanAmount = homeValue * (1 - downPct / 100);
+    var downPayment = homeValue * downPct / 100;
+
+    // Read the displayed total payment from the page
+    var paymentEl = doc.querySelector('.text-3xl.font-bold');
+    var totalPayment = paymentEl ? paymentEl.textContent.trim() : '';
+
+    return {
+      inputs: {
+        homeValue: homeValue, downPct: downPct, downPayment: downPayment,
+        loanAmount: loanAmount, rate: rate, term: term,
+        taxYr: taxYr, insYr: insYr
+      },
+      results: {
+        totalPayment: totalPayment
+      }
+    };
+  };
+
+  renderers['amortization'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var html = '';
+    html += '<div class="rpt-section"><h4 class="rpt-section-title">Mortgage Parameters</h4>';
+    html += '<div class="rpt-params">';
+    html += '<div class="rpt-param"><span>Home Value</span><span>' + fmt0(inp.homeValue) + '</span></div>';
+    html += '<div class="rpt-param"><span>Down Payment</span><span>' + pct(inp.downPct) + ' (' + fmt0(inp.downPayment) + ')</span></div>';
+    html += '<div class="rpt-param"><span>Loan Amount</span><span>' + fmt0(inp.loanAmount) + '</span></div>';
+    html += '<div class="rpt-param"><span>Interest Rate</span><span>' + pct(inp.rate) + '</span></div>';
+    html += '<div class="rpt-param"><span>Loan Term</span><span>' + inp.term + ' years</span></div>';
+    if (inp.taxYr) html += '<div class="rpt-param"><span>Annual Property Tax</span><span>' + fmt0(inp.taxYr) + '</span></div>';
+    if (inp.insYr) html += '<div class="rpt-param"><span>Annual Insurance</span><span>' + fmt0(inp.insYr) + '</span></div>';
+    html += '</div></div>';
+    if (res.totalPayment) {
+      html += '<div class="rpt-grand-total"><span>Monthly Payment</span><span>' + res.totalPayment + '</span></div>';
+    }
+    return html;
+  };
+
+  pdfGenerators['amortization'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var params = [
+      ['Home Value', fmt0(inp.homeValue)], ['Down Payment', pct(inp.downPct) + ' (' + fmt0(inp.downPayment) + ')'],
+      ['Loan Amount', fmt0(inp.loanAmount)], ['Interest Rate', pct(inp.rate)],
+      ['Loan Term', inp.term + ' years']
+    ];
+    if (inp.taxYr) params.push(['Annual Property Tax', fmt0(inp.taxYr)]);
+    if (inp.insYr) params.push(['Annual Insurance', fmt0(inp.insYr)]);
+    var results = [];
+    if (res.totalPayment) results.push(['Monthly Payment', res.totalPayment]);
+    return pdfKeyValue(data, params, results);
+  };
+
   /* ---- Public API ---- */
   MSFG.ReportTemplates = {
     extractors: extractors,
