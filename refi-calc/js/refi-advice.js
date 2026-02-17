@@ -90,6 +90,42 @@ const RefiAdvice = (() => {
         const rateDrop = results.inputs.currentRate - results.inputs.refiRate;
         const futureRateDrop = results.inputs.currentRate - results.inputs.futureRate;
 
+        // Double refi analysis
+        const dr = results.doubleRefi;
+        const doubleRefiAvailable = dr !== null && dr !== undefined;
+        const doubleRefiIsBest = doubleRefiAvailable &&
+            dr.netSavings > a.refiNowNetSavings && dr.netSavings > a.waitNetSavings;
+
+        // ---- SCENARIO 0: Double Refi is the best strategy ----
+        if (doubleRefiIsBest && hasPositiveSavingsNow) {
+            pros.push(`Refi now + refi again produces the highest net savings: ${fmt(dr.netSavings)}`);
+            pros.push(`Phase 1: Save ${fmt(dr.monthlySavingsPhase1)}/mo for ${dr.phase1Months} months at ${results.inputs.refiRate}%`);
+            pros.push(`Phase 2: Save ${fmt(dr.monthlySavingsPhase2)}/mo for ${dr.phase2Months} months at ${results.inputs.futureRate}%`);
+            pros.push(`Never miss a month of savings — start saving immediately`);
+
+            if (dr.breakevenMonth !== Infinity) {
+                neutralPoints.push(`Combined breakeven: ${dr.breakevenMonth} months (paying closing costs twice)`);
+            }
+            neutralPoints.push(`Total closing costs: ${fmt(dr.totalCosts)} (2× ${fmt(dr.firstRefiCosts)})`);
+            neutralPoints.push(`Rate path: ${results.inputs.currentRate}% → ${results.inputs.refiRate}% → ${results.inputs.futureRate}%`);
+
+            cons.push(`Requires paying closing costs twice`);
+            cons.push(`Future rate of ${results.inputs.futureRate}% is not guaranteed`);
+
+            const nowDiff = RefiEngine.round2(dr.netSavings - a.refiNowNetSavings);
+            const waitDiff = RefiEngine.round2(dr.netSavings - a.waitNetSavings);
+            if (nowDiff > 0) {
+                pros.push(`Saves ${fmt(nowDiff)} more than refi-now-only, and ${fmt(waitDiff)} more than waiting`);
+            }
+
+            return {
+                cssClass: 'advice-now',
+                headline: '✓ Best Strategy: Refi Now, Then Refi Again',
+                detail: `The double refinance strategy produces the highest net savings. Refinance now to start saving immediately, then refinance again when rates reach ${results.inputs.futureRate}%.`,
+                pros, cons, neutralPoints
+            };
+        }
+
         // ---- SCENARIO 1: Refinance Now is clearly better ----
         if (hasPositiveSavingsNow && breakevenNowMeetsTarget && nowIsBetter) {
             pros.push(`Monthly savings of ${fmt(a.monthlySavingsNow)} by refinancing now`);
@@ -102,6 +138,11 @@ const RefiAdvice = (() => {
 
             if (waitIsBetter === false) {
                 pros.push(`Refinancing now saves ${fmt(a.netDifference)} more than waiting`);
+            }
+
+            // Double refi mention
+            if (doubleRefiAvailable && dr.netSavings > a.refiNowNetSavings) {
+                neutralPoints.push(`Consider: Refi now + refi again at ${results.inputs.futureRate}% could save ${fmt(dr.netSavings)} (${fmt(RefiEngine.round2(dr.netSavings - a.refiNowNetSavings))} more), but requires paying closing costs twice`);
             }
 
             // Rate info
@@ -141,6 +182,11 @@ const RefiAdvice = (() => {
 
             // Risk warning
             cons.push(`Future rates are not guaranteed — if rates don't drop to ${results.inputs.futureRate}%, the analysis changes`);
+
+            // Double refi alternative
+            if (doubleRefiAvailable && dr.netSavings > 0) {
+                neutralPoints.push(`Alternative: Refi now + refi again yields ${fmt(dr.netSavings)} net savings — avoids waiting risk while still capturing the future rate`);
+            }
 
             return {
                 cssClass: 'advice-wait',

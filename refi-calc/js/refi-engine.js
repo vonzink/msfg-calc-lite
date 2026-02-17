@@ -260,6 +260,137 @@ const RefiEngine = (() => {
     }
 
     // -------------------------------------------------
+    // DOUBLE REFI — REFI NOW, THEN REFI AGAIN
+    // -------------------------------------------------
+
+    /**
+     * Calculate the scenario where the borrower refinances NOW,
+     * then refinances AGAIN when rates drop to the future rate.
+     *
+     * Phase 1: Refi at current offered rate for monthsToWait months
+     * Phase 2: Refi again at futureRate on remaining balance
+     * Cost: Two sets of closing costs
+     *
+     * @param {object} params
+     * @returns {object}
+     */
+    function calcDoubleRefi(params) {
+        const {
+            currentPayment,
+            refiLoanAmount,
+            refiRate,
+            refiTerm,
+            refiNowPayment,
+            futureRate,
+            monthsToWait,
+            closingCosts,
+            planToStayMonths,
+            cashOutDebtPayments = 0
+        } = params;
+
+        // Phase 1: savings from first refi during the waiting period
+        const piSavingsPhase1 = round2(currentPayment - refiNowPayment);
+        const monthlySavingsPhase1 = round2(piSavingsPhase1 + cashOutDebtPayments);
+
+        // Balance on first refi after monthsToWait payments
+        const balanceAtSecondRefi = calcRemainingBalance(
+            refiLoanAmount, refiRate, refiTerm, monthsToWait
+        );
+
+        // Phase 2: second refi at future rate on remaining balance, fresh term
+        const secondRefiPayment = calcMonthlyPayment(balanceAtSecondRefi, futureRate, refiTerm);
+        const piSavingsPhase2 = round2(currentPayment - secondRefiPayment);
+        const monthlySavingsPhase2 = round2(piSavingsPhase2 + cashOutDebtPayments);
+
+        // Time in each phase
+        const phase1Months = monthsToWait;
+        const phase2Months = Math.max(0, planToStayMonths - monthsToWait);
+
+        // Total costs: two sets of closing costs
+        const totalCosts = round2(closingCosts * 2);
+
+        // Total savings
+        const phase1Savings = round2(monthlySavingsPhase1 * phase1Months);
+        const phase2Savings = round2(monthlySavingsPhase2 * phase2Months);
+        const totalSavings = round2(phase1Savings + phase2Savings);
+
+        // Net savings
+        const netSavings = round2(totalSavings - totalCosts);
+
+        // Month-by-month breakeven (accounts for two cost events)
+        let cumulative = -closingCosts; // first refi costs at month 0
+        let breakevenMonth = Infinity;
+
+        for (let m = 1; m <= planToStayMonths; m++) {
+            if (m <= monthsToWait) {
+                cumulative += monthlySavingsPhase1;
+            } else if (m === monthsToWait + 1) {
+                // Second refi costs hit at start of phase 2
+                cumulative -= closingCosts;
+                cumulative += monthlySavingsPhase2;
+            } else {
+                cumulative += monthlySavingsPhase2;
+            }
+
+            if (cumulative >= 0 && breakevenMonth === Infinity) {
+                breakevenMonth = m;
+            }
+        }
+
+        return {
+            balanceAtSecondRefi: round2(balanceAtSecondRefi),
+            secondRefiPayment,
+            piSavingsPhase1,
+            monthlySavingsPhase1,
+            piSavingsPhase2,
+            monthlySavingsPhase2,
+            phase1Months,
+            phase2Months,
+            phase1Savings,
+            phase2Savings,
+            firstRefiCosts: closingCosts,
+            secondRefiCosts: closingCosts,
+            totalCosts,
+            totalSavings,
+            netSavings,
+            breakevenMonth
+        };
+    }
+
+    /**
+     * Build cumulative savings timeline for the double refi scenario.
+     * Used to add a third line on the breakeven chart.
+     *
+     * @param {object} doubleRefi - Output from calcDoubleRefi
+     * @param {number} maxMonths  - How many months to project
+     * @returns {number[]} cumulative savings array
+     */
+    function buildDoubleRefiTimeline(doubleRefi, maxMonths) {
+        const timeline = [];
+        let cumulative = -doubleRefi.firstRefiCosts;
+
+        for (let m = 0; m <= maxMonths; m++) {
+            if (m === 0) {
+                timeline.push(round2(cumulative));
+                continue;
+            }
+
+            if (m <= doubleRefi.phase1Months) {
+                cumulative += doubleRefi.monthlySavingsPhase1;
+            } else if (m === doubleRefi.phase1Months + 1) {
+                cumulative -= doubleRefi.secondRefiCosts;
+                cumulative += doubleRefi.monthlySavingsPhase2;
+            } else {
+                cumulative += doubleRefi.monthlySavingsPhase2;
+            }
+
+            timeline.push(round2(cumulative));
+        }
+
+        return timeline;
+    }
+
+    // -------------------------------------------------
     // REMAINING BALANCE AFTER N PAYMENTS
     // -------------------------------------------------
 
@@ -428,20 +559,41 @@ const RefiEngine = (() => {
         const futureBalance = analysis.balanceAfterWait;
         const futurePayment = analysis.futurePayment;
 
+        // Double Refi analysis (refi now, then refi again when rates drop)
+        let doubleRefi = null;
+        if (costOfWaitingEnabled && inputs.monthsToWait > 0) {
+            doubleRefi = calcDoubleRefi({
+                currentPayment,
+                refiLoanAmount: inputs.refiLoanAmount,
+                refiRate: inputs.refiRate,
+                refiTerm: inputs.refiTerm,
+                refiNowPayment: refiPayment,
+                futureRate: inputs.futureRate,
+                monthsToWait: inputs.monthsToWait,
+                closingCosts: costs.totalBreakeven,
+                planToStayMonths: inputs.planToStayMonths,
+                cashOutDebtPayments
+            });
+        }
+
         // Savings timeline for charts
         const chartMax = Math.min(
             Math.max(
                 (analysis.breakevenNow === Infinity ? 60 : analysis.breakevenNow),
                 (costOfWaitingEnabled && analysis.breakevenWait !== Infinity ? analysis.breakevenWait : 60),
+                (doubleRefi && doubleRefi.breakevenMonth !== Infinity ? doubleRefi.breakevenMonth : 60),
                 60
             ) + 24,
             inputs.planToStayMonths + 12
         );
-        const timeline = costOfWaitingEnabled
-            ? buildSavingsTimeline(analysis, chartMax)
-            : buildSavingsTimeline(analysis, chartMax); // Still builds both for chart compatibility
+        const timeline = buildSavingsTimeline(analysis, chartMax);
 
-        // Amortization for first 60 months — all 3 scenarios
+        // Double refi timeline for chart
+        const doubleRefiTimeline = doubleRefi
+            ? buildDoubleRefiTimeline(doubleRefi, chartMax)
+            : null;
+
+        // Amortization for first 60 months — all scenarios
         const amortCurrent = generateAmortization(
             inputs.currentBalance, inputs.currentRate, inputs.currentTermRemaining, 60
         );
@@ -460,7 +612,9 @@ const RefiEngine = (() => {
             futureBalance,
             costs,
             analysis,
+            doubleRefi,
             timeline,
+            doubleRefiTimeline,
             amortization: {
                 current: amortCurrent,
                 refi: amortRefi,
@@ -485,9 +639,11 @@ const RefiEngine = (() => {
         calcClosingCosts,
         calcBreakevenNow,
         calcCostOfWaiting,
+        calcDoubleRefi,
         calcRemainingBalance,
         generateAmortization,
         buildSavingsTimeline,
+        buildDoubleRefiTimeline,
         runAnalysis,
         // Utility
         monthlyRate,

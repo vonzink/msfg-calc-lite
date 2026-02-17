@@ -997,3 +997,17 @@
         min-width: 0 !important;
     }
 }
+
+/* Result sub-detail text */
+.result-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted, #6c757d);
+    margin-top: 0.25rem;
+    line-height: 1.4;
+}
+
+/* Highlight value within breakdown cards */
+.highlight-value {
+    font-weight: 700;
+    font-size: 1.05rem;
+}

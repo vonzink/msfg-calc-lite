@@ -614,6 +614,99 @@
             </div>
 
             <!-- ====================================================
+                 RESULTS — DOUBLE REFI (REFI NOW, THEN AGAIN)
+                 ==================================================== -->
+            <div class="results-section" id="doubleRefiResults" style="display:none;">
+                <h2>Refi Now, Then Refi Again &mdash; Double Refinance Strategy</h2>
+                <p class="info-text" style="margin-bottom:1.5rem;">
+                    What if you refinance <strong>now</strong> to start saving immediately, then refinance <strong>again</strong>
+                    when rates drop to <span id="doubleRefiTargetRate"></span>%? You pay closing costs twice, but you never
+                    miss a month of savings. Assumes same closing costs for the second refinance.
+                </p>
+
+                <div class="results-grid">
+                    <div class="result-card" id="cardDoubleRefiPhase1Savings">
+                        <h3>Phase 1 Savings (Refi Now)</h3>
+                        <div class="result-value" id="resultDoubleRefiPhase1Savings">$0.00</div>
+                        <div class="result-sub" id="resultDoubleRefiPhase1Detail"></div>
+                    </div>
+                    <div class="result-card" id="cardDoubleRefiPhase2Payment">
+                        <h3>Phase 2 Payment (2nd Refi)</h3>
+                        <div class="result-value" id="resultDoubleRefiPhase2Payment">$0.00</div>
+                        <div class="result-sub" id="resultDoubleRefiPhase2Detail"></div>
+                    </div>
+                    <div class="result-card" id="cardDoubleRefiTotalCosts">
+                        <h3>Total Closing Costs (2x)</h3>
+                        <div class="result-value" id="resultDoubleRefiTotalCosts">$0.00</div>
+                    </div>
+                    <div class="result-card highlight" id="cardDoubleRefiBreakeven">
+                        <h3>Combined Breakeven</h3>
+                        <div class="result-value" id="resultDoubleRefiBreakeven">0 months</div>
+                    </div>
+                </div>
+
+                <!-- 3-Way Comparison Breakdown -->
+                <div class="breakdown-section" style="margin-top:2rem;">
+                    <div class="breakdown-card">
+                        <h3>Refi Now Only</h3>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Closing Costs</span>
+                            <span class="breakdown-value" id="compare3NowCosts">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Monthly Savings</span>
+                            <span class="breakdown-value" id="compare3NowSavings">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Net Savings</span>
+                            <span class="breakdown-value highlight-value" id="compare3NowNet">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-card" style="border-top: 3px solid var(--accent);">
+                        <h3>&#x2B06; Refi Now + Refi Again</h3>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Total Costs (2x closing)</span>
+                            <span class="breakdown-value" id="compare3DoubleCosts">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Phase 1 Savings</span>
+                            <span class="breakdown-value" id="compare3DoublePhase1">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Phase 2 Savings</span>
+                            <span class="breakdown-value" id="compare3DoublePhase2">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Net Savings</span>
+                            <span class="breakdown-value highlight-value" id="compare3DoubleNet">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-card">
+                        <h3>Wait &amp; Refi Once</h3>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Effective Cost</span>
+                            <span class="breakdown-value" id="compare3WaitCosts">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Monthly Savings</span>
+                            <span class="breakdown-value" id="compare3WaitSavings">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Net Savings</span>
+                            <span class="breakdown-value highlight-value" id="compare3WaitNet">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Best Strategy Winner Card -->
+                <div class="difference" id="doubleRefiWinnerCard">
+                    <h3>Best Strategy</h3>
+                    <div class="difference-value" id="doubleRefiBestLabel"></div>
+                    <p id="doubleRefiBestExplain"></p>
+                </div>
+            </div>
+
+            <!-- ====================================================
                  REFINANCE ADVICE / RECOMMENDATION
                  ==================================================== -->
             <div class="conclusion" id="adviceSection">

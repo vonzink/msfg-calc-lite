@@ -515,6 +515,9 @@ const RefiUI = (() => {
             dom.costOfWaitingResults.style.display = inputs.costOfWaitingEnabled ? '' : 'none';
         }
 
+        // Display double refi results
+        displayDoubleRefi(results);
+
         // Show results with animation
         dom.resultsContainer.classList.remove('hidden');
         dom.resultsContainer.classList.add('visible');
@@ -615,6 +618,98 @@ const RefiUI = (() => {
             diffExplain.textContent = `Waiting and refinancing later saves you ${formatMoney(Math.abs(a.netDifference))} more over your ${r.inputs.planToStayMonths}-month stay.`;
         } else {
             diffExplain.textContent = 'Both scenarios produce the same net savings.';
+        }
+    }
+
+    // -------------------------------------------------
+    // DOUBLE REFI RESULTS DISPLAY
+    // -------------------------------------------------
+
+    function displayDoubleRefi(r) {
+        const section = document.getElementById('doubleRefiResults');
+        if (!section) return;
+
+        const dr = r.doubleRefi;
+
+        // Only show when Cost of Waiting is enabled and double refi was calculated
+        if (!dr || !r.inputs.costOfWaitingEnabled) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = '';
+
+        const a = r.analysis;
+        const targetBE = r.inputs.targetBreakeven;
+
+        // Target rate label
+        setText('doubleRefiTargetRate', r.inputs.futureRate);
+
+        // Phase 1: savings during first refi period
+        setText('resultDoubleRefiPhase1Savings', formatMoney(dr.monthlySavingsPhase1) + '/mo');
+        setText('resultDoubleRefiPhase1Detail',
+            formatMoney(dr.monthlySavingsPhase1) + '/mo for ' + dr.phase1Months + ' months = ' + formatMoney(dr.phase1Savings));
+        setCardStatus('cardDoubleRefiPhase1Savings', dr.monthlySavingsPhase1 > 0 ? 'favorable' : 'unfavorable');
+
+        // Phase 2: second refi payment
+        setText('resultDoubleRefiPhase2Payment', formatMoney(dr.secondRefiPayment));
+        setText('resultDoubleRefiPhase2Detail',
+            formatMoney(dr.monthlySavingsPhase2) + '/mo savings for ' + dr.phase2Months + ' months');
+        setCardStatus('cardDoubleRefiPhase2Payment', dr.piSavingsPhase2 > 0 ? 'favorable' : 'neutral');
+
+        // Total costs (2x)
+        setText('resultDoubleRefiTotalCosts', formatMoney(dr.totalCosts));
+
+        // Breakeven
+        setText('resultDoubleRefiBreakeven',
+            dr.breakevenMonth === Infinity ? 'N/A' : dr.breakevenMonth + ' months');
+        if (dr.breakevenMonth === Infinity) {
+            setCardStatus('cardDoubleRefiBreakeven', 'unfavorable');
+        } else if (dr.breakevenMonth <= targetBE) {
+            setCardStatus('cardDoubleRefiBreakeven', 'favorable');
+        } else {
+            setCardStatus('cardDoubleRefiBreakeven', 'neutral');
+        }
+
+        // 3-Way comparison
+        setText('compare3NowCosts', formatMoney(a.closingCosts));
+        setText('compare3NowSavings', formatMoney(a.monthlySavingsNow) + '/mo');
+        setText('compare3NowNet', formatMoney(a.refiNowNetSavings));
+
+        setText('compare3DoubleCosts', formatMoney(dr.totalCosts));
+        setText('compare3DoublePhase1', formatMoney(dr.phase1Savings));
+        setText('compare3DoublePhase2', formatMoney(dr.phase2Savings));
+        setText('compare3DoubleNet', formatMoney(dr.netSavings));
+
+        setText('compare3WaitCosts', formatMoney(a.effectiveTotalCost));
+        setText('compare3WaitSavings', formatMoney(a.futureMonthlySavings) + '/mo');
+        setText('compare3WaitNet', formatMoney(a.waitNetSavings));
+
+        // Determine best strategy
+        const scenarios = [
+            { label: 'Refi Now Only', net: a.refiNowNetSavings },
+            { label: 'Refi Now + Refi Again', net: dr.netSavings },
+            { label: 'Wait & Refi Once', net: a.waitNetSavings }
+        ];
+        scenarios.sort((x, y) => y.net - x.net);
+        const best = scenarios[0];
+        const second = scenarios[1];
+
+        const winnerCard = document.getElementById('doubleRefiWinnerCard');
+        winnerCard.classList.remove('positive', 'negative');
+
+        const bestLabel = document.getElementById('doubleRefiBestLabel');
+        const bestExplain = document.getElementById('doubleRefiBestExplain');
+
+        bestLabel.textContent = best.label;
+
+        if (best.net > second.net) {
+            winnerCard.classList.add('positive');
+            const advantage = RefiEngine.round2(best.net - second.net);
+            bestExplain.textContent = best.label + ' saves ' + formatMoney(advantage) +
+                ' more than the next best option (' + second.label + ') over your ' +
+                r.inputs.planToStayMonths + '-month stay.';
+        } else {
+            bestExplain.textContent = 'Multiple strategies produce similar results. Consider rate confidence and cash flow preferences.';
         }
     }
 
@@ -731,6 +826,43 @@ const RefiUI = (() => {
             </div>`;
         }
 
+        // Double Refi Details (only if calculated)
+        if (r.doubleRefi) {
+            const dr = r.doubleRefi;
+            html += `
+            <div class="math-group">
+                <h4>Double Refi Strategy — Refi Now, Then Refi Again</h4>
+                <div class="math-step">
+                    <div class="step-label">Phase 1: Refi now at ${r.inputs.refiRate}% for ${dr.phase1Months} months</div>
+                    <div class="step-formula">Monthly savings: ${formatMoney(r.currentPayment)} - ${formatMoney(r.refiPayment)} = ${formatMoney(dr.piSavingsPhase1)}/mo</div>
+                    <div class="step-result">Phase 1 total: ${formatMoney(dr.piSavingsPhase1)} &times; ${dr.phase1Months} = ${formatMoney(dr.phase1Savings)}</div>
+                </div>
+                <div class="math-step">
+                    <div class="step-label">Balance at month ${dr.phase1Months} (when 2nd refi occurs)</div>
+                    <div class="step-result">= ${formatMoney(dr.balanceAtSecondRefi)}</div>
+                </div>
+                <div class="math-step">
+                    <div class="step-label">Phase 2: Refi again at ${r.inputs.futureRate}% on ${formatMoney(dr.balanceAtSecondRefi)}</div>
+                    <div class="step-formula">New payment: ${formatMoney(dr.secondRefiPayment)} | Savings: ${formatMoney(r.currentPayment)} - ${formatMoney(dr.secondRefiPayment)} = ${formatMoney(dr.piSavingsPhase2)}/mo</div>
+                    <div class="step-result">Phase 2 total: ${formatMoney(dr.piSavingsPhase2)} &times; ${dr.phase2Months} = ${formatMoney(dr.phase2Savings)}</div>
+                </div>
+                <div class="math-step">
+                    <div class="step-label">Total closing costs (2x)</div>
+                    <div class="step-formula">${formatMoney(dr.firstRefiCosts)} + ${formatMoney(dr.secondRefiCosts)}</div>
+                    <div class="step-result">= ${formatMoney(dr.totalCosts)}</div>
+                </div>
+                <div class="math-step">
+                    <div class="step-label">Net savings (Double Refi Strategy)</div>
+                    <div class="step-formula">(${formatMoney(dr.phase1Savings)} + ${formatMoney(dr.phase2Savings)}) - ${formatMoney(dr.totalCosts)}</div>
+                    <div class="step-result">= ${formatMoney(dr.netSavings)}</div>
+                </div>
+                <div class="math-step">
+                    <div class="step-label">Combined breakeven</div>
+                    <div class="step-result">= ${dr.breakevenMonth === Infinity ? 'N/A (costs not recovered)' : dr.breakevenMonth + ' months'}</div>
+                </div>
+            </div>`;
+        }
+
         // Net Savings Comparison
         html += `
         <div class="math-group">
@@ -740,6 +872,14 @@ const RefiUI = (() => {
                 <div class="step-formula">(${formatMoney(a.monthlySavingsNow)} &times; ${r.inputs.planToStayMonths}) - ${formatMoney(a.closingCosts)}</div>
                 <div class="step-result">= ${formatMoney(a.refiNowNetSavings)}</div>
             </div>`;
+
+        if (r.doubleRefi) {
+            html += `
+            <div class="math-step">
+                <div class="step-label">Refi Now + Refi Again Net Savings</div>
+                <div class="step-result">= ${formatMoney(r.doubleRefi.netSavings)}</div>
+            </div>`;
+        }
 
         if (r.inputs.costOfWaitingEnabled) {
             html += `

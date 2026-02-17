@@ -107,6 +107,22 @@ const RefiCharts = (() => {
             });
         }
 
+        // Double Refi timeline (refi now + refi again)
+        if (results.doubleRefiTimeline) {
+            datasets.push({
+                label: 'Refi Now + Refi Again — Cumulative Savings',
+                data: results.doubleRefiTimeline,
+                borderColor: colors.purple,
+                backgroundColor: 'rgba(156, 39, 176, 0.15)',
+                borderWidth: 3,
+                fill: false,
+                tension: 0.1,
+                pointRadius: 0,
+                pointHitRadius: 8,
+                borderDash: [4, 2]
+            });
+        }
+
         datasets.push({
             label: 'Break-even Line ($0)',
             data: t.labels.map(() => 0),
@@ -159,7 +175,8 @@ const RefiCharts = (() => {
                             title: (items) => `Month ${items[0].label}`,
                             label: (item) => {
                                 const val = item.parsed.y;
-                                if (item.datasetIndex === 2) return '';
+                                // Hide the break-even $0 line in tooltips
+                                if (item.dataset.label.startsWith('Break-even')) return '';
                                 return `${item.dataset.label.split('—')[0].trim()}: $${val.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
                             }
                         }
@@ -219,6 +236,50 @@ const RefiCharts = (() => {
                         }
                     }
 
+                    // Draw breakeven point for "Double Refi"
+                    if (results.doubleRefi && results.doubleRefi.breakevenMonth !== Infinity &&
+                        results.doubleRefi.breakevenMonth <= t.labels[t.labels.length - 1]) {
+                        const drBE = results.doubleRefi.breakevenMonth;
+                        const x = xScale.getPixelForValue(drBE);
+                        const y = yScale.getPixelForValue(0);
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(x, y, 8, 0, Math.PI * 2);
+                        ctx.fillStyle = colors.purple;
+                        ctx.fill();
+                        ctx.strokeStyle = '#fff';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+
+                        ctx.fillStyle = colors.purple;
+                        ctx.font = 'bold 12px Segoe UI';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${drBE} mo`, x, y + 24);
+                        ctx.restore();
+                    }
+
+                    // Draw second refi vertical marker
+                    if (results.doubleRefi && costOfWaitingEnabled && a.monthsToWait > 0) {
+                        const xSecondRefi = xScale.getPixelForValue(a.monthsToWait);
+                        const yTop = yScale.top;
+                        const yBottom = yScale.bottom;
+
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(156, 39, 176, 0.35)';
+                        ctx.setLineDash([3, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(xSecondRefi, yTop);
+                        ctx.lineTo(xSecondRefi, yBottom);
+                        ctx.stroke();
+
+                        ctx.fillStyle = colors.purple;
+                        ctx.font = '10px Segoe UI';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('2nd Refi', xSecondRefi, yBottom - 6);
+                        ctx.restore();
+                    }
+
                     // Draw waiting period shading (only if Cost of Waiting enabled)
                     if (costOfWaitingEnabled && a.monthsToWait > 0) {
                         const xStart = xScale.getPixelForValue(0);
@@ -271,6 +332,14 @@ const RefiCharts = (() => {
             data.push(results.futurePayment);
             bgColors.push(colors.orange + 'CC');
             borderColors.push(colors.orange);
+        }
+
+        // Double refi: show the Phase 2 payment after second refinance
+        if (results.doubleRefi) {
+            labels.push(`Double Refi Phase 2 (${results.inputs.futureRate}%)`);
+            data.push(results.doubleRefi.secondRefiPayment);
+            bgColors.push(colors.purple + 'CC');
+            borderColors.push(colors.purple);
         }
 
         chartComparison = new Chart(ctx, {
