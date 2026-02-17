@@ -1,0 +1,269 @@
+<div class="calc-page">
+  <div class="calc-page__header">
+    <h1>Variable Income Analyzer</h1>
+    <p>Analyze paystub &amp; W-2 data to classify income as variable or stable per Fannie Mae guidelines (B3-3.1-01 through B3-3.1-04).</p>
+  </div>
+
+  <div class="calc-page__body">
+
+    <!-- Employment Panels Container -->
+    <div id="employmentsContainer">
+
+      <!-- Employment 1 (template that gets cloned for additional employers) -->
+      <div class="employment-panel" data-emp-index="0">
+        <div class="calc-section">
+          <h2>
+            <span class="emp-panel-title">Employment 1</span>
+            <button class="btn btn-sm btn-secondary remove-emp-btn" type="button" style="margin-left: auto; display: none;">Remove</button>
+          </h2>
+
+          <!-- Employment Details -->
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Employer Name</label>
+              <input type="text" class="emp-employer-name" placeholder="e.g. Acme Corp">
+            </div>
+            <div class="form-group">
+              <label>Position / Title</label>
+              <input type="text" class="emp-position" placeholder="e.g. Loan Officer">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: var(--space-md);">
+            <div class="form-group">
+              <label>Pay Type
+                <span class="help-icon" data-help="Salary: fixed annual amount. Hourly: paid per hour worked.">?</span>
+              </label>
+              <select class="emp-pay-type">
+                <option value="SALARY">Salary</option>
+                <option value="HOURLY">Hourly</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Pay Frequency
+                <span class="help-icon" data-help="How often the borrower is paid. Affects YTD-to-monthly conversions.">?</span>
+              </label>
+              <select class="emp-pay-frequency">
+                <option value="BIWEEKLY">Biweekly (26/yr)</option>
+                <option value="SEMIMONTHLY">Semimonthly (24/yr)</option>
+                <option value="WEEKLY">Weekly (52/yr)</option>
+                <option value="MONTHLY">Monthly (12/yr)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>
+                <span class="emp-rate-label">Annual Salary</span>
+                <span class="help-icon" data-help="For salary: enter annual gross. For hourly: enter hourly rate.">?</span>
+              </label>
+              <input type="number" class="emp-base-rate" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+
+          <!-- Hourly-specific fields -->
+          <div class="emp-hourly-fields" style="display: none; margin-top: var(--space-md);">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Expected Hours/Week
+                  <span class="help-icon" data-help="Standard hours per week if consistent. Leave blank if hours fluctuate.">?</span>
+                </label>
+                <input type="number" class="emp-hours-per-week" step="0.5" placeholder="40">
+              </div>
+              <div class="form-group" style="justify-content: center;">
+                <label class="form-check" style="margin-top: var(--space-md);">
+                  <input type="checkbox" class="emp-hours-fluctuate">
+                  Hours fluctuate (treat base as variable)
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: var(--space-md);">
+            <div class="form-group">
+              <label>Employment Start Date</label>
+              <input type="date" class="emp-start-date">
+            </div>
+            <div class="form-group" style="justify-content: center;">
+              <label class="form-check" style="margin-top: var(--space-md);">
+                <input type="checkbox" class="emp-comp-change">
+                Recent comp/role change
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paystub YTD Data -->
+        <div class="calc-section">
+          <h2>Paystub YTD Earnings</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Paystub As-Of Date
+                <span class="help-icon" data-help="Date on the most recent paystub. Must be within 30 days per B3-3.1-02.">?</span>
+              </label>
+              <input type="date" class="emp-as-of-date">
+            </div>
+            <div class="form-group">
+              <label>Pay Periods YTD
+                <span class="help-icon" data-help="Number of pay periods received so far this year. Used for expected vs actual base comparison.">?</span>
+              </label>
+              <input type="number" class="emp-pay-periods-ytd" step="1" placeholder="0">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: var(--space-md);">
+            <div class="form-group">
+              <label>YTD Base
+                <span class="help-icon" data-help="Year-to-date base/regular earnings from paystub.">?</span>
+              </label>
+              <input type="number" class="emp-ytd-base" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>YTD Overtime
+                <span class="help-icon" data-help="Year-to-date overtime earnings. Requires 12+ months history to qualify (B3-3.1-03).">?</span>
+              </label>
+              <input type="number" class="emp-ytd-overtime" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>YTD Bonus
+                <span class="help-icon" data-help="Year-to-date bonus earnings. Requires 12+ months history to qualify (B3-3.1-03).">?</span>
+              </label>
+              <input type="number" class="emp-ytd-bonus" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: var(--space-md);">
+            <div class="form-group">
+              <label>YTD Commission
+                <span class="help-icon" data-help="Year-to-date commission earnings. 2 years recommended; 12-24 months possible with positive factors (B3-3.1-04).">?</span>
+              </label>
+              <input type="number" class="emp-ytd-commission" step="0.01" placeholder="0.00">
+            </div>
+            <div class="form-group">
+              <label>YTD Other
+                <span class="help-icon" data-help="Year-to-date other earnings (shift differential, tips, etc.).">?</span>
+              </label>
+              <input type="number" class="emp-ytd-other" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <!-- Prior Year W-2 Data -->
+        <div class="calc-section">
+          <h2>Prior Year W-2 / Earnings History</h2>
+          <p style="font-size: 0.85rem; color: var(--color-gray-500); margin-bottom: var(--space-md);">
+            Enter prior year totals from W-2s or tax returns. Two years recommended for trending analysis.
+          </p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Base</th>
+                <th>Overtime</th>
+                <th>Bonus</th>
+                <th>Commission</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="emp-prior-year-label-1">2025</td>
+                <td><input type="number" class="emp-prior1-base" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior1-overtime" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior1-bonus" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior1-commission" step="0.01" placeholder="0.00"></td>
+              </tr>
+              <tr>
+                <td class="emp-prior-year-label-2">2024</td>
+                <td><input type="number" class="emp-prior2-base" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior2-overtime" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior2-bonus" step="0.01" placeholder="0.00"></td>
+                <td><input type="number" class="emp-prior2-commission" step="0.01" placeholder="0.00"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- AI Upload Zone (Phase 2 placeholder) -->
+        <div class="calc-section">
+          <div class="upload-zone upload-zone--disabled" data-emp-index="0">
+            <div class="upload-zone__icon">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="upload-zone__text">
+              <strong>Upload Paystub</strong>
+              <span>Drag &amp; drop or click to upload a paystub image/PDF for AI-powered field extraction</span>
+            </div>
+            <input type="file" class="upload-zone__input" accept="image/*,application/pdf" style="display: none;">
+            <div class="upload-zone__status"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Employment Button -->
+    <div style="text-align: center; margin-bottom: var(--space-xl);">
+      <button class="btn btn-ghost" id="addEmploymentBtn" type="button">
+        + Add Employment
+      </button>
+    </div>
+
+    <!-- Calculate Button -->
+    <div class="action-bar" style="border-top: none;">
+      <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+      <button class="btn btn-primary" id="calculateBtn" type="button">Analyze Income</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" style="display: none;">
+
+      <!-- Combined Summary -->
+      <div class="calc-section">
+        <h2>Income Summary</h2>
+        <div class="results-grid">
+          <div class="result-card">
+            <div class="result-card__label">Monthly Base</div>
+            <div class="result-card__value" id="resultMonthlyBase">--</div>
+          </div>
+          <div class="result-card">
+            <div class="result-card__label">Monthly Variable</div>
+            <div class="result-card__value" id="resultMonthlyVariable">--</div>
+          </div>
+          <div class="result-card">
+            <div class="result-card__label">Total Monthly Usable</div>
+            <div class="result-card__value" id="resultMonthlyTotal">--</div>
+          </div>
+        </div>
+
+        <div class="result-highlight" style="margin-top: var(--space-lg);">
+          <div class="result-highlight__label">Qualifying Monthly Income</div>
+          <div class="result-highlight__value" id="resultQualifyingIncome">--</div>
+        </div>
+      </div>
+
+      <!-- Per-Employment Breakdown Tables -->
+      <div id="empBreakdownContainer"></div>
+
+      <!-- Flags Section -->
+      <div class="calc-section">
+        <h2>Flags &amp; Observations</h2>
+        <div id="flagsContainer">
+          <p style="font-size: 0.85rem; color: var(--color-gray-500);">Run analysis to see flags.</p>
+        </div>
+      </div>
+
+      <!-- Required Documentation -->
+      <div class="calc-section">
+        <h2>Required Documentation</h2>
+        <div id="docsContainer">
+          <p style="font-size: 0.85rem; color: var(--color-gray-500);">Run analysis to see documentation requirements.</p>
+        </div>
+      </div>
+
+      <%- include('../partials/show-calculations', { calcId: 'var-income' }) %>
+    </div>
+
+  </div>
+
+  <div class="calc-page__footer">
+    <div class="calc-page__footer-title">Important Disclaimers</div>
+    <p>For internal guidance only. Income classification and usability are subject to Fannie Mae Selling Guide, DU findings, and underwriter discretion. References: B3-3.1-01, B3-3.1-02, B3-3.1-03, B3-3.1-04.</p>
+  </div>
+</div>

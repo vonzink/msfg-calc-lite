@@ -34,6 +34,7 @@
     { "slug": "fha", "name": "FHA Loan Calculator", "category": "government", "icon": "🏦", "hasCalculations": true, "description": "FHA eligibility, UFMIP, NTB, and cash to close" },
     { "slug": "fha-refi", "name": "FHA Refinance Calculator", "category": "government", "icon": "🏦", "hasCalculations": true, "description": "FHA streamline and standard refinance analysis" },
     { "slug": "va-prequal", "name": "VA Pre-Qualification", "category": "government", "icon": "🎖️", "hasCalculations": true, "description": "VA residual income and DTI worksheet" },
+    { "slug": "var-income", "name": "Variable Income Analyzer", "category": "income", "icon": "📊", "hasCalculations": true, "description": "Analyze paystub income for variable vs stable classification per Fannie Mae guidelines" },
     { "slug": "income-questionnaire", "name": "Income Questionnaire", "category": "income", "icon": "❓", "hasCalculations": false, "description": "Guided questionnaire to determine which income calculators to use" },
     { "slug": "income/1040", "name": "Form 1040 Income", "category": "income", "icon": "📝", "hasCalculations": true, "description": "Calculate qualifying income from IRS Form 1040" },
     { "slug": "income/1065", "name": "Form 1065 Income", "category": "income", "icon": "📝", "hasCalculations": true, "description": "Partnership income from Form 1065" },

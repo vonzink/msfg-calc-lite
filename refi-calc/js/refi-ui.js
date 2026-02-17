@@ -240,103 +240,102 @@ const RefiUI = (() => {
     // LIVE PAYMENT DISPLAY UPDATES
     // -------------------------------------------------
 
-    function updateLiveCalculations() {
-        const currentBalance = num(dom.currentBalance);
-        const currentRate = num(dom.currentRate);
-        const currentTermRemaining = num(dom.currentTermRemaining);
-        const currentPropertyValue = num(dom.currentPropertyValue);
-        const currentLoanType = dom.currentLoanType ? dom.currentLoanType.value : 'Conventional';
-        const refiLoanAmount = num(dom.refiLoanAmount);
-        const refiRate = num(dom.refiRate);
-        const refiTerm = num(dom.refiTerm);
-        const refiLoanType = dom.refiLoanType ? dom.refiLoanType.value : 'Conventional';
+function updateLiveCalculations() {
+    const currentBalance = num(dom.currentBalance);
+    const currentRate = num(dom.currentRate);
+    const currentTermRemaining = num(dom.currentTermRemaining);
+    const currentPropertyValue = num(dom.currentPropertyValue);
+    const currentLoanType = dom.currentLoanType ? dom.currentLoanType.value : 'Conventional';
 
-        // Current payment
-        const currentPmt = RefiEngine.calcMonthlyPayment(currentBalance, currentRate, currentTermRemaining);
+    const refiLoanAmount = num(dom.refiLoanAmount);
+    const refiRate = num(dom.refiRate);
+    const refiTerm = num(dom.refiTerm);
+    const refiLoanType = dom.refiLoanType ? dom.refiLoanType.value : 'Conventional';
 
-        if (dom.manualPaymentToggle.checked) {
-            dom.currentPaymentDisplay.textContent = formatMoney(num(dom.currentPaymentManual));
-            dom.currentPaymentDisplay.title = 'Manual entry';
-        } else {
-            dom.currentPaymentDisplay.textContent = formatMoney(currentPmt);
-            dom.currentPaymentDisplay.title = 'Computed from balance, rate & term';
-        }
+    // Current payment
+    const currentPmt = RefiEngine.calcMonthlyPayment(currentBalance, currentRate, currentTermRemaining);
 
-        // Current MI calculation
-        if (typeof RefiMI !== 'undefined') {
-            const currentMI = RefiMI.calcMI(currentLoanType, currentBalance, currentPropertyValue, currentTermRemaining);
-            updateMIDisplay('current', currentMI);
-        }
-
-        // Refi payment
-        const refiPmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, refiRate, refiTerm);
-        dom.refiPaymentDisplay.textContent = formatMoney(refiPmt);
-
-        // Refi MI calculation
-        if (typeof RefiMI !== 'undefined') {
-            const refiMI = RefiMI.calcMI(refiLoanType, refiLoanAmount, currentPropertyValue, refiTerm);
-            updateMIDisplay('refi', refiMI);
-
-            // Auto-populate MI fee fields in closing costs
-            const feeUpfrontMI = document.getElementById('feeUpfrontMI');
-            const feeMonthlyMI = document.getElementById('feeMonthlyMI');
-            const totalMonthlyMIEl = document.getElementById('totalMonthlyMI');
-            const feeUpfrontMINote = document.getElementById('feeUpfrontMINote');
-
-            if (feeUpfrontMI) feeUpfrontMI.value = refiMI.upfront || 0;
-            if (feeMonthlyMI) feeMonthlyMI.value = refiMI.monthlyMI ? refiMI.monthlyMI.toFixed(2) : 0;
-            if (totalMonthlyMIEl) totalMonthlyMIEl.textContent = formatMoney(refiMI.monthlyMI || 0);
-            if (feeUpfrontMINote) {
-                feeUpfrontMINote.textContent = refiMI.note || 'Auto-set based on loan type';
-            }
-
-            // Total PITI + MI display
-            const escrowTax = num(dom.fees.feeEscrowTax);
-            const escrowIns = num(dom.fees.feeEscrowInsurance);
-            const totalPITIMI = RefiEngine.round2(refiPmt + refiMI.monthlyMI + escrowTax + escrowIns);
-            if (dom.refiPITIMIDisplay) {
-                dom.refiPITIMIDisplay.textContent = formatMoney(totalPITIMI);
-            }
-        }
-
-        // Future payment (only update if Cost of Waiting is enabled)
-        if (dom.costOfWaitingToggle.checked) {
-            const futurePmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, num(dom.futureRate), refiTerm);
-            dom.futurePaymentDisplay.textContent = formatMoney(futurePmt);
-        }
-
-        // Cash out adjusted savings
-        const currentPmtFinal = dom.manualPaymentToggle.checked ? num(dom.currentPaymentManual) : currentPmt;
-        const piSavings = RefiEngine.round2(currentPmtFinal - refiPmt);
-        const debtPayments = dom.cashOutToggle.checked ? num(dom.cashOutDebtPayments) : 0;
-        const adjustedSavings = RefiEngine.round2(piSavings + debtPayments);
-        dom.cashOutAdjustedSavings.textContent = formatMoney(adjustedSavings);
+    if (dom.manualPaymentToggle.checked) {
+        dom.currentPaymentDisplay.textContent = formatMoney(num(dom.currentPaymentManual));
+        dom.currentPaymentDisplay.title = 'Manual entry';
+    } else {
+        dom.currentPaymentDisplay.textContent = formatMoney(currentPmt);
+        dom.currentPaymentDisplay.title = 'Computed from balance, rate & term';
     }
 
-    /**
-     * Update the MI info display for either current or refi loan.
-     */
-    function updateMIDisplay(prefix, miData) {
-        const ltvEl = document.getElementById(prefix + 'LTV');
-        const monthlyMIEl = document.getElementById(prefix + 'MonthlyMI');
-        const upfrontMIEl = document.getElementById(prefix + 'UpfrontMI');
-        const noteEl = document.getElementById(prefix + 'MINote');
-        const infoRow = document.getElementById(prefix + 'MIInfo');
-
-        if (ltvEl) ltvEl.textContent = miData.ltv.toFixed(1) + '%';
-        if (monthlyMIEl) monthlyMIEl.textContent = formatMoney(miData.monthlyMI);
-        if (upfrontMIEl) upfrontMIEl.textContent = formatMoney(miData.upfront);
-        if (noteEl) noteEl.textContent = miData.note || '';
-
-        if (infoRow) {
-            infoRow.classList.remove('has-mi', 'no-mi');
-            if (miData.hasMI) {
-                infoRow.classList.add('has-mi');
-            } else {
-                infoRow.classList.add('no-mi');
-            }
-        }
+    // Current MI calculation (display only)
+    if (typeof RefiMI !== 'undefined') {
+        const currentMI = RefiMI.calcMI(
+            currentLoanType,
+            currentBalance,
+            currentPropertyValue,
+            currentTermRemaining
+        );
+        updateMIDisplay('current', currentMI);
     }
+
+    // Refi payment
+    const refiPmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, refiRate, refiTerm);
+    dom.refiPaymentDisplay.textContent = formatMoney(refiPmt);
+
+    // Refi MI calculation (display only — NO fee auto-population)
+    if (typeof RefiMI !== 'undefined') {
+        const refiMI = RefiMI.calcMI(refiLoanType, refiLoanAmount, currentPropertyValue, refiTerm);
+        updateMIDisplay('refi', refiMI);
+    }
+
+    // ---------------- MI FEES (MANUAL ENTRY ONLY) ----------------
+    // Whatever the user types in feeMonthlyMI is what we use everywhere.
+    const manualMonthlyMI = num(dom.fees.feeMonthlyMI);
+
+    // Keep the "Total Monthly MI" display in sync with manual entry (but do not overwrite input)
+    const totalMonthlyMIEl = document.getElementById('totalMonthlyMI');
+    if (totalMonthlyMIEl) totalMonthlyMIEl.textContent = formatMoney(manualMonthlyMI);
+
+    // Total PITI + MI display (uses manual MI)
+    const escrowTax = num(dom.fees.feeEscrowTax);
+    const escrowIns = num(dom.fees.feeEscrowInsurance);
+    const totalPITIMI = RefiEngine.round2(refiPmt + manualMonthlyMI + escrowTax + escrowIns);
+
+    if (dom.refiPITIMIDisplay) {
+        dom.refiPITIMIDisplay.textContent = formatMoney(totalPITIMI);
+    }
+
+    // Future payment (only update if Cost of Waiting is enabled)
+    if (dom.costOfWaitingToggle.checked) {
+        const futurePmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, num(dom.futureRate), refiTerm);
+        dom.futurePaymentDisplay.textContent = formatMoney(futurePmt);
+    }
+
+    // Cash out adjusted savings
+    const currentPmtFinal = dom.manualPaymentToggle.checked ? num(dom.currentPaymentManual) : currentPmt;
+    const piSavings = RefiEngine.round2(currentPmtFinal - refiPmt);
+    const debtPayments = dom.cashOutToggle.checked ? num(dom.cashOutDebtPayments) : 0;
+    const adjustedSavings = RefiEngine.round2(piSavings + debtPayments);
+
+    dom.cashOutAdjustedSavings.textContent = formatMoney(adjustedSavings);
+}
+/**
+ * Update the MI info display for either current or refi loan.
+ */
+function updateMIDisplay(prefix, miData) {
+    const ltvEl = document.getElementById(prefix + 'LTV');
+    const monthlyMIEl = document.getElementById(prefix + 'MonthlyMI');
+    const upfrontMIEl = document.getElementById(prefix + 'UpfrontMI');
+    const noteEl = document.getElementById(prefix + 'MINote');
+    const infoRow = document.getElementById(prefix + 'MIInfo');
+
+    if (ltvEl) ltvEl.textContent = miData.ltv.toFixed(1) + '%';
+    if (monthlyMIEl) monthlyMIEl.textContent = formatMoney(miData.monthlyMI);
+    if (upfrontMIEl) upfrontMIEl.textContent = formatMoney(miData.upfront);
+    if (noteEl) noteEl.textContent = miData.note || '';
+
+    if (infoRow) {
+        infoRow.classList.remove('has-mi', 'no-mi');
+        infoRow.classList.add(miData.hasMI ? 'has-mi' : 'no-mi');
+    }
+}
+        
 
     // -------------------------------------------------
     // LIVE CLOSING COST TOTAL UPDATES
