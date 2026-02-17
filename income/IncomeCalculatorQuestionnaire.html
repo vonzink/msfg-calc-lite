@@ -912,13 +912,24 @@
         }
 
         function openInWorkspace() {
-            const recommendations = generateRecommendations();
-            const slugs = recommendations.map(key => workspaceSlugs[key]).filter(Boolean);
-            const url = '/workspace?add=' + encodeURIComponent(slugs.join(','));
             try {
-                window.top.location.href = url;
-            } catch (e) {
-                window.location.href = url;
+                const recommendations = generateRecommendations();
+                const slugs = recommendations.map(key => workspaceSlugs[key]).filter(Boolean);
+                if (slugs.length === 0) {
+                    alert('No calculators recommended. Please complete the questionnaire first.');
+                    return;
+                }
+                const url = '/workspace?add=' + slugs.join(',');
+                // Navigate the top-level window (breaks out of any iframe nesting)
+                if (window.top && window.top !== window) {
+                    window.top.location.href = url;
+                } else {
+                    window.location.href = url;
+                }
+            } catch (err) {
+                // Fallback: navigate current window
+                console.error('openInWorkspace error:', err);
+                window.location.href = '/workspace';
             }
         }
 

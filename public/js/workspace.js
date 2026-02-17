@@ -4,6 +4,7 @@
    ===================================================== */
 (function() {
   var activePanels = [];
+  var DEFAULT_ZOOM = 85;
 
   var panelsContainer, emptyState, tallyBar, countBadge, selectorDrawer;
 
@@ -67,19 +68,72 @@
     var urlParams = new URLSearchParams(window.location.search);
     var addParam = urlParams.get('add');
     if (addParam) {
-      var slugsToAdd = addParam.split(',').map(function(s) { return s.trim(); });
+      var slugsToAdd = addParam.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
       slugsToAdd.forEach(function(slug) {
         var btn = document.querySelector('.workspace__selector-btn[data-slug="' + slug + '"]');
         if (btn && !btn.classList.contains('active')) {
-          btn.click();
+          var nameEl = btn.querySelector('.workspace__selector-name');
+          var iconEl = btn.querySelector('.workspace__selector-icon');
+          var name = nameEl ? nameEl.textContent : slug;
+          var icon = iconEl ? iconEl.textContent : '📝';
+          addPanel(slug, name, icon);
+          btn.classList.add('active');
         }
       });
-      // Clean the URL so refreshing doesn't re-add
       if (window.history.replaceState) {
         window.history.replaceState({}, '', '/workspace');
       }
     }
   });
+
+  /* ---- Apply zoom to all iframe layers within a panel ---- */
+  function applyZoomToIframe(iframe, zoomValue) {
+    var zoomDecimal = zoomValue / 100;
+    try {
+      var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      if (!iframeDoc || !iframeDoc.body) return;
+      iframeDoc.body.classList.add('embed-mode');
+
+      // Set or update the embed-mode zoom style
+      var existing = iframeDoc.getElementById('ws-embed-zoom');
+      if (existing) {
+        existing.textContent = 'body.embed-mode { zoom: ' + zoomDecimal + '; }';
+      } else {
+        var style = iframeDoc.createElement('style');
+        style.id = 'ws-embed-zoom';
+        style.textContent = 'body.embed-mode { zoom: ' + zoomDecimal + '; }';
+        iframeDoc.head.appendChild(style);
+      }
+
+      // Handle nested iframes (legacy calculator stubs)
+      var nestedIframes = iframeDoc.querySelectorAll('iframe');
+      nestedIframes.forEach(function(nested) {
+        applyZoomToNestedIframe(nested, zoomDecimal);
+        // Re-apply on future loads
+        nested.removeEventListener('load', nested._wsZoomHandler);
+        nested._wsZoomHandler = function() { applyZoomToNestedIframe(nested, zoomDecimal); };
+        nested.addEventListener('load', nested._wsZoomHandler);
+      });
+    } catch (e) { /* cross-origin, skip */ }
+  }
+
+  function applyZoomToNestedIframe(nested, zoomDecimal) {
+    try {
+      var nestedDoc = nested.contentDocument || nested.contentWindow.document;
+      if (nestedDoc && nestedDoc.body) {
+        nestedDoc.body.classList.add('embed-mode');
+        var existing = nestedDoc.getElementById('ws-embed-zoom');
+        if (existing) {
+          existing.textContent = 'body.embed-mode { zoom: ' + zoomDecimal + '; }';
+        } else {
+          var style = nestedDoc.createElement('style');
+          style.id = 'ws-embed-zoom';
+          style.textContent = 'body.embed-mode { zoom: ' + zoomDecimal + '; }';
+          nestedDoc.head.appendChild(style);
+        }
+      }
+    } catch (e) { /* cross-origin nested, skip */ }
+  }
 
   function addPanel(slug, name, icon) {
     if (activePanels.find(function(p) { return p.slug === slug; })) return;
@@ -88,6 +142,7 @@
       slug: slug,
       name: name,
       icon: icon,
+      zoom: DEFAULT_ZOOM,
       tally: { monthlyPayment: 0, loanAmount: 0, cashToClose: 0, monthlyIncome: 0 }
     };
     activePanels.push(panel);
@@ -100,6 +155,13 @@
       '<div class="ws-panel__header" data-slug="' + slug + '">' +
         '<span class="ws-panel__icon">' + icon + '</span>' +
         '<h3 class="ws-panel__title">' + name + '</h3>' +
+        '<div class="ws-panel__zoom">' +
+          '<svg class="ws-panel__zoom-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">' +
+            '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>' +
+          '</svg>' +
+          '<input type="range" class="ws-panel__zoom-slider" min="50" max="100" value="' + DEFAULT_ZOOM + '" step="5" />' +
+          '<span class="ws-panel__zoom-label">' + DEFAULT_ZOOM + '%</span>' +
+        '</div>' +
         '<div class="ws-panel__actions">' +
           '<a href="/calculators/' + slug + '" target="_blank" class="ws-panel__standalone" title="Open standalone">↗</a>' +
           '<button class="ws-panel__btn ws-panel__btn--collapse" title="Collapse">' +
@@ -114,13 +176,25 @@
         '<iframe class="ws-panel__iframe" src="/calculators/' + slug + '?embed=1" loading="lazy"></iframe>' +
       '</div>';
 
-    // Inject embed mode into iframe once loaded (hides footer/header chrome)
+    // Prevent zoom slider clicks from toggling panel collapse
+    var zoomContainer = el.querySelector('.ws-panel__zoom');
+    zoomContainer.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    // Zoom slider handler
+    var slider = el.querySelector('.ws-panel__zoom-slider');
+    var label = el.querySelector('.ws-panel__zoom-label');
     var iframe = el.querySelector('.ws-panel__iframe');
+
+    slider.addEventListener('input', function() {
+      var val = parseInt(this.value, 10);
+      label.textContent = val + '%';
+      panel.zoom = val;
+      applyZoomToIframe(iframe, val);
+    });
+
+    // Apply embed mode + default zoom when iframe loads
     iframe.addEventListener('load', function() {
-      try {
-        var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        iframeDoc.body.classList.add('embed-mode');
-      } catch (e) { /* cross-origin, skip */ }
+      applyZoomToIframe(iframe, panel.zoom);
     });
 
     // Collapse toggle

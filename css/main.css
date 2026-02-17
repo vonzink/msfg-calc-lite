@@ -1173,4 +1173,5 @@ body.embed-mode .main-container {
 body.embed-mode {
   padding: 0;
   background: #fff;
+  zoom: 0.85;
 }

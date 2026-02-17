@@ -565,4 +565,5 @@ body.embed-mode .site-main {
 
 body.embed-mode {
   background: var(--color-white);
+  zoom: 0.85;
 }
