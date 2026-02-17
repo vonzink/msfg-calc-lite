@@ -943,3 +943,57 @@
     font-weight: 700;
     font-size: 1.05rem;
 }
+
+/* =====================================================
+   MORTGAGE INSURANCE (MI) INFO ROW
+   ===================================================== */
+.mi-info-row {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.mi-info-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.mi-detail {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mi-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gray);
+    white-space: nowrap;
+}
+
+.mi-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.mi-note {
+    font-size: 0.78rem;
+    color: var(--gray);
+    font-style: italic;
+    flex: 1;
+    min-width: 180px;
+}
+
+.mi-info-row.has-mi {
+    background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+    border-color: #f0d060;
+}
+
+.mi-info-row.no-mi {
+    background: linear-gradient(135deg, #d4edda 0%, #f0fff0 100%);
+    border-color: var(--success);
+}

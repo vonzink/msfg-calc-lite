@@ -160,24 +160,29 @@ const RefiPDF = (() => {
         let data;
         let colWidths;
 
+        const currentLoanType = r.inputs.currentLoanType || 'Conventional';
+        const refiLoanType = r.inputs.refiLoanType || 'Conventional';
+        const currentMIStr = r.currentMI && r.currentMI.monthlyMI > 0 ? ' + ' + fmt(r.currentMI.monthlyMI) + ' MI' : '';
+        const refiMIStr = r.refiMI && r.refiMI.monthlyMI > 0 ? ' + ' + fmt(r.refiMI.monthlyMI) + ' MI' : '';
+
         if (costOfWaitingEnabled) {
             data = [
                 ['', 'Current Loan', 'Refi Offer', 'Future (Wait)'],
+                ['Loan Type', currentLoanType, refiLoanType, refiLoanType],
                 ['Balance / Amount', fmt(r.inputs.currentBalance), fmt(r.inputs.refiLoanAmount), fmt(r.analysis.balanceAfterWait)],
                 ['Interest Rate', r.inputs.currentRate + '%', r.inputs.refiRate + '%', r.inputs.futureRate + '%'],
                 ['Term', r.inputs.currentTermRemaining + ' mo remaining', r.inputs.refiTerm + ' mo', r.inputs.refiTerm + ' mo'],
-                ['Monthly P&I', fmt(r.currentPayment), fmt(r.refiPayment), fmt(r.futurePayment)],
-                ['Product', '—', r.inputs.refiProduct.replace(/([A-Z])/g, ' $1').trim(), '—'],
+                ['Monthly P&I', fmt(r.currentPayment) + currentMIStr, fmt(r.refiPayment) + refiMIStr, fmt(r.futurePayment)],
             ];
             colWidths = [35, 45, 45, 45];
         } else {
             data = [
                 ['', 'Current Loan', 'Refi Offer'],
+                ['Loan Type', currentLoanType, refiLoanType],
                 ['Balance / Amount', fmt(r.inputs.currentBalance), fmt(r.inputs.refiLoanAmount)],
                 ['Interest Rate', r.inputs.currentRate + '%', r.inputs.refiRate + '%'],
                 ['Term', r.inputs.currentTermRemaining + ' mo remaining', r.inputs.refiTerm + ' mo'],
-                ['Monthly P&I', fmt(r.currentPayment), fmt(r.refiPayment)],
-                ['Product', '—', r.inputs.refiProduct.replace(/([A-Z])/g, ' $1').trim()],
+                ['Monthly P&I', fmt(r.currentPayment) + currentMIStr, fmt(r.refiPayment) + refiMIStr],
             ];
             colWidths = [50, 60, 60];
         }
@@ -418,6 +423,9 @@ const RefiPDF = (() => {
             ['— GOVERNMENT FEES —', ''],
             ['Recording Fee for Deed', fmt(fees.feeRecording)],
             ['Government Fees Total', fmt(c.govFees)],
+            ['— MI / FUNDING FEES —', ''],
+            ['Upfront MI / Funding Fee', fmt(fees.feeUpfrontMI || 0)],
+            ['Monthly MI', fmt(fees.feeMonthlyMI || 0) + '/mo'],
             ['Other Fees', fmt(fees.feeOther || 0)],
             ['TOTAL FOR BREAKEVEN', fmt(c.totalBreakeven)],
             ['— EXCLUDED (Prepaids & Escrow) —', ''],

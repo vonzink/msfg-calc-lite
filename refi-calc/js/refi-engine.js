@@ -103,8 +103,14 @@ const RefiEngine = (() => {
 
         const other = round2(fees.feeOther || 0);
 
+        // Upfront MI / Funding Fee (included in breakeven)
+        const upfrontMI = round2(fees.feeUpfrontMI || 0);
+
+        // Monthly MI (tracked separately, not part of closing cost totals)
+        const monthlyMI = round2(fees.feeMonthlyMI || 0);
+
         // Breakeven-eligible: everything EXCEPT prepaids and escrow
-        const totalBreakeven = round2(origination + cannotShop + canShop + govFees + other);
+        const totalBreakeven = round2(origination + cannotShop + canShop + govFees + other + upfrontMI);
 
         // Grand total of all costs
         const totalAll = round2(totalBreakeven + prepaids + escrow);
@@ -117,6 +123,8 @@ const RefiEngine = (() => {
             prepaids,
             escrow,
             other,
+            upfrontMI,
+            monthlyMI,
             totalBreakeven,
             totalAll
         };
@@ -529,8 +537,25 @@ const RefiEngine = (() => {
         const cashOutDebtPayments = cashOutEnabled ? (inputs.cashOutDebtPayments || 0) : 0;
         const cashOutDebts = cashOutEnabled ? (inputs.cashOutDebts || []) : [];
 
+        // MI calculations
+        const currentLoanType = inputs.currentLoanType || 'Conventional';
+        const refiLoanType = inputs.refiLoanType || 'Conventional';
+        let currentMI = { monthlyMI: 0, upfront: 0, ltv: 0, hasMI: false, note: '' };
+        let refiMI = { monthlyMI: 0, upfront: 0, ltv: 0, hasMI: false, note: '' };
+
+        if (typeof RefiMI !== 'undefined') {
+            currentMI = RefiMI.calcMI(currentLoanType, inputs.currentBalance, inputs.currentPropertyValue, inputs.currentTermRemaining);
+            refiMI = RefiMI.calcMI(refiLoanType, inputs.refiLoanAmount, inputs.currentPropertyValue, inputs.refiTerm);
+        }
+
         // Closing costs
         const costs = calcClosingCosts(inputs.fees);
+
+        // MI difference (current monthly MI - refi monthly MI)
+        // If current loan has MI and refi doesn't (or vice versa), this affects net savings
+        const currentMonthlyMI = currentMI.monthlyMI || 0;
+        const refiMonthlyMI = refiMI.monthlyMI || 0;
+        const miMonthlySavings = round2(currentMonthlyMI - refiMonthlyMI);
 
         // Cost of Waiting enabled flag (defaults to true for backward compat)
         const costOfWaitingEnabled = inputs.costOfWaitingEnabled !== undefined
@@ -626,6 +651,8 @@ const RefiEngine = (() => {
                 debtPayments: cashOutDebtPayments,
                 debts: cashOutDebts
             },
+            currentMI,
+            refiMI,
             inputs // pass through for reference
         };
     }

@@ -343,6 +343,14 @@
     if (data.loan.rate) m['refiRate'] = data.loan.rate;
     if (data.loan.termMonths) m['refiTerm'] = data.loan.termMonths;
 
+    // Loan type mapping
+    if (data.loan.mortgageType) {
+      var typeMap = { 'Conventional': 'Conventional', 'FHA': 'FHA', 'VA': 'VA', 'USDA': 'USDA',
+                      'FederalHousingAdministration': 'FHA', 'VeteransAffairs': 'VA', 'USDARuralHousing': 'USDA' };
+      var loanType = typeMap[data.loan.mortgageType] || 'Conventional';
+      m['refiLoanType'] = loanType;
+    }
+
     // Individual fees
     var fees = data.fees || {};
     if (fees['OriginationFee']) m['feeOrigination'] = fees['OriginationFee'].amount;

@@ -430,6 +430,7 @@ const RefiCharts = (() => {
             { label: 'Cannot Shop', value: c.cannotShop, color: colors.blue },
             { label: 'Can Shop', value: c.canShop, color: colors.accent },
             { label: 'Government Fees', value: c.govFees, color: colors.purple },
+            { label: 'Upfront MI/FF', value: c.upfrontMI || 0, color: '#e65100' },
             { label: 'Other', value: c.other, color: colors.gray },
             { label: 'Prepaids (excluded)', value: c.prepaids, color: colors.warning + '80' },
             { label: 'Escrow (excluded)', value: c.escrow, color: colors.orange + '80' },

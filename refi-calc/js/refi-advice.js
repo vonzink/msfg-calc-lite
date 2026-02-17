@@ -73,6 +73,20 @@ const RefiAdvice = (() => {
             neutralPoints.push(`Cash-out refinance: ${fmt(co.amount)} cash out, eliminating ${fmt(co.debtPayments)}/mo in debt payments`);
         }
 
+        // MI context notes
+        if (results.refiMI && results.refiMI.hasMI) {
+            const miType = results.inputs.refiLoanType || 'Conventional';
+            if (results.refiMI.monthlyMI > 0) {
+                neutralPoints.push(`${miType} loan includes ${fmt(results.refiMI.monthlyMI)}/mo mortgage insurance`);
+            }
+            if (results.refiMI.upfront > 0) {
+                neutralPoints.push(`Upfront MI/Funding Fee of ${fmt(results.refiMI.upfront)} added to closing costs`);
+            }
+        }
+        if (results.currentMI && results.currentMI.monthlyMI > 0 && results.refiMI && results.refiMI.monthlyMI === 0) {
+            pros.push(`Eliminates ${fmt(results.currentMI.monthlyMI)}/mo mortgage insurance by refinancing to ${results.inputs.refiLoanType || 'Conventional'}`);
+        }
+
         // If Cost of Waiting is disabled, use simplified analysis (no wait comparison)
         if (!costOfWaitingEnabled) {
             return analyzeRefiOnly(results, pros, cons, neutralPoints);

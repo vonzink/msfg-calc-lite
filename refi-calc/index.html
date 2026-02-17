@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/refi-calc.css">
 
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
     <!-- jsPDF + html2canvas for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -82,6 +82,15 @@
                         <label for="currentPropertyValue">Property Value ($)</label>
                         <input type="number" id="currentPropertyValue" value="660000" min="0" step="1000">
                     </div>
+                    <div class="input-group">
+                        <label for="currentLoanType">Current Loan Type</label>
+                        <select id="currentLoanType">
+                            <option value="Conventional" selected>Conventional</option>
+                            <option value="FHA">FHA</option>
+                            <option value="VA">VA</option>
+                            <option value="USDA">USDA</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Computed vs Manual toggle -->
@@ -96,6 +105,21 @@
                     <div class="input-group">
                         <label for="currentPaymentManual">Current Monthly P&I Payment ($)</label>
                         <input type="number" id="currentPaymentManual" value="0" min="0" step="1">
+                    </div>
+                </div>
+
+                <!-- Current MI Info -->
+                <div class="mi-info-row" id="currentMIInfo" style="margin-top:1rem;">
+                    <div class="mi-info-inner">
+                        <div class="mi-detail">
+                            <span class="mi-label">Current LTV:</span>
+                            <span class="mi-value" id="currentLTV">0%</span>
+                        </div>
+                        <div class="mi-detail">
+                            <span class="mi-label">Current Monthly MI:</span>
+                            <span class="mi-value" id="currentMonthlyMI">$0.00</span>
+                        </div>
+                        <div class="mi-detail mi-note" id="currentMINote"></div>
                     </div>
                 </div>
 
@@ -130,21 +154,42 @@
                         <input type="number" id="refiTerm" value="360" min="1" max="480" step="1">
                     </div>
                     <div class="input-group">
-                        <label for="refiProduct">Product Type</label>
-                        <select id="refiProduct">
-                            <option value="Conv30Year" selected>Conv 30 Year Fixed</option>
-                            <option value="Conv20Year">Conv 20 Year Fixed</option>
-                            <option value="Conv15Year">Conv 15 Year Fixed</option>
-                            <option value="FHA30Year">FHA 30 Year Fixed</option>
-                            <option value="VA30Year">VA 30 Year Fixed</option>
-                            <option value="USDA30Year">USDA 30 Year Fixed</option>
+                        <label for="refiLoanType">Loan Type</label>
+                        <select id="refiLoanType">
+                            <option value="Conventional" selected>Conventional</option>
+                            <option value="FHA">FHA</option>
+                            <option value="VA">VA</option>
+                            <option value="USDA">USDA</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- MI Info (auto-calculated based on loan type & LTV) -->
+                <div class="mi-info-row" id="refiMIInfo" style="margin-top:1rem;">
+                    <div class="mi-info-inner">
+                        <div class="mi-detail">
+                            <span class="mi-label">LTV:</span>
+                            <span class="mi-value" id="refiLTV">0%</span>
+                        </div>
+                        <div class="mi-detail">
+                            <span class="mi-label">Monthly MI:</span>
+                            <span class="mi-value" id="refiMonthlyMI">$0.00</span>
+                        </div>
+                        <div class="mi-detail">
+                            <span class="mi-label">Upfront MI/FF:</span>
+                            <span class="mi-value" id="refiUpfrontMI">$0.00</span>
+                        </div>
+                        <div class="mi-detail mi-note" id="refiMINote"></div>
                     </div>
                 </div>
 
                 <div class="total-row" style="margin-top:1rem;">
                     <label>New Monthly P&I Payment:</label>
                     <span class="total-value" id="refiPaymentDisplay">$0.00</span>
+                </div>
+                <div class="total-row" style="margin-top:0.5rem;" id="refiTotalPITI">
+                    <label>Total PITI + MI:</label>
+                    <span class="total-value" id="refiPITIMIDisplay">$0.00</span>
                 </div>
             </div>
         </div>
@@ -384,6 +429,27 @@
                         </div>
                     </div>
 
+                    <!-- Mortgage Insurance / Funding Fees -->
+                    <div class="fee-section" id="feesMISection">
+                        <h4>Mortgage Insurance / Funding Fees <span class="form-note" style="font-weight:400;">(auto-calculated from loan type)</span></h4>
+                        <div class="fee-grid">
+                            <div class="fee-item">
+                                <label for="feeUpfrontMI">Upfront MI / Funding Fee ($)</label>
+                                <input type="number" id="feeUpfrontMI" value="0" min="0" step="1">
+                                <span class="form-note" id="feeUpfrontMINote">Auto-set based on loan type</span>
+                            </div>
+                            <div class="fee-item">
+                                <label for="feeMonthlyMI">Monthly MI ($)</label>
+                                <input type="number" id="feeMonthlyMI" value="0" min="0" step="0.01">
+                                <span class="form-note" id="feeMonthlyMINote">Added to monthly payment comparison</span>
+                            </div>
+                        </div>
+                        <div class="total-row">
+                            <label>Monthly MI Impact:</label>
+                            <span class="total-value" id="totalMonthlyMI">$0.00</span>
+                        </div>
+                    </div>
+
                     <!-- Other -->
                     <div class="fee-section">
                         <h4>Other Costs</h4>
@@ -401,7 +467,7 @@
                         <span class="total-value" id="totalClosingCostsBreakeven" style="font-size:1.4rem;">$0.00</span>
                     </div>
                     <p class="form-note" style="margin-top:0.5rem; text-align:center;">
-                        = Origination + Cannot Shop + Can Shop + Government Fees + Other &nbsp;|&nbsp;
+                        = Origination + Cannot Shop + Can Shop + Government Fees + Upfront MI + Other &nbsp;|&nbsp;
                         <strong>Excludes</strong> Prepaids &amp; Escrow
                     </p>
                 </div>
@@ -839,6 +905,7 @@
      JAVASCRIPT MODULES
      ==================================================== -->
 <script src="js/refi-engine.js"></script>
+<script src="js/refi-mi.js"></script>
 <script src="js/refi-ui.js"></script>
 <script src="js/refi-charts.js"></script>
 <script src="js/refi-advice.js"></script>
