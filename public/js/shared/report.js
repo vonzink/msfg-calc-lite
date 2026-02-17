@@ -359,7 +359,7 @@
       headerWrapper.appendChild(btn);
       calcHeader.appendChild(headerWrapper);
 
-    } else if (window.top === window && !document.querySelector('.workspace')) {
+    } else if (window.top === window && !document.querySelector('.workspace') && window.__calcSlug) {
       var name = document.title.replace(/\s*[-|].*$/, '').trim() || 'Tool';
       var iconMeta = document.querySelector('meta[name="calc-icon"]');
       var icon = iconMeta ? iconMeta.getAttribute('content') : '';

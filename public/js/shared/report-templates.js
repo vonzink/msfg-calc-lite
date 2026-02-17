@@ -480,6 +480,86 @@
   };
 
 
+  /* ---- General: Blended Rate ---- */
+  extractors['blended-rate'] = function (doc) {
+    var debts = [];
+    for (var i = 1; i <= 5; i++) {
+      var b = val(doc,'d'+i+'_bal'), r = val(doc,'d'+i+'_rate'), p = val(doc,'d'+i+'_pay');
+      if (b || r || p) debts.push({ label: 'Debt ' + i, balance: b, rate: r, payment: p });
+    }
+    return {
+      debts: debts,
+      results: {
+        totalBalance: txt(doc,'totalBal'), totalPayment: txt(doc,'totalPay'),
+        blendedRate: txt(doc,'blendedRate')
+      }
+    };
+  };
+
+  /* ---- General: Buydown ---- */
+  extractors['buydown'] = function (doc) {
+    return {
+      inputs: {
+        loanAmount: val(doc,'loanAmount'), noteRate: val(doc,'noteRate'),
+        loanTerm: txt(doc,'loanTerm'), buydownType: txt(doc,'buydownType')
+      },
+      results: {
+        basePayment: txt(doc,'basePayment'), year1Payment: txt(doc,'year1Payment'),
+        year1Savings: txt(doc,'year1Savings'), totalCost: txt(doc,'totalCost')
+      }
+    };
+  };
+
+  /* ---- Government: Escrow Prepaids ---- */
+  extractors['escrow'] = function (doc) {
+    return {
+      inputs: {
+        loanType: txt(doc,'loanType'), state: txt(doc,'state'),
+        closingDate: txt(doc,'closingDate'), annualTax: val(doc,'annualTax'),
+        annualIns: val(doc,'annualIns'), cushionMonths: val(doc,'cushionMonths')
+      },
+      results: {
+        taxDeposit: txt(doc,'resultTaxDeposit'), insDeposit: txt(doc,'resultInsDeposit'),
+        totalDeposit: txt(doc,'resultTotalDeposit'), aggregateAdj: txt(doc,'resultAggregateAdj')
+      }
+    };
+  };
+
+  /* ---- Government: FHA Refinance ---- */
+  extractors['fha-refi'] = function (doc) {
+    return {
+      inputs: {
+        borrower: txt(doc,'borrowerName'), currentUpb: val(doc,'sl_upb'),
+        originalLoan: val(doc,'sl_originalLoanAmount'),
+        oldRate: val(doc,'ntb_oldRate'), newRate: val(doc,'ntb_newRate')
+      },
+      results: {
+        totalClosingCosts: txt(doc,'sl_totalClosingCosts'), baseLoan: txt(doc,'sl_baseAmount'),
+        newUfmip: txt(doc,'sl_newUFMIP'), finalMortgage: txt(doc,'sl_finalResult'),
+        ufmipRefund: txt(doc,'sl_ufmipRefund')
+      }
+    };
+  };
+
+  /* ---- General: REO Investment ---- */
+  extractors['reo'] = function (doc) {
+    return {
+      inputs: {
+        address: (txt(doc,'street') + ' ' + txt(doc,'city')).trim(),
+        purchasePrice: val(doc,'purchasePrice'), downPct: val(doc,'downPct'),
+        rate: val(doc,'rate'), term: val(doc,'termYears'),
+        grossRents: val(doc,'grossRents'), appreciation: val(doc,'appreciation')
+      },
+      results: {
+        renoTotal: txt(doc,'renoTotal'), cashInvested: txt(doc,'cashInvested'),
+        noiMonthly: txt(doc,'noiMonthly'), r2p: txt(doc,'r2p'),
+        year1CapRate: txt(doc,'cap1'), year1CashFlow: txt(doc,'cf1'),
+        year1CoC: txt(doc,'coc1')
+      }
+    };
+  };
+
+
   /* ================================================
      RENDERERS — data object → clean report HTML
      ================================================ */
@@ -696,6 +776,100 @@
   };
 
 
+  /* General: Blended Rate */
+  renderers['blended-rate'] = function (data) {
+    var html = '<table class="rpt-table"><thead><tr><th>Debt</th><th class="rpt-num">Balance</th><th class="rpt-num">Rate</th><th class="rpt-num">Payment</th></tr></thead><tbody>';
+    (data.debts || []).forEach(function (d) {
+      html += '<tr><td>' + d.label + '</td><td class="rpt-num">' + fmt(d.balance) + '</td><td class="rpt-num">' + pct(d.rate) + '</td><td class="rpt-num">' + fmt(d.payment) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    var r = data.results;
+    html += '<div class="rpt-grand-total"><span>Blended Rate</span><span>' + r.blendedRate + '</span></div>';
+    html += '<div class="rpt-subtotal"><span>Total Balance</span><span>' + r.totalBalance + '</span></div>';
+    html += '<div class="rpt-subtotal"><span>Total Payment</span><span>' + r.totalPayment + '</span></div>';
+    return html;
+  };
+
+  /* General: Buydown */
+  renderers['buydown'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var html = '<div class="rpt-params">';
+    html += '<div class="rpt-param"><span>Loan Amount</span><span>' + fmt0(inp.loanAmount) + '</span></div>';
+    html += '<div class="rpt-param"><span>Note Rate</span><span>' + pct(inp.noteRate) + '</span></div>';
+    html += '<div class="rpt-param"><span>Loan Term</span><span>' + inp.loanTerm + '</span></div>';
+    html += '<div class="rpt-param"><span>Buydown Type</span><span>' + inp.buydownType + '</span></div>';
+    html += '</div>';
+    html += '<table class="rpt-table"><tbody>';
+    html += '<tr><td>Full Rate Payment</td><td class="rpt-num">' + res.basePayment + '</td></tr>';
+    html += '<tr><td>Year 1 Payment</td><td class="rpt-num">' + res.year1Payment + '</td></tr>';
+    html += '<tr><td>Year 1 Savings</td><td class="rpt-num">' + res.year1Savings + '</td></tr>';
+    html += '</tbody></table>';
+    html += '<div class="rpt-grand-total"><span>Total Buydown Cost</span><span>' + res.totalCost + '</span></div>';
+    return html;
+  };
+
+  /* Government: Escrow */
+  renderers['escrow'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var html = '<div class="rpt-params">';
+    html += '<div class="rpt-param"><span>Loan Type</span><span>' + inp.loanType + '</span></div>';
+    html += '<div class="rpt-param"><span>State</span><span>' + inp.state + '</span></div>';
+    html += '<div class="rpt-param"><span>Closing Date</span><span>' + inp.closingDate + '</span></div>';
+    html += '<div class="rpt-param"><span>Annual Tax</span><span>' + fmt0(inp.annualTax) + '</span></div>';
+    html += '<div class="rpt-param"><span>Annual Insurance</span><span>' + fmt0(inp.annualIns) + '</span></div>';
+    html += '</div>';
+    html += '<table class="rpt-table"><tbody>';
+    html += '<tr><td>Tax Escrow Deposit</td><td class="rpt-num">' + res.taxDeposit + '</td></tr>';
+    html += '<tr><td>Insurance Escrow Deposit</td><td class="rpt-num">' + res.insDeposit + '</td></tr>';
+    html += '<tr><td>Aggregate Adjustment</td><td class="rpt-num">' + res.aggregateAdj + '</td></tr>';
+    html += '</tbody></table>';
+    html += '<div class="rpt-grand-total"><span>Total Initial Escrow</span><span>' + res.totalDeposit + '</span></div>';
+    return html;
+  };
+
+  /* Government: FHA Refi */
+  renderers['fha-refi'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var html = '<div class="rpt-params">';
+    if (inp.borrower) html += '<div class="rpt-param"><span>Borrower</span><span>' + inp.borrower + '</span></div>';
+    html += '<div class="rpt-param"><span>Current UPB</span><span>' + fmt0(inp.currentUpb) + '</span></div>';
+    html += '<div class="rpt-param"><span>Original Loan</span><span>' + fmt0(inp.originalLoan) + '</span></div>';
+    html += '<div class="rpt-param"><span>Current Rate</span><span>' + pct(inp.oldRate) + '</span></div>';
+    html += '<div class="rpt-param"><span>New Rate</span><span>' + pct(inp.newRate) + '</span></div>';
+    html += '</div>';
+    html += '<table class="rpt-table"><tbody>';
+    html += '<tr><td>Total Closing Costs</td><td class="rpt-num">' + res.totalClosingCosts + '</td></tr>';
+    html += '<tr><td>Base Loan Amount</td><td class="rpt-num">' + res.baseLoan + '</td></tr>';
+    html += '<tr><td>New UFMIP (1.75%)</td><td class="rpt-num">' + res.newUfmip + '</td></tr>';
+    html += '<tr><td>UFMIP Refund</td><td class="rpt-num">' + res.ufmipRefund + '</td></tr>';
+    html += '</tbody></table>';
+    html += '<div class="rpt-grand-total"><span>Max Streamline Mortgage</span><span>' + res.finalMortgage + '</span></div>';
+    return html;
+  };
+
+  /* General: REO */
+  renderers['reo'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    var html = '<div class="rpt-params">';
+    if (inp.address) html += '<div class="rpt-param"><span>Property</span><span>' + inp.address + '</span></div>';
+    html += '<div class="rpt-param"><span>Purchase Price</span><span>' + fmt0(inp.purchasePrice) + '</span></div>';
+    html += '<div class="rpt-param"><span>Down Payment</span><span>' + pct(inp.downPct) + '</span></div>';
+    html += '<div class="rpt-param"><span>Rate</span><span>' + pct(inp.rate) + '</span></div>';
+    html += '<div class="rpt-param"><span>Gross Rents</span><span>' + fmt0(inp.grossRents) + '/mo</span></div>';
+    html += '</div>';
+    html += '<table class="rpt-table"><tbody>';
+    html += '<tr><td>Renovation Total</td><td class="rpt-num">' + res.renoTotal + '</td></tr>';
+    html += '<tr><td>Cash Invested</td><td class="rpt-num">' + res.cashInvested + '</td></tr>';
+    html += '<tr><td>Monthly NOI</td><td class="rpt-num">' + res.noiMonthly + '</td></tr>';
+    html += '<tr><td>Rent-to-Price Ratio</td><td class="rpt-num">' + res.r2p + '</td></tr>';
+    html += '<tr><td>Year 1 Cap Rate</td><td class="rpt-num">' + res.year1CapRate + '</td></tr>';
+    html += '<tr><td>Year 1 Cash Flow</td><td class="rpt-num">' + res.year1CashFlow + '</td></tr>';
+    html += '</tbody></table>';
+    html += '<div class="rpt-grand-total"><span>Year 1 Cash-on-Cash</span><span>' + res.year1CoC + '</span></div>';
+    return html;
+  };
+
+
   /* ================================================
      PDFMAKE CONTENT GENERATORS
      ================================================ */
@@ -807,6 +981,48 @@
       [['Purchase Price', fmt0(inp.price)], ['Down Payment', pct(inp.downPct)], ['Rate', pct(inp.rate)], ['Rent', fmt0(inp.rent) + '/mo'], ['Period', inp.period + ' yrs']],
       [['Monthly Payment', res.monthlyPayment], ['Total Own Cost', res.ownCost], ['Total Rent Cost', res.rentCost], ['Net Equity', res.equity], ['Difference', res.difference]]
     ).concat(res.recommendation ? [{ text: res.recommendation, bold: true, fontSize: 11, color: '#2d6a4f', margin: [0, 8, 0, 0] }] : []);
+  };
+
+  pdfGenerators['blended-rate'] = function (data) {
+    var body = [[{ text: 'Debt', style: 'tableHeader' }, { text: 'Balance', style: 'tableHeader', alignment: 'right' }, { text: 'Rate', style: 'tableHeader', alignment: 'right' }, { text: 'Payment', style: 'tableHeader', alignment: 'right' }]];
+    (data.debts || []).forEach(function (d) { body.push([d.label, { text: fmt(d.balance), alignment: 'right' }, { text: pct(d.rate), alignment: 'right' }, { text: fmt(d.payment), alignment: 'right' }]); });
+    var r = data.results;
+    return [
+      { table: { headerRows: 1, widths: ['*', 80, 60, 80], body: body }, layout: 'lightHorizontalLines' },
+      { columns: [{ text: 'Blended Rate', bold: true, fontSize: 12, color: '#2d6a4f' }, { text: r.blendedRate, alignment: 'right', bold: true, fontSize: 12, color: '#2d6a4f' }], margin: [0, 8, 0, 0] }
+    ];
+  };
+
+  pdfGenerators['buydown'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    return pdfKeyValue(data,
+      [['Loan Amount', fmt0(inp.loanAmount)], ['Note Rate', pct(inp.noteRate)], ['Term', inp.loanTerm], ['Buydown Type', inp.buydownType]],
+      [['Full Rate Payment', res.basePayment], ['Year 1 Payment', res.year1Payment], ['Year 1 Savings', res.year1Savings], ['Total Buydown Cost', res.totalCost]]
+    );
+  };
+
+  pdfGenerators['escrow'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    return pdfKeyValue(data,
+      [['Loan Type', inp.loanType], ['State', inp.state], ['Closing Date', inp.closingDate], ['Annual Tax', fmt0(inp.annualTax)], ['Annual Insurance', fmt0(inp.annualIns)]],
+      [['Tax Escrow Deposit', res.taxDeposit], ['Insurance Escrow Deposit', res.insDeposit], ['Aggregate Adjustment', res.aggregateAdj], ['Total Initial Escrow', res.totalDeposit]]
+    );
+  };
+
+  pdfGenerators['fha-refi'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    return pdfKeyValue(data,
+      [['Borrower', inp.borrower || '—'], ['Current UPB', fmt0(inp.currentUpb)], ['Original Loan', fmt0(inp.originalLoan)], ['Current Rate', pct(inp.oldRate)], ['New Rate', pct(inp.newRate)]],
+      [['Closing Costs', res.totalClosingCosts], ['Base Loan', res.baseLoan], ['New UFMIP', res.newUfmip], ['UFMIP Refund', res.ufmipRefund], ['Max Streamline Mortgage', res.finalMortgage]]
+    );
+  };
+
+  pdfGenerators['reo'] = function (data) {
+    var inp = data.inputs; var res = data.results;
+    return pdfKeyValue(data,
+      [['Property', inp.address || '—'], ['Purchase Price', fmt0(inp.purchasePrice)], ['Down Payment', pct(inp.downPct)], ['Rate', pct(inp.rate)], ['Gross Rents', fmt0(inp.grossRents) + '/mo']],
+      [['Renovation Total', res.renoTotal], ['Cash Invested', res.cashInvested], ['Monthly NOI', res.noiMonthly], ['Year 1 Cap Rate', res.year1CapRate], ['Year 1 Cash Flow', res.year1CashFlow], ['Year 1 Cash-on-Cash', res.year1CoC]]
+    );
   };
 
   /* ---- Public API ---- */
