@@ -464,19 +464,96 @@
 
   /* ---- General: Refi ---- */
   extractors['refi'] = function (doc) {
-    return {
+    // Check if cost-of-waiting / double-refi sections are visible
+    var cowSection = doc.getElementById('costOfWaitingResults');
+    var cowVisible = cowSection && cowSection.style.display !== 'none';
+    var drSection = doc.getElementById('doubleRefiResults');
+    var drVisible = drSection && drSection.style.display !== 'none';
+
+    var data = {
       inputs: {
         currentBalance: val(doc,'currentBalance'), currentRate: val(doc,'currentRate'),
         remainingTerm: val(doc,'currentTermRemaining'), propertyValue: val(doc,'currentPropertyValue'),
-        newAmount: val(doc,'refiLoanAmount'), newRate: val(doc,'refiRate'), newTerm: val(doc,'refiTerm')
+        currentLoanType: txt(doc,'currentLoanType'),
+        newAmount: val(doc,'refiLoanAmount'), newRate: val(doc,'refiRate'), newTerm: val(doc,'refiTerm'),
+        refiLoanType: txt(doc,'refiLoanType'),
+        futureRate: val(doc,'futureRate'), monthsToWait: val(doc,'monthsToWait'),
+        planToStay: val(doc,'planToStayMonths'), targetBreakeven: val(doc,'targetBreakeven')
       },
-      results: {
-        currentPayment: txt(doc,'currentPaymentDisplay'), newPayment: txt(doc,'refiPaymentDisplay'),
+      refiNow: {
+        currentPayment: txt(doc,'compareCurrentPayment'), newPayment: txt(doc,'compareNewPayment'),
         monthlySavings: txt(doc,'resultMonthlySavings'), breakeven: txt(doc,'resultBreakevenNow'),
-        totalClosingCosts: txt(doc,'resultTotalClosingCost'), netSavings: txt(doc,'resultNetSavings'),
-        recommendation: txt(doc,'adviceHeadline')
-      }
+        totalClosingCosts: txt(doc,'resultTotalClosingCost'), netSavings: txt(doc,'resultNetSavings')
+      },
+      recommendation: txt(doc,'adviceHeadline'),
+      adviceDetail: txt(doc,'adviceDetail')
     };
+
+    // Cost of Waiting
+    if (cowVisible) {
+      data.costOfWaiting = {
+        extraInterest: txt(doc,'resultExtraInterest'),
+        futurePayment: txt(doc,'resultFuturePayment'),
+        futureSavings: txt(doc,'resultFutureSavings'),
+        breakevenWait: txt(doc,'resultBreakevenWait'),
+        // Breakdown comparison
+        nowCosts: txt(doc,'breakdownNowCosts'),
+        nowSavings: txt(doc,'breakdownNowSavings'),
+        nowBreakeven: txt(doc,'breakdownNowBreakeven'),
+        nowNet: txt(doc,'breakdownNowNet'),
+        waitCosts: txt(doc,'breakdownWaitCosts'),
+        waitExtra: txt(doc,'breakdownWaitExtra'),
+        waitEffective: txt(doc,'breakdownWaitEffective'),
+        waitSavings: txt(doc,'breakdownWaitSavings'),
+        waitBreakeven: txt(doc,'breakdownWaitBreakeven'),
+        waitNet: txt(doc,'breakdownWaitNet'),
+        difference: txt(doc,'resultDifference'),
+        differenceExplain: txt(doc,'differenceExplain')
+      };
+    }
+
+    // Double Refi
+    if (drVisible) {
+      data.doubleRefi = {
+        phase1Savings: txt(doc,'resultDoubleRefiPhase1Savings'),
+        phase1Detail: txt(doc,'resultDoubleRefiPhase1Detail'),
+        phase2Payment: txt(doc,'resultDoubleRefiPhase2Payment'),
+        phase2Detail: txt(doc,'resultDoubleRefiPhase2Detail'),
+        totalCosts: txt(doc,'resultDoubleRefiTotalCosts'),
+        breakeven: txt(doc,'resultDoubleRefiBreakeven'),
+        // 3-way comparison
+        compare3NowCosts: txt(doc,'compare3NowCosts'),
+        compare3NowSavings: txt(doc,'compare3NowSavings'),
+        compare3NowNet: txt(doc,'compare3NowNet'),
+        compare3DoubleCosts: txt(doc,'compare3DoubleCosts'),
+        compare3DoublePhase1: txt(doc,'compare3DoublePhase1'),
+        compare3DoublePhase2: txt(doc,'compare3DoublePhase2'),
+        compare3DoubleNet: txt(doc,'compare3DoubleNet'),
+        compare3WaitCosts: txt(doc,'compare3WaitCosts'),
+        compare3WaitSavings: txt(doc,'compare3WaitSavings'),
+        compare3WaitNet: txt(doc,'compare3WaitNet'),
+        bestStrategy: txt(doc,'doubleRefiBestLabel'),
+        bestExplain: txt(doc,'doubleRefiBestExplain')
+      };
+    }
+
+    // Advice bullets
+    var bullets = [];
+    var bulletEls = doc.querySelectorAll('#adviceBullets li');
+    bulletEls.forEach(function (li) {
+      bullets.push({ text: li.textContent.trim(), type: li.classList.contains('con') ? 'con' : li.classList.contains('neutral-point') ? 'neutral' : 'pro' });
+    });
+    data.adviceBullets = bullets;
+
+    // Backward compat aliases
+    data.results = {
+      currentPayment: data.refiNow.currentPayment, newPayment: data.refiNow.newPayment,
+      monthlySavings: data.refiNow.monthlySavings, breakeven: data.refiNow.breakeven,
+      totalClosingCosts: data.refiNow.totalClosingCosts, netSavings: data.refiNow.netSavings,
+      recommendation: data.recommendation
+    };
+
+    return data;
   };
 
 
@@ -498,6 +575,32 @@
 
   /* ---- General: Buydown ---- */
   extractors['buydown'] = function (doc) {
+    // Read year-by-year breakdown from rendered cards
+    var years = [];
+    var yearCards = doc.querySelectorAll('.year-card');
+    yearCards.forEach(function (card) {
+      var yearObj = {};
+      var heading = card.querySelector('h4, h3, .year-header');
+      if (heading) {
+        var badge = heading.querySelector('.rate-badge');
+        yearObj.rate = badge ? badge.textContent.trim() : '';
+        var headClone = heading.cloneNode(true);
+        var badgeInClone = headClone.querySelector('.rate-badge');
+        if (badgeInClone) badgeInClone.remove();
+        yearObj.label = headClone.textContent.trim();
+      }
+      var items = card.querySelectorAll('.year-item');
+      items.forEach(function (item) {
+        var lbl = item.querySelector('.label');
+        var value = item.querySelector('.value');
+        if (lbl && value) {
+          var key = lbl.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, '_');
+          yearObj[key] = value.textContent.trim();
+        }
+      });
+      years.push(yearObj);
+    });
+
     return {
       inputs: {
         loanAmount: val(doc,'loanAmount'), noteRate: val(doc,'noteRate'),
@@ -506,7 +609,8 @@
       results: {
         basePayment: txt(doc,'basePayment'), year1Payment: txt(doc,'year1Payment'),
         year1Savings: txt(doc,'year1Savings'), totalCost: txt(doc,'totalCost')
-      }
+      },
+      years: years
     };
   };
 
@@ -814,38 +918,128 @@
 
   /* General: Refi */
   renderers['refi'] = function (data) {
-    var inp = data.inputs; var res = data.results;
+    var inp = data.inputs;
+    var now = data.refiNow || data.results || {};
     var html = '';
 
-    html += '<div class="rpt-section"><h4 class="rpt-section-title">Current Loan</h4>';
+    /* Loan comparison header */
+    html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Comparison</h4>';
+    html += '<div class="rpt-comparison"><div class="rpt-compare-col"><h4>Current Loan</h4>';
     html += '<div class="rpt-params">';
-    html += '<div class="rpt-param"><span>Current Balance</span><span>' + fmt0(inp.currentBalance) + '</span></div>';
-    html += '<div class="rpt-param"><span>Current Rate</span><span>' + pct(inp.currentRate) + '</span></div>';
-    if (inp.remainingTerm) html += '<div class="rpt-param"><span>Remaining Term</span><span>' + inp.remainingTerm + ' months</span></div>';
+    html += '<div class="rpt-param"><span>Balance</span><span>' + fmt0(inp.currentBalance) + '</span></div>';
+    html += '<div class="rpt-param"><span>Rate</span><span>' + pct(inp.currentRate) + '</span></div>';
+    if (inp.currentLoanType) html += '<div class="rpt-param"><span>Loan Type</span><span>' + inp.currentLoanType + '</span></div>';
+    if (inp.remainingTerm) html += '<div class="rpt-param"><span>Remaining Term</span><span>' + inp.remainingTerm + ' mo</span></div>';
     if (inp.propertyValue) html += '<div class="rpt-param"><span>Property Value</span><span>' + fmt0(inp.propertyValue) + '</span></div>';
+    html += '<div class="rpt-param" style="font-weight:600"><span>Monthly P&I</span><span>' + (now.currentPayment || '') + '</span></div>';
     html += '</div></div>';
-
-    html += '<div class="rpt-section"><h4 class="rpt-section-title">Proposed Refinance</h4>';
+    html += '<div class="rpt-compare-col"><h4>Refinance Offer</h4>';
     html += '<div class="rpt-params">';
-    html += '<div class="rpt-param"><span>New Loan Amount</span><span>' + fmt0(inp.newAmount) + '</span></div>';
+    html += '<div class="rpt-param"><span>New Amount</span><span>' + fmt0(inp.newAmount) + '</span></div>';
     html += '<div class="rpt-param"><span>New Rate</span><span>' + pct(inp.newRate) + '</span></div>';
-    if (inp.newTerm) html += '<div class="rpt-param"><span>New Term</span><span>' + inp.newTerm + ' months</span></div>';
-    html += '</div></div>';
+    if (inp.refiLoanType) html += '<div class="rpt-param"><span>Loan Type</span><span>' + inp.refiLoanType + '</span></div>';
+    if (inp.newTerm) html += '<div class="rpt-param"><span>New Term</span><span>' + inp.newTerm + ' mo</span></div>';
+    html += '<div class="rpt-param" style="font-weight:600"><span>New Monthly P&I</span><span>' + (now.newPayment || '') + '</span></div>';
+    html += '</div></div></div></div>';
 
-    html += '<div class="rpt-section"><h4 class="rpt-section-title">Refinance Analysis</h4>';
-    html += '<table class="rpt-table"><thead><tr><th>Item</th><th class="rpt-num">Value</th></tr></thead><tbody>';
-    html += '<tr><td>Current Monthly P&I</td><td class="rpt-num">' + res.currentPayment + '</td></tr>';
-    html += '<tr><td>New Monthly P&I</td><td class="rpt-num">' + res.newPayment + '</td></tr>';
-    html += '<tr><td>Monthly Savings</td><td class="rpt-num">' + res.monthlySavings + '</td></tr>';
-    html += '<tr><td>Total Closing Costs</td><td class="rpt-num">' + res.totalClosingCosts + '</td></tr>';
-    html += '<tr><td>Breakeven Point</td><td class="rpt-num">' + res.breakeven + '</td></tr>';
+    /* Refinance Now */
+    html += '<div class="rpt-section"><h4 class="rpt-section-title">Refinance Now</h4>';
+    html += '<table class="rpt-table"><thead><tr><th>Metric</th><th class="rpt-num">Value</th></tr></thead><tbody>';
+    html += '<tr><td>Monthly Savings</td><td class="rpt-num">' + (now.monthlySavings || '') + '</td></tr>';
+    html += '<tr><td>Total Closing Costs</td><td class="rpt-num">' + (now.totalClosingCosts || '') + '</td></tr>';
+    html += '<tr><td>Breakeven Point</td><td class="rpt-num">' + (now.breakeven || '') + '</td></tr>';
     html += '</tbody></table>';
-    html += '<div class="rpt-grand-total"><span>Net Savings (Stay Period)</span><span>' + res.netSavings + '</span></div>';
+    html += '<div class="rpt-grand-total"><span>Net Savings (Stay Period)</span><span>' + (now.netSavings || '') + '</span></div>';
     html += '</div>';
 
-    if (res.recommendation) {
+    /* Cost of Waiting */
+    if (data.costOfWaiting) {
+      var cow = data.costOfWaiting;
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Cost of Waiting</h4>';
+      html += '<table class="rpt-table"><thead><tr><th>Metric</th><th class="rpt-num">Value</th></tr></thead><tbody>';
+      html += '<tr><td>Extra Interest While Waiting</td><td class="rpt-num">' + cow.extraInterest + '</td></tr>';
+      html += '<tr><td>Future Monthly P&I</td><td class="rpt-num">' + cow.futurePayment + '</td></tr>';
+      html += '<tr><td>Future Monthly Savings</td><td class="rpt-num">' + cow.futureSavings + '</td></tr>';
+      html += '<tr><td>Breakeven (If You Wait)</td><td class="rpt-num">' + cow.breakevenWait + '</td></tr>';
+      html += '</tbody></table>';
+
+      /* Refi Now vs Wait comparison */
+      html += '<div class="rpt-comparison" style="margin-top:0.75rem;">';
+      html += '<div class="rpt-compare-col"><h4>Refi Now</h4>';
+      html += '<div class="rpt-params">';
+      if (cow.nowCosts) html += '<div class="rpt-param"><span>Closing Costs</span><span>' + cow.nowCosts + '</span></div>';
+      if (cow.nowSavings) html += '<div class="rpt-param"><span>Monthly Savings</span><span>' + cow.nowSavings + '</span></div>';
+      if (cow.nowBreakeven) html += '<div class="rpt-param"><span>Breakeven</span><span>' + cow.nowBreakeven + '</span></div>';
+      if (cow.nowNet) html += '<div class="rpt-param" style="font-weight:600"><span>Net Savings</span><span>' + cow.nowNet + '</span></div>';
+      html += '</div></div>';
+      html += '<div class="rpt-compare-col"><h4>Wait & Refi Later</h4>';
+      html += '<div class="rpt-params">';
+      if (cow.waitCosts) html += '<div class="rpt-param"><span>Closing Costs</span><span>' + cow.waitCosts + '</span></div>';
+      if (cow.waitExtra) html += '<div class="rpt-param"><span>Extra Interest</span><span>' + cow.waitExtra + '</span></div>';
+      if (cow.waitEffective) html += '<div class="rpt-param"><span>Effective Cost</span><span>' + cow.waitEffective + '</span></div>';
+      if (cow.waitSavings) html += '<div class="rpt-param"><span>Monthly Savings</span><span>' + cow.waitSavings + '</span></div>';
+      if (cow.waitBreakeven) html += '<div class="rpt-param"><span>Breakeven</span><span>' + cow.waitBreakeven + '</span></div>';
+      if (cow.waitNet) html += '<div class="rpt-param" style="font-weight:600"><span>Net Savings</span><span>' + cow.waitNet + '</span></div>';
+      html += '</div></div></div>';
+
+      if (cow.difference) {
+        html += '<div class="rpt-grand-total"><span>Net Difference</span><span>' + cow.difference + '</span></div>';
+      }
+      html += '</div>';
+    }
+
+    /* Double Refi */
+    if (data.doubleRefi) {
+      var dr = data.doubleRefi;
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Refi Twice Strategy</h4>';
+      html += '<table class="rpt-table"><thead><tr><th>Metric</th><th class="rpt-num">Value</th></tr></thead><tbody>';
+      html += '<tr><td>Phase 1 Savings</td><td class="rpt-num">' + dr.phase1Savings + '</td></tr>';
+      if (dr.phase1Detail) html += '<tr><td colspan="2" style="font-size:0.85em;color:#666;padding-left:1.5rem">' + dr.phase1Detail + '</td></tr>';
+      html += '<tr><td>Phase 2 Payment</td><td class="rpt-num">' + dr.phase2Payment + '</td></tr>';
+      if (dr.phase2Detail) html += '<tr><td colspan="2" style="font-size:0.85em;color:#666;padding-left:1.5rem">' + dr.phase2Detail + '</td></tr>';
+      html += '<tr><td>Total Costs (2 Refis)</td><td class="rpt-num">' + dr.totalCosts + '</td></tr>';
+      html += '<tr><td>Combined Breakeven</td><td class="rpt-num">' + dr.breakeven + '</td></tr>';
+      html += '</tbody></table>';
+
+      /* 3-way comparison */
+      html += '<div class="rpt-comparison" style="margin-top:0.75rem;">';
+      html += '<div class="rpt-compare-col"><h4>Refi Now Only</h4><div class="rpt-params">';
+      if (dr.compare3NowCosts) html += '<div class="rpt-param"><span>Costs</span><span>' + dr.compare3NowCosts + '</span></div>';
+      if (dr.compare3NowSavings) html += '<div class="rpt-param"><span>Savings</span><span>' + dr.compare3NowSavings + '</span></div>';
+      if (dr.compare3NowNet) html += '<div class="rpt-param" style="font-weight:600"><span>Net</span><span>' + dr.compare3NowNet + '</span></div>';
+      html += '</div></div>';
+      html += '<div class="rpt-compare-col"><h4>Refi Twice</h4><div class="rpt-params">';
+      if (dr.compare3DoubleCosts) html += '<div class="rpt-param"><span>Total Costs</span><span>' + dr.compare3DoubleCosts + '</span></div>';
+      if (dr.compare3DoublePhase1) html += '<div class="rpt-param"><span>Phase 1 Svgs</span><span>' + dr.compare3DoublePhase1 + '</span></div>';
+      if (dr.compare3DoublePhase2) html += '<div class="rpt-param"><span>Phase 2 Svgs</span><span>' + dr.compare3DoublePhase2 + '</span></div>';
+      if (dr.compare3DoubleNet) html += '<div class="rpt-param" style="font-weight:600"><span>Net</span><span>' + dr.compare3DoubleNet + '</span></div>';
+      html += '</div></div>';
+      html += '<div class="rpt-compare-col"><h4>Wait & Refi Once</h4><div class="rpt-params">';
+      if (dr.compare3WaitCosts) html += '<div class="rpt-param"><span>Eff. Cost</span><span>' + dr.compare3WaitCosts + '</span></div>';
+      if (dr.compare3WaitSavings) html += '<div class="rpt-param"><span>Savings</span><span>' + dr.compare3WaitSavings + '</span></div>';
+      if (dr.compare3WaitNet) html += '<div class="rpt-param" style="font-weight:600"><span>Net</span><span>' + dr.compare3WaitNet + '</span></div>';
+      html += '</div></div></div>';
+
+      if (dr.bestStrategy) {
+        html += '<div class="rpt-grand-total"><span>Best Strategy</span><span>' + dr.bestStrategy + '</span></div>';
+      }
+      html += '</div>';
+    }
+
+    /* Recommendation */
+    if (data.recommendation) {
       html += '<div class="rpt-section"><h4 class="rpt-section-title">Recommendation</h4>';
-      html += '<div class="rpt-recommendation"><span>Recommendation:</span> ' + res.recommendation + '</div>';
+      html += '<div class="rpt-recommendation"><span>' + data.recommendation + '</span></div>';
+      if (data.adviceDetail) html += '<p style="margin:0.25rem 0 0;font-size:0.85em;color:#555">' + data.adviceDetail + '</p>';
+      if (data.adviceBullets && data.adviceBullets.length) {
+        html += '<ul style="margin:0.5rem 0 0;padding-left:1.25rem;font-size:0.85em">';
+        data.adviceBullets.forEach(function (b) {
+          var icon = b.type === 'pro' ? '✓' : b.type === 'con' ? '✗' : '•';
+          var color = b.type === 'pro' ? '#2d6a4f' : b.type === 'con' ? '#c0392b' : '#666';
+          html += '<li style="color:' + color + '">' + icon + ' ' + b.text + '</li>';
+        });
+        html += '</ul>';
+      }
       html += '</div>';
     }
     return html;
@@ -880,14 +1074,32 @@
     html += '<div class="rpt-param"><span>Loan Term</span><span>' + inp.loanTerm + '</span></div>';
     html += '<div class="rpt-param"><span>Buydown Type</span><span>' + inp.buydownType + '</span></div>';
     html += '</div></div>';
-    html += '<div class="rpt-section"><h4 class="rpt-section-title">Payment Analysis</h4>';
-    html += '<table class="rpt-table"><thead><tr><th>Item</th><th class="rpt-num">Value</th></tr></thead><tbody>';
-    html += '<tr><td>Full Note-Rate Payment</td><td class="rpt-num">' + res.basePayment + '</td></tr>';
-    html += '<tr><td>Year 1 Reduced Payment</td><td class="rpt-num">' + res.year1Payment + '</td></tr>';
-    html += '<tr><td>Year 1 Monthly Savings</td><td class="rpt-num">' + res.year1Savings + '</td></tr>';
-    html += '</tbody></table>';
+
+    html += '<div class="rpt-section"><h4 class="rpt-section-title">Payment Summary</h4>';
+    html += '<div class="rpt-params">';
+    html += '<div class="rpt-param"><span>Full Note-Rate Payment</span><span>' + res.basePayment + '</span></div>';
+    html += '<div class="rpt-param"><span>Year 1 Reduced Payment</span><span>' + res.year1Payment + '</span></div>';
+    html += '<div class="rpt-param"><span>Year 1 Monthly Savings</span><span>' + res.year1Savings + '</span></div>';
+    html += '</div>';
     html += '<div class="rpt-grand-total"><span>Total Buydown Cost</span><span>' + res.totalCost + '</span></div>';
     html += '</div>';
+
+    // Year-by-Year Breakdown
+    if (data.years && data.years.length) {
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Year-by-Year Breakdown</h4>';
+      html += '<table class="rpt-table"><thead><tr><th>Period</th><th class="rpt-num">Rate</th><th class="rpt-num">P&I Payment</th><th class="rpt-num">Total Payment</th><th class="rpt-num">Monthly Savings</th></tr></thead><tbody>';
+      data.years.forEach(function (yr) {
+        var piVal = yr.p_i_payment || '';
+        var totalVal = yr.total_payment || '';
+        var savVal = yr.monthly_savings || '';
+        html += '<tr><td>' + (yr.label || '') + '</td>';
+        html += '<td class="rpt-num">' + (yr.rate || '') + '</td>';
+        html += '<td class="rpt-num">' + piVal + '</td>';
+        html += '<td class="rpt-num">' + totalVal + '</td>';
+        html += '<td class="rpt-num">' + savVal + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
     return html;
   };
 
@@ -1063,11 +1275,105 @@
   };
 
   pdfGenerators['refi'] = function (data) {
-    var inp = data.inputs; var res = data.results;
-    return pdfKeyValue(data,
-      [['Current Balance', fmt0(inp.currentBalance)], ['Current Rate', pct(inp.currentRate)], ['New Amount', fmt0(inp.newAmount)], ['New Rate', pct(inp.newRate)]],
-      [['Current Payment', res.currentPayment], ['New Payment', res.newPayment], ['Monthly Savings', res.monthlySavings], ['Closing Costs', res.totalClosingCosts], ['Breakeven', res.breakeven], ['Net Savings', res.netSavings]]
-    ).concat(res.recommendation ? [{ text: res.recommendation, bold: true, fontSize: 11, color: '#2d6a4f', margin: [0, 8, 0, 0] }] : []);
+    var inp = data.inputs;
+    var now = data.refiNow || data.results || {};
+    var content = [];
+
+    /* Loan comparison side by side */
+    var loanParams = [
+      ['', 'Current Loan', 'Refinance Offer'],
+      ['Balance / Amount', fmt0(inp.currentBalance), fmt0(inp.newAmount)],
+      ['Rate', pct(inp.currentRate), pct(inp.newRate)]
+    ];
+    if (inp.currentLoanType || inp.refiLoanType) loanParams.push(['Loan Type', inp.currentLoanType || '—', inp.refiLoanType || '—']);
+    if (inp.remainingTerm || inp.newTerm) loanParams.push(['Term', (inp.remainingTerm || '—') + ' mo', (inp.newTerm || '—') + ' mo']);
+    loanParams.push(['Monthly P&I', now.currentPayment || '—', now.newPayment || '—']);
+
+    var loanBody = loanParams.map(function (r, i) {
+      if (i === 0) return [{ text: r[0], style: 'tableHeader' }, { text: r[1], style: 'tableHeader', alignment: 'center' }, { text: r[2], style: 'tableHeader', alignment: 'center' }];
+      return [r[0], { text: r[1], alignment: 'right' }, { text: r[2], alignment: 'right' }];
+    });
+    content.push({ table: { headerRows: 1, widths: ['*', 120, 120], body: loanBody }, layout: 'lightHorizontalLines' });
+
+    /* Refi Now */
+    content.push({ text: 'Refinance Now', style: 'sectionTitle', margin: [0, 10, 0, 4] });
+    var nowBody = [
+      [{ text: 'Metric', style: 'tableHeader' }, { text: 'Value', style: 'tableHeader', alignment: 'right' }],
+      ['Monthly Savings', { text: now.monthlySavings || '', alignment: 'right' }],
+      ['Total Closing Costs', { text: now.totalClosingCosts || '', alignment: 'right' }],
+      ['Breakeven Point', { text: now.breakeven || '', alignment: 'right' }],
+      [{ text: 'Net Savings (Stay Period)', bold: true }, { text: now.netSavings || '', alignment: 'right', bold: true }]
+    ];
+    content.push({ table: { headerRows: 1, widths: ['*', 120], body: nowBody }, layout: 'lightHorizontalLines' });
+
+    /* Cost of Waiting */
+    if (data.costOfWaiting) {
+      var cow = data.costOfWaiting;
+      content.push({ text: 'Cost of Waiting', style: 'sectionTitle', margin: [0, 10, 0, 4] });
+      var cowBody = [
+        [{ text: 'Metric', style: 'tableHeader' }, { text: 'Value', style: 'tableHeader', alignment: 'right' }],
+        ['Extra Interest While Waiting', { text: cow.extraInterest, alignment: 'right' }],
+        ['Future Monthly P&I', { text: cow.futurePayment, alignment: 'right' }],
+        ['Future Monthly Savings', { text: cow.futureSavings, alignment: 'right' }],
+        ['Breakeven (If You Wait)', { text: cow.breakevenWait, alignment: 'right' }]
+      ];
+      content.push({ table: { headerRows: 1, widths: ['*', 120], body: cowBody }, layout: 'lightHorizontalLines' });
+
+      /* Comparison */
+      var cmpBody = [
+        [{ text: '', style: 'tableHeader' }, { text: 'Refi Now', style: 'tableHeader', alignment: 'center' }, { text: 'Wait & Refi', style: 'tableHeader', alignment: 'center' }]
+      ];
+      if (cow.nowCosts || cow.waitCosts) cmpBody.push(['Closing Costs', { text: cow.nowCosts || '—', alignment: 'right' }, { text: cow.waitEffective || cow.waitCosts || '—', alignment: 'right' }]);
+      if (cow.nowSavings || cow.waitSavings) cmpBody.push(['Monthly Savings', { text: cow.nowSavings || '—', alignment: 'right' }, { text: cow.waitSavings || '—', alignment: 'right' }]);
+      if (cow.nowBreakeven || cow.waitBreakeven) cmpBody.push(['Breakeven', { text: cow.nowBreakeven || '—', alignment: 'right' }, { text: cow.waitBreakeven || '—', alignment: 'right' }]);
+      if (cow.nowNet || cow.waitNet) cmpBody.push([{ text: 'Net Savings', bold: true }, { text: cow.nowNet || '—', alignment: 'right', bold: true }, { text: cow.waitNet || '—', alignment: 'right', bold: true }]);
+      if (cmpBody.length > 1) content.push({ table: { headerRows: 1, widths: ['*', 110, 110], body: cmpBody }, layout: 'lightHorizontalLines', margin: [0, 6, 0, 0] });
+
+      if (cow.difference) {
+        content.push({ columns: [{ text: 'Net Difference', bold: true, fontSize: 11, color: '#2d6a4f' }, { text: cow.difference, alignment: 'right', bold: true, fontSize: 11, color: '#2d6a4f' }], margin: [0, 6, 0, 0] });
+      }
+    }
+
+    /* Double Refi */
+    if (data.doubleRefi) {
+      var dr = data.doubleRefi;
+      content.push({ text: 'Refi Twice Strategy', style: 'sectionTitle', margin: [0, 10, 0, 4] });
+      var drBody = [
+        [{ text: 'Metric', style: 'tableHeader' }, { text: 'Value', style: 'tableHeader', alignment: 'right' }],
+        ['Phase 1 Savings', { text: dr.phase1Savings, alignment: 'right' }],
+        ['Phase 2 Payment', { text: dr.phase2Payment, alignment: 'right' }],
+        ['Total Costs (2 Refis)', { text: dr.totalCosts, alignment: 'right' }],
+        ['Combined Breakeven', { text: dr.breakeven, alignment: 'right' }]
+      ];
+      content.push({ table: { headerRows: 1, widths: ['*', 120], body: drBody }, layout: 'lightHorizontalLines' });
+
+      /* 3-way comparison */
+      var triBody = [
+        [{ text: '', style: 'tableHeader' }, { text: 'Refi Now', style: 'tableHeader', alignment: 'center' }, { text: 'Refi Twice', style: 'tableHeader', alignment: 'center' }, { text: 'Wait & Refi', style: 'tableHeader', alignment: 'center' }]
+      ];
+      triBody.push(['Costs', { text: dr.compare3NowCosts || '—', alignment: 'right' }, { text: dr.compare3DoubleCosts || '—', alignment: 'right' }, { text: dr.compare3WaitCosts || '—', alignment: 'right' }]);
+      triBody.push([{ text: 'Net Savings', bold: true }, { text: dr.compare3NowNet || '—', alignment: 'right', bold: true }, { text: dr.compare3DoubleNet || '—', alignment: 'right', bold: true }, { text: dr.compare3WaitNet || '—', alignment: 'right', bold: true }]);
+      content.push({ table: { headerRows: 1, widths: ['*', 90, 90, 90], body: triBody }, layout: 'lightHorizontalLines', margin: [0, 6, 0, 0] });
+
+      if (dr.bestStrategy) {
+        content.push({ columns: [{ text: 'Best Strategy', bold: true, fontSize: 11, color: '#2d6a4f' }, { text: dr.bestStrategy, alignment: 'right', bold: true, fontSize: 11, color: '#2d6a4f' }], margin: [0, 6, 0, 0] });
+      }
+    }
+
+    /* Recommendation */
+    if (data.recommendation) {
+      content.push({ canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 1, lineColor: '#2d6a4f' }], margin: [0, 10, 0, 4] });
+      content.push({ text: data.recommendation, bold: true, fontSize: 11, color: '#2d6a4f', margin: [0, 4, 0, 0] });
+      if (data.adviceDetail) content.push({ text: data.adviceDetail, fontSize: 9, color: '#555', margin: [0, 2, 0, 0] });
+      if (data.adviceBullets && data.adviceBullets.length) {
+        var bulletList = data.adviceBullets.map(function (b) {
+          var icon = b.type === 'pro' ? '✓ ' : b.type === 'con' ? '✗ ' : '• ';
+          return { text: icon + b.text, fontSize: 9, color: b.type === 'pro' ? '#2d6a4f' : b.type === 'con' ? '#c0392b' : '#555' };
+        });
+        content.push({ ul: bulletList, margin: [0, 4, 0, 0] });
+      }
+    }
+    return content;
   };
 
   pdfGenerators['buy-vs-rent'] = function (data) {
@@ -1090,10 +1396,32 @@
 
   pdfGenerators['buydown'] = function (data) {
     var inp = data.inputs; var res = data.results;
-    return pdfKeyValue(data,
+    var content = pdfKeyValue(data,
       [['Loan Amount', fmt0(inp.loanAmount)], ['Note Rate', pct(inp.noteRate)], ['Term', inp.loanTerm], ['Buydown Type', inp.buydownType]],
       [['Full Rate Payment', res.basePayment], ['Year 1 Payment', res.year1Payment], ['Year 1 Savings', res.year1Savings], ['Total Buydown Cost', res.totalCost]]
     );
+    // Year-by-year table
+    if (data.years && data.years.length) {
+      var body = [[
+        { text: 'Period', style: 'tableHeader' },
+        { text: 'Rate', style: 'tableHeader', alignment: 'right' },
+        { text: 'P&I', style: 'tableHeader', alignment: 'right' },
+        { text: 'Total', style: 'tableHeader', alignment: 'right' },
+        { text: 'Savings', style: 'tableHeader', alignment: 'right' }
+      ]];
+      data.years.forEach(function (yr) {
+        body.push([
+          yr.label || '',
+          { text: yr.rate || '', alignment: 'right' },
+          { text: yr.p_i_payment || '', alignment: 'right' },
+          { text: yr.total_payment || '', alignment: 'right' },
+          { text: yr.monthly_savings || '', alignment: 'right' }
+        ]);
+      });
+      content.push({ text: 'Year-by-Year Breakdown', style: 'sectionTitle', margin: [0, 10, 0, 4] });
+      content.push({ table: { headerRows: 1, widths: ['*', 60, 80, 80, 80], body: body }, layout: 'lightHorizontalLines' });
+    }
+    return content;
   };
 
   pdfGenerators['escrow'] = function (data) {
