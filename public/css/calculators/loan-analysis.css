@@ -1,5 +1,5 @@
 /* =====================================================
-   Loan Analysis — Custom Styles
+   Cover Letter (Loan Analysis) — Custom Styles
    ===================================================== */
 
 .la-logo-preview {
@@ -7,4 +7,59 @@
   height: auto;
   margin: 0 auto;
   display: block;
+}
+
+/* ---- Section Toggle Bar ---- */
+.la-section-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 10px 14px;
+  margin-bottom: var(--space-lg, 24px);
+  background: var(--color-gray-50, #f8f9fa);
+  border: 1px solid var(--color-gray-200, #e2e6ea);
+  border-radius: var(--radius-md, 8px);
+}
+
+.la-toggle-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-gray-600, #6c757d);
+  margin-right: 4px;
+}
+
+.la-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  color: var(--color-gray-700, #495057);
+  background: var(--color-white, #fff);
+  border: 1px solid var(--color-gray-200, #e2e6ea);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  user-select: none;
+}
+
+.la-toggle:hover {
+  background: var(--color-gray-100, #f0f1f3);
+  border-color: var(--color-gray-300, #ced4da);
+}
+
+.la-toggle input[type="checkbox"] {
+  accent-color: var(--brand-primary, #2d6a4f);
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.la-toggle input[type="checkbox"]:checked + span,
+.la-toggle:has(input:checked) {
+  color: var(--brand-primary, #2d6a4f);
+  border-color: var(--brand-primary, #2d6a4f);
+  background: rgba(45, 106, 79, 0.06);
 }

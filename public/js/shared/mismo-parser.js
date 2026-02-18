@@ -301,6 +301,74 @@
       });
     }
 
+    /* ---- Loan Originator + Company ---- */
+    data.loanOriginator = {};
+    data.loanOriginationCompany = {};
+    if (parties) {
+      var partyList2 = qnAll(parties, 'PARTY');
+      partyList2.forEach(function (party) {
+        var roles = qn(party, 'ROLES');
+        if (!roles) return;
+        var roleList = qnAll(roles, 'ROLE');
+        roleList.forEach(function (role) {
+          var roleType = txt(qn(role, 'ROLE_DETAIL') || role, 'PartyRoleType');
+
+          if (roleType === 'LoanOriginator') {
+            var indiv = qn(party, 'INDIVIDUAL');
+            if (indiv) {
+              var nameNode = qn(indiv, 'NAME');
+              data.loanOriginator.firstName = nameNode ? txt(nameNode, 'FirstName') : '';
+              data.loanOriginator.lastName = nameNode ? txt(nameNode, 'LastName') : '';
+              data.loanOriginator.fullName = nameNode ? txt(nameNode, 'FullName') : '';
+              if (!data.loanOriginator.fullName) {
+                data.loanOriginator.fullName = [data.loanOriginator.firstName, data.loanOriginator.lastName].filter(Boolean).join(' ');
+              }
+              // Contact info
+              var contacts = qn(indiv, 'CONTACT_POINTS');
+              if (contacts) {
+                var cpList = qnAll(contacts, 'CONTACT_POINT');
+                cpList.forEach(function (cp) {
+                  var phone = qn(cp, 'CONTACT_POINT_TELEPHONE');
+                  if (phone) data.loanOriginator.phone = txt(phone, 'ContactPointTelephoneValue');
+                  var email = qn(cp, 'CONTACT_POINT_EMAIL');
+                  if (email) data.loanOriginator.email = txt(email, 'ContactPointEmailValue');
+                });
+              }
+            }
+            // NMLS from LICENSE
+            var licenses = qn(role, 'LICENSES');
+            if (licenses) {
+              var licList = qnAll(licenses, 'LICENSE');
+              licList.forEach(function (lic) {
+                var ld = qn(lic, 'LICENSE_DETAIL');
+                if (ld && txt(ld, 'LicenseIssuingAuthorityName') === 'NationwideMortgageLicensingSystemAndRegistry') {
+                  data.loanOriginator.nmls = txt(ld, 'LicenseIdentifier');
+                }
+              });
+            }
+          }
+
+          if (roleType === 'LoanOriginationCompany') {
+            var entity = qn(party, 'LEGAL_ENTITY');
+            if (entity) {
+              var ed = qn(entity, 'LEGAL_ENTITY_DETAIL');
+              if (ed) data.loanOriginationCompany.name = txt(ed, 'FullName');
+            }
+            var licenses2 = qn(role, 'LICENSES');
+            if (licenses2) {
+              var licList2 = qnAll(licenses2, 'LICENSE');
+              licList2.forEach(function (lic) {
+                var ld = qn(lic, 'LICENSE_DETAIL');
+                if (ld && txt(ld, 'LicenseIssuingAuthorityName') === 'NationwideMortgageLicensingSystemAndRegistry') {
+                  data.loanOriginationCompany.nmls = txt(ld, 'LicenseIdentifier');
+                }
+              });
+            }
+          }
+        });
+      });
+    }
+
     /* ---- Computed helpers ---- */
     data.borrowerName = data.borrowers.map(function (b) {
       return [b.firstName, b.lastName].filter(Boolean).join(' ');
@@ -500,6 +568,68 @@
     if (data.escrow.insAnnual) m['__react_insYr'] = data.escrow.insAnnual;
     if (data.housing.hoa) m['__react_hoaMo'] = data.housing.hoa;
     if (data.housing.mi) m['__react_pmiMo'] = data.housing.mi;
+    return m;
+  };
+
+  /* ---- Cover Letter / Loan Analysis ---- */
+  CALC_MAPS['loan-analysis'] = function (data) {
+    var m = {};
+
+    // Borrower info
+    if (data.borrowers.length > 0) {
+      var b1 = data.borrowers[0];
+      m['laBorrowerName'] = [b1.firstName, b1.middleName, b1.lastName].filter(Boolean).join(' ');
+    }
+    if (data.borrowers.length > 1) {
+      var b2 = data.borrowers[1];
+      m['laCoBorrowerName'] = [b2.firstName, b2.middleName, b2.lastName].filter(Boolean).join(' ');
+    }
+
+    // Property address
+    if (data.property.address) m['laStreet'] = data.property.address;
+    if (data.property.city) m['laCity'] = data.property.city;
+    if (data.property.state) m['laState'] = data.property.state;
+    if (data.property.zip) m['laZip'] = data.property.zip;
+
+    // Proposed/new loan info
+    if (data.loan.amount) m['laNewAmount'] = data.loan.amount;
+    if (data.loan.rate) m['laNewRate'] = data.loan.rate;
+    if (data.loan.termMonths) m['laNewTerm'] = String(Math.round(data.loan.termMonths / 12));
+    if (data.loan.mortgageType) {
+      var typeMap = { 'Conventional': 'Conventional', 'FHA': 'FHA', 'VA': 'VA', 'USDA': 'USDA',
+                      'FederalHousingAdministration': 'FHA', 'VeteransAffairs': 'VA', 'USDARuralHousing': 'USDA' };
+      m['laNewLoanType'] = typeMap[data.loan.mortgageType] || 'Conventional';
+    }
+    if (data.loan.piPayment) m['laNewPayment'] = data.loan.piPayment;
+    if (data.loan.miPayment) m['laNewMI'] = data.loan.miPayment;
+    if (data.loan.escrowPayment) m['laNewEscrow'] = data.loan.escrowPayment;
+
+    // Closing costs from integrated disclosure section summary
+    var fees = data.fees || {};
+    if (fees['_section_TotalClosingCosts']) {
+      m['laClosingCosts'] = fees['_section_TotalClosingCosts'];
+    }
+
+    // Lender credits
+    if (fees['_section_LenderCredits']) {
+      m['laCredits'] = fees['_section_LenderCredits'];
+    }
+
+    // Loan origination company as the new lender
+    if (data.loanOriginationCompany && data.loanOriginationCompany.name) {
+      m['laNewLender'] = data.loanOriginationCompany.name;
+    }
+
+    // Loan officer info
+    var lo = data.loanOriginator || {};
+    if (lo.fullName) m['laLoName'] = lo.fullName;
+    if (lo.nmls) m['laLoNmls'] = lo.nmls;
+    if (lo.phone) m['laLoPhone'] = lo.phone;
+    if (lo.email) m['laLoEmail'] = lo.email;
+    if (data.loanOriginationCompany && data.loanOriginationCompany.name) {
+      m['laLoCompany'] = data.loanOriginationCompany.name;
+    }
+
     return m;
   };
 

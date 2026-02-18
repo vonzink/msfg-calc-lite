@@ -31,7 +31,7 @@ const generalCalcs = [
   { slug: 'fha-refi',        view: 'calculators/fha-refi',        title: 'FHA Refinance Calculator' },
   { slug: 'amortization',    view: 'calculators/amortization',    title: 'Amortization Calculator' },
   { slug: 'var-income',      view: 'calculators/var-income',      title: 'Variable Income Analyzer' },
-  { slug: 'loan-analysis',  view: 'calculators/loan-analysis',  title: 'Loan Analysis',              css: 'loan-analysis' }
+  { slug: 'loan-analysis',  view: 'calculators/loan-analysis',  title: 'Cover Letter',               css: 'loan-analysis' }
 ];
 
 generalCalcs.forEach(gc => {

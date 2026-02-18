@@ -1,10 +1,21 @@
 <div class="calc-page">
   <div class="calc-page__header">
-    <h1>Loan Analysis</h1>
-    <p>Generate a branded cover page with borrower details, loan comparison, savings analysis, and loan officer information.</p>
+    <h1>Cover Letter</h1>
+    <p>Generate a branded cover letter with borrower details, loan comparison, and loan officer information. Auto-fills from MISMO data in the workspace.</p>
   </div>
 
   <div class="calc-page__body">
+
+    <!-- Section Toggles -->
+    <div class="la-section-toggles">
+      <span class="la-toggle-label">Sections:</span>
+      <label class="la-toggle"><input type="checkbox" id="laTogBorrower" checked data-toggle="borrower"> Borrower</label>
+      <label class="la-toggle"><input type="checkbox" id="laTogOldLoan" checked data-toggle="old-loan"> Current Loan</label>
+      <label class="la-toggle"><input type="checkbox" id="laTogNewLoan" checked data-toggle="new-loan"> Proposed Loan</label>
+      <label class="la-toggle"><input type="checkbox" id="laTogClosing" checked data-toggle="closing"> Closing Costs</label>
+      <label class="la-toggle"><input type="checkbox" id="laTogLo" checked data-toggle="lo"> Loan Officer</label>
+      <label class="la-toggle"><input type="checkbox" id="laTogNotes" checked data-toggle="notes"> Notes</label>
+    </div>
 
     <!-- Company Logo Preview -->
     <div class="calc-section" style="text-align: center;">
@@ -12,12 +23,12 @@
     </div>
 
     <!-- Borrower Information -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="borrower">
       <h2>Borrower Information</h2>
       <div class="form-grid">
         <div class="form-group">
           <label for="laBorrowerName">Borrower Name</label>
-          <input type="text" id="laBorrowerName" placeholder="e.g. John & Jane Smith">
+          <input type="text" id="laBorrowerName" placeholder="e.g. John Smith">
         </div>
         <div class="form-group">
           <label for="laCoBorrowerName">Co-Borrower Name</label>
@@ -47,7 +58,7 @@
     </div>
 
     <!-- Current Loan -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="old-loan">
       <h2>Current Loan</h2>
       <div class="form-grid">
         <div class="form-group">
@@ -107,7 +118,7 @@
     </div>
 
     <!-- Proposed Loan -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="new-loan">
       <h2>Proposed Loan</h2>
       <div class="form-grid">
         <div class="form-group">
@@ -167,7 +178,7 @@
     </div>
 
     <!-- Closing Costs -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="closing">
       <h2>Closing Costs</h2>
       <div class="form-grid">
         <div class="form-group">
@@ -184,7 +195,7 @@
     </div>
 
     <!-- Loan Officer Information -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="lo">
       <h2>Loan Officer Information</h2>
       <div class="form-grid">
         <div class="form-group">
@@ -215,13 +226,13 @@
     </div>
 
     <!-- Additional Notes -->
-    <div class="calc-section">
+    <div class="calc-section" data-section="notes">
       <h2>Additional Notes</h2>
       <div class="form-group">
         <label for="laNotes">Notes / Comments
           <span class="help-icon" data-help="Free-form notes that will appear on the cover page and in the session report.">?</span>
         </label>
-        <textarea id="laNotes" rows="4" placeholder="Add any additional notes, conditions, or comments for the borrower…" style="width: 100%; resize: vertical;"></textarea>
+        <textarea id="laNotes" rows="4" placeholder="Add any additional notes, conditions, or comments for the borrower..." style="width: 100%; resize: vertical;"></textarea>
       </div>
     </div>
 
@@ -235,7 +246,7 @@
     <div id="laResults" style="display: none;">
 
       <!-- Summary Cards -->
-      <div class="calc-section">
+      <div class="calc-section" data-section="closing">
         <h2>Savings Summary</h2>
         <div class="results-grid">
           <div class="result-card">
@@ -264,26 +275,26 @@
           <thead>
             <tr>
               <th></th>
-              <th>Current Loan</th>
-              <th>Proposed Loan</th>
+              <th data-section="old-loan">Current Loan</th>
+              <th data-section="new-loan">Proposed Loan</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>Lender</td><td id="laResOldLender">--</td><td id="laResNewLender">--</td></tr>
-            <tr><td>Loan Type</td><td id="laResOldType">--</td><td id="laResNewType">--</td></tr>
-            <tr><td>Loan Amount</td><td id="laResOldAmount">--</td><td id="laResNewAmount">--</td></tr>
-            <tr><td>Interest Rate</td><td id="laResOldRate">--</td><td id="laResNewRate">--</td></tr>
-            <tr><td>Term</td><td id="laResOldTerm">--</td><td id="laResNewTerm">--</td></tr>
-            <tr><td>Monthly P&I</td><td id="laResOldPI">--</td><td id="laResNewPI">--</td></tr>
-            <tr><td>Monthly MI</td><td id="laResOldMI">--</td><td id="laResNewMI">--</td></tr>
-            <tr><td>Monthly Escrow</td><td id="laResOldEscrow">--</td><td id="laResNewEscrow">--</td></tr>
-            <tr><td><strong>Total Payment</strong></td><td id="laResOldTotal"><strong>--</strong></td><td id="laResNewTotal"><strong>--</strong></td></tr>
+            <tr><td>Lender</td><td id="laResOldLender" data-section="old-loan">--</td><td id="laResNewLender" data-section="new-loan">--</td></tr>
+            <tr><td>Loan Type</td><td id="laResOldType" data-section="old-loan">--</td><td id="laResNewType" data-section="new-loan">--</td></tr>
+            <tr><td>Loan Amount</td><td id="laResOldAmount" data-section="old-loan">--</td><td id="laResNewAmount" data-section="new-loan">--</td></tr>
+            <tr><td>Interest Rate</td><td id="laResOldRate" data-section="old-loan">--</td><td id="laResNewRate" data-section="new-loan">--</td></tr>
+            <tr><td>Term</td><td id="laResOldTerm" data-section="old-loan">--</td><td id="laResNewTerm" data-section="new-loan">--</td></tr>
+            <tr><td>Monthly P&I</td><td id="laResOldPI" data-section="old-loan">--</td><td id="laResNewPI" data-section="new-loan">--</td></tr>
+            <tr><td>Monthly MI</td><td id="laResOldMI" data-section="old-loan">--</td><td id="laResNewMI" data-section="new-loan">--</td></tr>
+            <tr><td>Monthly Escrow</td><td id="laResOldEscrow" data-section="old-loan">--</td><td id="laResNewEscrow" data-section="new-loan">--</td></tr>
+            <tr><td><strong>Total Payment</strong></td><td id="laResOldTotal" data-section="old-loan"><strong>--</strong></td><td id="laResNewTotal" data-section="new-loan"><strong>--</strong></td></tr>
           </tbody>
         </table>
       </div>
 
       <!-- Notes (rendered) -->
-      <div class="calc-section" id="laResNotesSection" style="display: none;">
+      <div class="calc-section" id="laResNotesSection" data-section="notes" style="display: none;">
         <h2>Notes</h2>
         <p id="laResNotes" style="white-space: pre-wrap; color: var(--color-gray-700);"></p>
       </div>
