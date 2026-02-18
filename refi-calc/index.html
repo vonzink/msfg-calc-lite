@@ -12,22 +12,17 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
-    <!-- jsPDF + html2canvas for PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
 <div class="main-container" id="appContainer">
 
     <!-- ========== HEADER ========== -->
-    <div class="header">
+    <div class="header header-compact">
         <img src="/images/msfg-logo.png"
              alt="Mountain State Financial Group" class="header-logo"
              onerror="this.style.display='none'">
         <h1>Should I Refinance?</h1>
-        <p>Breakeven analysis comparing refinancing now versus waiting for a better rate.
-           Enter your current loan, the refinance offer, and a potential future rate to see what makes sense.</p>
     </div>
 
     <!-- ====================================================
@@ -115,9 +110,13 @@
                             <span class="mi-label">Current LTV:</span>
                             <span class="mi-value" id="currentLTV">0%</span>
                         </div>
-                        <div class="mi-detail">
-                            <span class="mi-label">Current Monthly MI:</span>
-                            <span class="mi-value" id="currentMonthlyMI">$0.00</span>
+                        <div class="mi-editable">
+                            <label class="mi-label" for="currentMIInput">Monthly MI:</label>
+                            <div class="mi-input-wrap">
+                                <input type="number" id="currentMIInput" value="0" min="0" step="0.01" class="mi-input">
+                                <button type="button" class="mi-mode-btn" id="currentMIModeBtn" data-mode="dollar" title="Toggle between $ and %">$</button>
+                            </div>
+                            <span class="mi-computed-hint" id="currentMIHint"></span>
                         </div>
                         <div class="mi-detail mi-note" id="currentMINote"></div>
                     </div>
@@ -164,20 +163,28 @@
                     </div>
                 </div>
 
-                <!-- MI Info (auto-calculated based on loan type & LTV) -->
+                <!-- MI Info (editable — auto-populated from loan type, user can override) -->
                 <div class="mi-info-row" id="refiMIInfo" style="margin-top:1rem;">
                     <div class="mi-info-inner">
                         <div class="mi-detail">
                             <span class="mi-label">LTV:</span>
                             <span class="mi-value" id="refiLTV">0%</span>
                         </div>
-                        <div class="mi-detail">
-                            <span class="mi-label">Monthly MI:</span>
-                            <span class="mi-value" id="refiMonthlyMI">$0.00</span>
+                        <div class="mi-editable">
+                            <label class="mi-label" for="refiMIMonthlyInput">Monthly MI:</label>
+                            <div class="mi-input-wrap">
+                                <input type="number" id="refiMIMonthlyInput" value="0" min="0" step="0.01" class="mi-input">
+                                <button type="button" class="mi-mode-btn" id="refiMIMonthlyModeBtn" data-mode="dollar" title="Toggle between $ and %">$</button>
+                            </div>
+                            <span class="mi-computed-hint" id="refiMIMonthlyHint"></span>
                         </div>
-                        <div class="mi-detail">
-                            <span class="mi-label">Upfront MI/FF:</span>
-                            <span class="mi-value" id="refiUpfrontMI">$0.00</span>
+                        <div class="mi-editable">
+                            <label class="mi-label" for="refiMIUpfrontInput">Upfront MI/FF:</label>
+                            <div class="mi-input-wrap">
+                                <input type="number" id="refiMIUpfrontInput" value="0" min="0" step="0.01" class="mi-input">
+                                <button type="button" class="mi-mode-btn" id="refiMIUpfrontModeBtn" data-mode="dollar" title="Toggle between $ and %">$</button>
+                            </div>
+                            <span class="mi-computed-hint" id="refiMIUpfrontHint"></span>
                         </div>
                         <div class="mi-detail mi-note" id="refiMINote"></div>
                     </div>
@@ -186,10 +193,6 @@
                 <div class="total-row" style="margin-top:1rem;">
                     <label>New Monthly P&I Payment:</label>
                     <span class="total-value" id="refiPaymentDisplay">$0.00</span>
-                </div>
-                <div class="total-row" style="margin-top:0.5rem;" id="refiTotalPITI">
-                    <label>Total PITI + MI:</label>
-                    <span class="total-value" id="refiPITIMIDisplay">$0.00</span>
                 </div>
             </div>
         </div>
@@ -429,24 +432,20 @@
                         </div>
                     </div>
 
-                    <!-- Mortgage Insurance / Funding Fees -->
+                    <!-- Mortgage Insurance / Funding Fees (sourced from Refi MI inputs above) -->
                     <div class="fee-section" id="feesMISection">
-                        <h4>Mortgage Insurance / Funding Fees <span class="form-note" style="font-weight:400;">(auto-calculated from loan type)</span></h4>
+                        <h4>Mortgage Insurance / Funding Fees <span class="form-note" style="font-weight:400;">(from Refi Loan Terms MI inputs)</span></h4>
                         <div class="fee-grid">
                             <div class="fee-item">
-                                <label for="feeUpfrontMI">Upfront MI / Funding Fee ($)</label>
-                                <input type="number" id="feeUpfrontMI" value="0" min="0" step="1">
-                                <span class="form-note" id="feeUpfrontMINote">Auto-set based on loan type</span>
+                                <label>Upfront MI / Funding Fee ($)</label>
+                                <span class="mi-value fee-mi-display" id="feeUpfrontMIDisplay">$0.00</span>
+                                <input type="hidden" id="feeUpfrontMI" value="0">
                             </div>
                             <div class="fee-item">
-                                <label for="feeMonthlyMI">Monthly MI ($)</label>
-                                <input type="number" id="feeMonthlyMI" value="0" min="0" step="0.01">
-                                <span class="form-note" id="feeMonthlyMINote">Added to monthly payment comparison</span>
+                                <label>Monthly MI ($)</label>
+                                <span class="mi-value fee-mi-display" id="feeMonthlyMIDisplay">$0.00</span>
+                                <input type="hidden" id="feeMonthlyMI" value="0">
                             </div>
-                        </div>
-                        <div class="total-row">
-                            <label>Monthly MI Impact:</label>
-                            <span class="total-value" id="totalMonthlyMI">$0.00</span>
                         </div>
                     </div>
 
@@ -876,9 +875,6 @@
                  ACTION BUTTONS
                  ==================================================== -->
             <div class="action-buttons" style="justify-content:center; margin: 2rem 0;">
-                <button class="btn btn-primary" id="btnExportPDF">
-                    <span>&#128196;</span> Export PDF Report
-                </button>
                 <button class="btn btn-secondary" id="btnPrint">
                     <span>&#128424;</span> Print Report
                 </button>
@@ -909,7 +905,6 @@
 <script src="js/refi-ui.js"></script>
 <script src="js/refi-charts.js"></script>
 <script src="js/refi-advice.js"></script>
-<script src="js/refi-pdf.js"></script>
 <script src="js/refi-profiles.js"></script>
 <script>window.__calcSlug = 'refi';</script>
 <script src="/js/shared/report-templates.js"></script>

@@ -873,12 +873,50 @@
         margin-bottom: 0.1rem !important;
     }
     .debt-row input[type="text"] { min-width: 0 !important; }
+
+    /* MI editable inputs — display as plain text in print */
+    .mi-mode-btn { display: none !important; }
+    .mi-computed-hint { display: none !important; }
+    .mi-input-wrap {
+        border: none !important;
+        background: none !important;
+    }
+    .mi-input {
+        font-size: 7.5pt !important;
+        font-weight: 600 !important;
+        width: auto !important;
+        padding: 0 !important;
+    }
 }
 
 /* =====================================================
    RESPONSIVE ADJUSTMENTS
    ===================================================== */
 @media (max-width: 768px) {
+    .header-compact {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.5rem 1rem;
+    }
+
+    .header-compact .header-logo {
+        max-width: 100px;
+    }
+
+    .header-compact h1 {
+        font-size: 1.3rem;
+    }
+
+    .mi-info-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .mi-editable {
+        flex-wrap: wrap;
+    }
+
     .profile-controls {
         flex-direction: column;
         align-items: stretch;
@@ -996,4 +1034,100 @@
 .mi-info-row.no-mi {
     background: linear-gradient(135deg, #d4edda 0%, #f0fff0 100%);
     border-color: var(--success);
+}
+
+/* =====================================================
+   COMPACT HEADER
+   ===================================================== */
+.header-compact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    text-align: left;
+}
+
+.header-compact .header-logo {
+    max-width: 120px;
+    margin: 0;
+}
+
+.header-compact h1 {
+    font-size: 1.6rem;
+    margin: 0;
+}
+
+/* =====================================================
+   EDITABLE MI INPUTS WITH $/% TOGGLE
+   ===================================================== */
+.mi-editable {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.mi-input-wrap {
+    display: flex;
+    align-items: center;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--light);
+    transition: border-color 0.3s;
+}
+
+.mi-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1);
+}
+
+.mi-input {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0.35rem 0.5rem !important;
+    font-size: 0.88rem !important;
+    width: 90px !important;
+    text-align: right;
+    background: transparent !important;
+    -moz-appearance: textfield;
+}
+
+.mi-input::-webkit-inner-spin-button,
+.mi-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.mi-mode-btn {
+    background: var(--primary);
+    color: var(--light);
+    border: none;
+    padding: 0.35rem 0.6rem;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    min-width: 28px;
+    text-align: center;
+    transition: background 0.2s;
+    line-height: 1;
+}
+
+.mi-mode-btn:hover {
+    background: var(--secondary);
+}
+
+.mi-computed-hint {
+    font-size: 0.72rem;
+    color: var(--gray);
+    font-style: italic;
+    white-space: nowrap;
+    margin-left: 0.25rem;
+}
+
+/* Fee MI display in closing costs */
+.fee-mi-display {
+    font-size: 1rem;
+    display: block;
+    padding: 0.35rem 0;
 }

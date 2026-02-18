@@ -552,9 +552,13 @@ const RefiEngine = (() => {
         const costs = calcClosingCosts(inputs.fees);
 
         // MI difference (current monthly MI - refi monthly MI)
-        // If current loan has MI and refi doesn't (or vice versa), this affects net savings
-        const currentMonthlyMI = currentMI.monthlyMI || 0;
-        const refiMonthlyMI = refiMI.monthlyMI || 0;
+        // Use user-entered MI values when provided, falling back to auto-calculated
+        const currentMonthlyMI = (inputs.currentMIMonthlyDollar !== undefined && inputs.currentMIMonthlyDollar > 0)
+            ? inputs.currentMIMonthlyDollar
+            : (currentMI.monthlyMI || 0);
+        const refiMonthlyMI = (inputs.fees && inputs.fees.feeMonthlyMI > 0)
+            ? inputs.fees.feeMonthlyMI
+            : (refiMI.monthlyMI || 0);
         const miMonthlySavings = round2(currentMonthlyMI - refiMonthlyMI);
 
         // Cost of Waiting enabled flag (defaults to true for backward compat)

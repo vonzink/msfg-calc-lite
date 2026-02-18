@@ -37,10 +37,12 @@ const RefiUI = (() => {
         dom.currentPaymentManual = document.getElementById('currentPaymentManual');
         dom.currentPaymentDisplay = document.getElementById('currentPaymentDisplay');
 
-        // Current MI display
+        // Current MI display + editable input
         dom.currentMIInfo = document.getElementById('currentMIInfo');
         dom.currentLTV = document.getElementById('currentLTV');
-        dom.currentMonthlyMI = document.getElementById('currentMonthlyMI');
+        dom.currentMIInput = document.getElementById('currentMIInput');
+        dom.currentMIModeBtn = document.getElementById('currentMIModeBtn');
+        dom.currentMIHint = document.getElementById('currentMIHint');
         dom.currentMINote = document.getElementById('currentMINote');
 
         // Refi offer
@@ -50,13 +52,20 @@ const RefiUI = (() => {
         dom.refiLoanType = document.getElementById('refiLoanType');
         dom.refiPaymentDisplay = document.getElementById('refiPaymentDisplay');
 
-        // Refi MI display
+        // Refi MI display + editable inputs
         dom.refiMIInfo = document.getElementById('refiMIInfo');
         dom.refiLTV = document.getElementById('refiLTV');
-        dom.refiMonthlyMI = document.getElementById('refiMonthlyMI');
-        dom.refiUpfrontMI = document.getElementById('refiUpfrontMI');
+        dom.refiMIMonthlyInput = document.getElementById('refiMIMonthlyInput');
+        dom.refiMIMonthlyModeBtn = document.getElementById('refiMIMonthlyModeBtn');
+        dom.refiMIMonthlyHint = document.getElementById('refiMIMonthlyHint');
+        dom.refiMIUpfrontInput = document.getElementById('refiMIUpfrontInput');
+        dom.refiMIUpfrontModeBtn = document.getElementById('refiMIUpfrontModeBtn');
+        dom.refiMIUpfrontHint = document.getElementById('refiMIUpfrontHint');
         dom.refiMINote = document.getElementById('refiMINote');
-        dom.refiPITIMIDisplay = document.getElementById('refiPITIMIDisplay');
+
+        // Closing cost MI display elements
+        dom.feeUpfrontMIDisplay = document.getElementById('feeUpfrontMIDisplay');
+        dom.feeMonthlyMIDisplay = document.getElementById('feeMonthlyMIDisplay');
 
         // Future rate
         dom.futureRate = document.getElementById('futureRate');
@@ -108,12 +117,10 @@ const RefiUI = (() => {
         dom.totalPrepaids = document.getElementById('totalPrepaids');
         dom.totalEscrow = document.getElementById('totalEscrow');
         dom.totalClosingCostsBreakeven = document.getElementById('totalClosingCostsBreakeven');
-        dom.totalMonthlyMI = document.getElementById('totalMonthlyMI');
 
         // Buttons
         dom.btnCalculate = document.getElementById('btnCalculate');
         dom.btnReset = document.getElementById('btnReset');
-        dom.btnExportPDF = document.getElementById('btnExportPDF');
         dom.btnPrint = document.getElementById('btnPrint');
 
         // Results container
@@ -211,11 +218,20 @@ const RefiUI = (() => {
             if (input) input.addEventListener('input', updateClosingCostTotals);
         });
 
-        // PDF export
-        dom.btnExportPDF.addEventListener('click', () => {
-            if (lastResults && typeof RefiPDF !== 'undefined') {
-                RefiPDF.exportPDF(lastResults);
-            }
+        // MI editable inputs — live update & sync to closing costs
+        [dom.currentMIInput, dom.refiMIMonthlyInput, dom.refiMIUpfrontInput].forEach(input => {
+            if (input) input.addEventListener('input', updateLiveCalculations);
+        });
+
+        // MI mode toggle buttons ($ / %)
+        bindMIModeToggle('currentMIModeBtn', 'currentMIInput', 'currentMIHint', function() {
+            return num(dom.currentBalance);
+        });
+        bindMIModeToggle('refiMIMonthlyModeBtn', 'refiMIMonthlyInput', 'refiMIMonthlyHint', function() {
+            return num(dom.refiLoanAmount);
+        });
+        bindMIModeToggle('refiMIUpfrontModeBtn', 'refiMIUpfrontInput', 'refiMIUpfrontHint', function() {
+            return num(dom.refiLoanAmount);
         });
 
         // Print
@@ -234,6 +250,69 @@ const RefiUI = (() => {
                 runCalculation();
             }
         });
+    }
+
+    // -------------------------------------------------
+    // MI MODE TOGGLE ($ / %)
+    // -------------------------------------------------
+
+    /**
+     * Bind a $/% toggle button for an MI input.
+     * When toggling from $ to %, convert the current dollar value to %.
+     * When toggling from % to $, convert the current % value to $.
+     */
+    function bindMIModeToggle(btnId, inputId, hintId, getLoanAmount) {
+        const btn = document.getElementById(btnId);
+        const input = document.getElementById(inputId);
+        const hint = document.getElementById(hintId);
+        if (!btn || !input) return;
+
+        btn.addEventListener('click', function() {
+            var mode = btn.getAttribute('data-mode');
+            var val = parseFloat(input.value) || 0;
+            var loanAmt = getLoanAmount();
+
+            if (mode === 'dollar') {
+                // Switch to percent mode — convert $ → %
+                var pct = (loanAmt > 0 && val > 0) ? ((val * 12) / loanAmt) * 100 : 0;
+                // For upfront fields, don't multiply by 12
+                if (btnId.indexOf('Upfront') !== -1) {
+                    pct = (loanAmt > 0 && val > 0) ? (val / loanAmt) * 100 : 0;
+                }
+                input.value = pct ? pct.toFixed(4) : '0';
+                input.step = '0.01';
+                btn.textContent = '%';
+                btn.setAttribute('data-mode', 'percent');
+            } else {
+                // Switch to dollar mode — convert % → $
+                var dollars;
+                if (btnId.indexOf('Upfront') !== -1) {
+                    dollars = (val / 100) * loanAmt;
+                } else {
+                    dollars = ((val / 100) * loanAmt) / 12;
+                }
+                input.value = dollars ? dollars.toFixed(2) : '0';
+                input.step = '0.01';
+                btn.textContent = '$';
+                btn.setAttribute('data-mode', 'dollar');
+            }
+            updateLiveCalculations();
+        });
+    }
+
+    /**
+     * Resolve an MI input to a dollar value, accounting for its current mode.
+     */
+    function resolveMIDollar(inputEl, modeBtnEl, loanAmount, isUpfront) {
+        var val = parseFloat(inputEl.value) || 0;
+        var mode = modeBtnEl.getAttribute('data-mode');
+        if (mode === 'percent') {
+            if (isUpfront) {
+                return RefiEngine.round2((val / 100) * loanAmount);
+            }
+            return RefiEngine.round2(((val / 100) * loanAmount) / 12);
+        }
+        return RefiEngine.round2(val);
     }
 
     // -------------------------------------------------
@@ -263,7 +342,7 @@ function updateLiveCalculations() {
         dom.currentPaymentDisplay.title = 'Computed from balance, rate & term';
     }
 
-    // Current MI calculation (display only)
+    // Current MI — update LTV and hint, but user controls the value
     if (typeof RefiMI !== 'undefined') {
         const currentMI = RefiMI.calcMI(
             currentLoanType,
@@ -272,34 +351,48 @@ function updateLiveCalculations() {
             currentTermRemaining
         );
         updateMIDisplay('current', currentMI);
+        // Show computed hint
+        if (dom.currentMIHint) {
+            dom.currentMIHint.textContent = currentMI.monthlyMI > 0
+                ? 'Est: ' + formatMoney(currentMI.monthlyMI) + '/mo'
+                : '';
+        }
     }
 
     // Refi payment
     const refiPmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, refiRate, refiTerm);
     dom.refiPaymentDisplay.textContent = formatMoney(refiPmt);
 
-    // Refi MI calculation (display only — NO fee auto-population)
+    // Refi MI — update LTV and hints, user controls values
     if (typeof RefiMI !== 'undefined') {
         const refiMI = RefiMI.calcMI(refiLoanType, refiLoanAmount, currentPropertyValue, refiTerm);
         updateMIDisplay('refi', refiMI);
+        // Show computed hints
+        if (dom.refiMIMonthlyHint) {
+            dom.refiMIMonthlyHint.textContent = refiMI.monthlyMI > 0
+                ? 'Est: ' + formatMoney(refiMI.monthlyMI) + '/mo'
+                : '';
+        }
+        if (dom.refiMIUpfrontHint) {
+            dom.refiMIUpfrontHint.textContent = refiMI.upfront > 0
+                ? 'Est: ' + formatMoney(refiMI.upfront)
+                : '';
+        }
     }
 
-    // ---------------- MI FEES (MANUAL ENTRY ONLY) ----------------
-    // Whatever the user types in feeMonthlyMI is what we use everywhere.
-    const manualMonthlyMI = num(dom.fees.feeMonthlyMI);
+    // Resolve editable MI values to dollars
+    const refiMonthlyMIDollar = dom.refiMIMonthlyInput && dom.refiMIMonthlyModeBtn
+        ? resolveMIDollar(dom.refiMIMonthlyInput, dom.refiMIMonthlyModeBtn, refiLoanAmount, false)
+        : 0;
+    const refiUpfrontMIDollar = dom.refiMIUpfrontInput && dom.refiMIUpfrontModeBtn
+        ? resolveMIDollar(dom.refiMIUpfrontInput, dom.refiMIUpfrontModeBtn, refiLoanAmount, true)
+        : 0;
 
-    // Keep the "Total Monthly MI" display in sync with manual entry (but do not overwrite input)
-    const totalMonthlyMIEl = document.getElementById('totalMonthlyMI');
-    if (totalMonthlyMIEl) totalMonthlyMIEl.textContent = formatMoney(manualMonthlyMI);
-
-    // Total PITI + MI display (uses manual MI)
-    const escrowTax = num(dom.fees.feeEscrowTax);
-    const escrowIns = num(dom.fees.feeEscrowInsurance);
-    const totalPITIMI = RefiEngine.round2(refiPmt + manualMonthlyMI + escrowTax + escrowIns);
-
-    if (dom.refiPITIMIDisplay) {
-        dom.refiPITIMIDisplay.textContent = formatMoney(totalPITIMI);
-    }
+    // Sync MI to hidden closing cost fields
+    if (dom.fees.feeUpfrontMI) dom.fees.feeUpfrontMI.value = refiUpfrontMIDollar;
+    if (dom.fees.feeMonthlyMI) dom.fees.feeMonthlyMI.value = refiMonthlyMIDollar;
+    if (dom.feeUpfrontMIDisplay) dom.feeUpfrontMIDisplay.textContent = formatMoney(refiUpfrontMIDollar);
+    if (dom.feeMonthlyMIDisplay) dom.feeMonthlyMIDisplay.textContent = formatMoney(refiMonthlyMIDollar);
 
     // Future payment (only update if Cost of Waiting is enabled)
     if (dom.costOfWaitingToggle.checked) {
@@ -314,20 +407,20 @@ function updateLiveCalculations() {
     const adjustedSavings = RefiEngine.round2(piSavings + debtPayments);
 
     dom.cashOutAdjustedSavings.textContent = formatMoney(adjustedSavings);
+
+    // Re-sync closing cost totals since MI hidden fields were updated
+    updateClosingCostTotals();
 }
 /**
  * Update the MI info display for either current or refi loan.
+ * Now only updates LTV, note, and row styling — inputs are user-controlled.
  */
 function updateMIDisplay(prefix, miData) {
     const ltvEl = document.getElementById(prefix + 'LTV');
-    const monthlyMIEl = document.getElementById(prefix + 'MonthlyMI');
-    const upfrontMIEl = document.getElementById(prefix + 'UpfrontMI');
     const noteEl = document.getElementById(prefix + 'MINote');
     const infoRow = document.getElementById(prefix + 'MIInfo');
 
     if (ltvEl) ltvEl.textContent = miData.ltv.toFixed(1) + '%';
-    if (monthlyMIEl) monthlyMIEl.textContent = formatMoney(miData.monthlyMI);
-    if (upfrontMIEl) upfrontMIEl.textContent = formatMoney(miData.upfront);
     if (noteEl) noteEl.textContent = miData.note || '';
 
     if (infoRow) {
@@ -352,7 +445,6 @@ function updateMIDisplay(prefix, miData) {
         dom.totalPrepaids.textContent = formatMoney(costs.prepaids);
         dom.totalEscrow.textContent = formatMoney(costs.escrow);
         dom.totalClosingCostsBreakeven.textContent = formatMoney(costs.totalBreakeven);
-        if (dom.totalMonthlyMI) dom.totalMonthlyMI.textContent = formatMoney(costs.monthlyMI);
     }
 
     // -------------------------------------------------
@@ -360,16 +452,22 @@ function updateMIDisplay(prefix, miData) {
     // -------------------------------------------------
 
     function readAllInputs() {
+        var refiLoanAmount = num(dom.refiLoanAmount);
+        var currentBalance = num(dom.currentBalance);
+
         return {
-            currentBalance: num(dom.currentBalance),
+            currentBalance: currentBalance,
             currentRate: num(dom.currentRate),
             currentTermRemaining: num(dom.currentTermRemaining),
             currentPropertyValue: num(dom.currentPropertyValue),
             currentLoanType: dom.currentLoanType ? dom.currentLoanType.value : 'Conventional',
             useManualPayment: dom.manualPaymentToggle.checked,
             currentPaymentManual: num(dom.currentPaymentManual),
+            currentMIValue: num(dom.currentMIInput),
+            currentMIMonthlyDollar: dom.currentMIInput && dom.currentMIModeBtn
+                ? resolveMIDollar(dom.currentMIInput, dom.currentMIModeBtn, currentBalance, false) : 0,
 
-            refiLoanAmount: num(dom.refiLoanAmount),
+            refiLoanAmount: refiLoanAmount,
             refiRate: num(dom.refiRate),
             refiTerm: num(dom.refiTerm),
             refiLoanType: dom.refiLoanType ? dom.refiLoanType.value : 'Conventional',
@@ -512,6 +610,18 @@ function updateMIDisplay(prefix, miData) {
             });
         }
 
+        // Editable MI inputs (restore from fees — dollar mode)
+        if (data.fees) {
+            if (dom.currentMIInput) dom.currentMIInput.value = data.currentMIValue || 0;
+            if (dom.refiMIMonthlyInput) dom.refiMIMonthlyInput.value = data.fees.feeMonthlyMI || 0;
+            if (dom.refiMIUpfrontInput) dom.refiMIUpfrontInput.value = data.fees.feeUpfrontMI || 0;
+        }
+        // Reset MI mode buttons to dollar
+        ['currentMIModeBtn', 'refiMIMonthlyModeBtn', 'refiMIUpfrontModeBtn'].forEach(function(id) {
+            var btn = document.getElementById(id);
+            if (btn) { btn.textContent = '$'; btn.setAttribute('data-mode', 'dollar'); }
+        });
+
         // Re-compute live values
         updateLiveCalculations();
         updateClosingCostTotals();
@@ -582,9 +692,30 @@ function updateMIDisplay(prefix, miData) {
         // Display results
         displayResults(results);
 
-        // Build charts
+        // Build charts — open chart sections first so canvases have dimensions
         if (typeof RefiCharts !== 'undefined') {
+            document.querySelectorAll('.chart-content').forEach(function(el) {
+                // Skip transition so canvas immediately gets full size
+                el.style.transition = 'none';
+                el.classList.add('open');
+                // Update toggle button text
+                var btn = el.previousElementSibling ? el.previousElementSibling.querySelector('.chart-toggle') : null;
+                if (btn) {
+                    if (!btn.dataset.labelShow) {
+                        btn.dataset.labelShow = btn.textContent;
+                        btn.dataset.labelHide = btn.textContent.replace('Show', 'Hide');
+                    }
+                    btn.textContent = btn.dataset.labelHide || btn.textContent.replace('Show', 'Hide');
+                }
+            });
+            // Force reflow then render charts, then restore transitions
+            void document.body.offsetHeight;
             RefiCharts.renderAll(results);
+            requestAnimationFrame(function() {
+                document.querySelectorAll('.chart-content').forEach(function(el) {
+                    el.style.transition = '';
+                });
+            });
         }
 
         // Build advice
@@ -1097,6 +1228,16 @@ function updateMIDisplay(prefix, miData) {
         dom.refiTerm.value = 360;
         if (dom.refiLoanType) dom.refiLoanType.value = 'Conventional';
         if (dom.currentLoanType) dom.currentLoanType.value = 'Conventional';
+
+        // MI editable inputs
+        if (dom.currentMIInput) dom.currentMIInput.value = 0;
+        if (dom.refiMIMonthlyInput) dom.refiMIMonthlyInput.value = 0;
+        if (dom.refiMIUpfrontInput) dom.refiMIUpfrontInput.value = 0;
+        // Reset MI mode buttons to dollar
+        ['currentMIModeBtn', 'refiMIMonthlyModeBtn', 'refiMIUpfrontModeBtn'].forEach(function(id) {
+            var btn = document.getElementById(id);
+            if (btn) { btn.textContent = '$'; btn.setAttribute('data-mode', 'dollar'); }
+        });
 
         // Cash Out
         dom.cashOutToggle.checked = false;
