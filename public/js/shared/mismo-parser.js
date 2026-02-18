@@ -591,36 +591,7 @@
     if (data.property.state) m['laState'] = data.property.state;
     if (data.property.zip) m['laZip'] = data.property.zip;
 
-    // Proposed/new loan info
-    if (data.loan.amount) m['laNewAmount'] = data.loan.amount;
-    if (data.loan.rate) m['laNewRate'] = data.loan.rate;
-    if (data.loan.termMonths) m['laNewTerm'] = String(Math.round(data.loan.termMonths / 12));
-    if (data.loan.mortgageType) {
-      var typeMap = { 'Conventional': 'Conventional', 'FHA': 'FHA', 'VA': 'VA', 'USDA': 'USDA',
-                      'FederalHousingAdministration': 'FHA', 'VeteransAffairs': 'VA', 'USDARuralHousing': 'USDA' };
-      m['laNewLoanType'] = typeMap[data.loan.mortgageType] || 'Conventional';
-    }
-    if (data.loan.piPayment) m['laNewPayment'] = data.loan.piPayment;
-    if (data.loan.miPayment) m['laNewMI'] = data.loan.miPayment;
-    if (data.loan.escrowPayment) m['laNewEscrow'] = data.loan.escrowPayment;
-
-    // Closing costs from integrated disclosure section summary
-    var fees = data.fees || {};
-    if (fees['_section_TotalClosingCosts']) {
-      m['laClosingCosts'] = fees['_section_TotalClosingCosts'];
-    }
-
-    // Lender credits
-    if (fees['_section_LenderCredits']) {
-      m['laCredits'] = fees['_section_LenderCredits'];
-    }
-
-    // Loan origination company as the new lender
-    if (data.loanOriginationCompany && data.loanOriginationCompany.name) {
-      m['laNewLender'] = data.loanOriginationCompany.name;
-    }
-
-    // Loan officer info
+    // Loan officer info (populates hidden fields for signature)
     var lo = data.loanOriginator || {};
     if (lo.fullName) m['laLoName'] = lo.fullName;
     if (lo.nmls) m['laLoNmls'] = lo.nmls;

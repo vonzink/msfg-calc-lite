@@ -7,33 +7,14 @@
 <div class="calc-page">
   <div class="calc-page__header">
     <h1>Cover Letter</h1>
-    <p>Generate a professional cover letter for loan presentations. Auto-fills from MISMO data in the workspace.</p>
+    <p>Create a professional cover letter for loan presentations. Edit the body text directly, then generate a polished letter.</p>
   </div>
 
   <div class="calc-page__body">
 
-    <!-- Section Toggles -->
-    <div class="la-section-toggles">
-      <span class="la-toggle-label">Sections:</span>
-      <label class="la-toggle"><input type="checkbox" id="laTogBorrower" checked data-toggle="borrower"> Borrower</label>
-      <label class="la-toggle"><input type="checkbox" id="laTogOldLoan" checked data-toggle="old-loan"> Current Loan</label>
-      <label class="la-toggle"><input type="checkbox" id="laTogNewLoan" checked data-toggle="new-loan"> Proposed Loan</label>
-      <label class="la-toggle"><input type="checkbox" id="laTogClosing" checked data-toggle="closing"> Closing Costs</label>
-      <label class="la-toggle"><input type="checkbox" id="laTogSummary" checked data-toggle="summary"> Summary</label>
-    </div>
-
-    <!-- Greeting / Intro -->
+    <!-- Borrower Info (auto-filled from MISMO) -->
     <div class="calc-section">
-      <h2>Greeting / Intro</h2>
-      <div class="form-group">
-        <label for="laIntro">Customize the opening paragraph of your cover letter</label>
-        <textarea id="laIntro" rows="3" style="width: 100%; resize: vertical;">Thank you for the opportunity to work with you on your home financing needs. Below is a summary of the loan options we discussed.</textarea>
-      </div>
-    </div>
-
-    <!-- Borrower Information -->
-    <div class="calc-section" data-section="borrower">
-      <h2>Borrower Information</h2>
+      <h2>Borrower</h2>
       <div class="form-grid">
         <div class="form-group">
           <label for="laBorrowerName">Borrower Name</label>
@@ -66,151 +47,21 @@
       </div>
     </div>
 
-    <!-- Current Loan -->
-    <div class="calc-section" data-section="old-loan">
-      <h2>Current Loan</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="laOldLender">Lender</label>
-          <input type="text" id="laOldLender" placeholder="e.g. Wells Fargo">
-        </div>
-        <div class="form-group">
-          <label for="laOldLoanType">Loan Type</label>
-          <select id="laOldLoanType">
-            <option value="Conventional">Conventional</option>
-            <option value="FHA">FHA</option>
-            <option value="VA">VA</option>
-            <option value="USDA">USDA</option>
-            <option value="Jumbo">Jumbo</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-top: var(--space-md);">
-        <div class="form-group">
-          <label for="laOldAmount">Loan Amount ($)</label>
-          <input type="number" id="laOldAmount" step="1000" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label for="laOldRate">Interest Rate (%)</label>
-          <input type="number" id="laOldRate" step="0.125" placeholder="0.000">
-        </div>
-        <div class="form-group">
-          <label for="laOldTerm">Original Term (Years)</label>
-          <select id="laOldTerm">
-            <option value="10">10 Years</option>
-            <option value="15">15 Years</option>
-            <option value="20">20 Years</option>
-            <option value="25">25 Years</option>
-            <option value="30" selected>30 Years</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-top: var(--space-md);">
-        <div class="form-group">
-          <label for="laOldPayment">Monthly P&I ($)
-            <span class="help-icon" data-help="Leave blank to auto-calculate from loan amount, rate, and term.">?</span>
-          </label>
-          <input type="number" id="laOldPayment" step="0.01" placeholder="Auto-calculated">
-        </div>
-        <div class="form-group">
-          <label for="laOldMI">Monthly MI ($)</label>
-          <input type="number" id="laOldMI" step="0.01" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label for="laOldEscrow">Monthly Escrow ($)
-            <span class="help-icon" data-help="Taxes + insurance escrowed monthly.">?</span>
-          </label>
-          <input type="number" id="laOldEscrow" step="0.01" placeholder="0.00">
-        </div>
-      </div>
-    </div>
-
-    <!-- Proposed Loan -->
-    <div class="calc-section" data-section="new-loan">
-      <h2>Proposed Loan</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="laNewLender">Lender</label>
-          <input type="text" id="laNewLender" placeholder="e.g. Mountain States Financial Group">
-        </div>
-        <div class="form-group">
-          <label for="laNewLoanType">Loan Type</label>
-          <select id="laNewLoanType">
-            <option value="Conventional">Conventional</option>
-            <option value="FHA">FHA</option>
-            <option value="VA">VA</option>
-            <option value="USDA">USDA</option>
-            <option value="Jumbo">Jumbo</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-top: var(--space-md);">
-        <div class="form-group">
-          <label for="laNewAmount">Loan Amount ($)</label>
-          <input type="number" id="laNewAmount" step="1000" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label for="laNewRate">Interest Rate (%)</label>
-          <input type="number" id="laNewRate" step="0.125" placeholder="0.000">
-        </div>
-        <div class="form-group">
-          <label for="laNewTerm">Term (Years)</label>
-          <select id="laNewTerm">
-            <option value="10">10 Years</option>
-            <option value="15">15 Years</option>
-            <option value="20">20 Years</option>
-            <option value="25">25 Years</option>
-            <option value="30" selected>30 Years</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-grid" style="margin-top: var(--space-md);">
-        <div class="form-group">
-          <label for="laNewPayment">Monthly P&I ($)
-            <span class="help-icon" data-help="Leave blank to auto-calculate from loan amount, rate, and term.">?</span>
-          </label>
-          <input type="number" id="laNewPayment" step="0.01" placeholder="Auto-calculated">
-        </div>
-        <div class="form-group">
-          <label for="laNewMI">Monthly MI ($)</label>
-          <input type="number" id="laNewMI" step="0.01" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label for="laNewEscrow">Monthly Escrow ($)
-            <span class="help-icon" data-help="Taxes + insurance escrowed monthly.">?</span>
-          </label>
-          <input type="number" id="laNewEscrow" step="0.01" placeholder="0.00">
-        </div>
-      </div>
-    </div>
-
-    <!-- Closing Costs -->
-    <div class="calc-section" data-section="closing">
-      <h2>Closing Costs</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="laClosingCosts">Estimated Closing Costs ($)</label>
-          <input type="number" id="laClosingCosts" step="100" placeholder="0.00">
-        </div>
-        <div class="form-group">
-          <label for="laCredits">Lender Credits ($)
-            <span class="help-icon" data-help="Credits applied to reduce closing costs.">?</span>
-          </label>
-          <input type="number" id="laCredits" step="100" placeholder="0.00">
-        </div>
-      </div>
-    </div>
-
-    <!-- Summary -->
-    <div class="calc-section" data-section="summary">
-      <h2>Summary</h2>
+    <!-- Letter Body -->
+    <div class="calc-section">
+      <h2>Letter Body</h2>
       <div class="form-group">
-        <label for="laSummary">Summary / Closing Notes
-          <span class="help-icon" data-help="This text appears below the loan details in the generated cover letter.">?</span>
-        </label>
-        <textarea id="laSummary" rows="4" placeholder="Add any additional notes, conditions, or comments for the borrower..." style="width: 100%; resize: vertical;"></textarea>
+        <label for="laBody">Write or edit the body of your cover letter</label>
+        <textarea id="laBody" rows="12" style="width: 100%; resize: vertical; line-height: 1.7; font-size: 0.95rem;"></textarea>
+      </div>
+    </div>
+
+    <!-- Attached Calculators (optional) -->
+    <div class="calc-section">
+      <h2>Attached Reports <span class="la-optional-badge">Optional</span></h2>
+      <p class="la-attach-hint">Select which session report items to list as attachments on the letter. Leave all unchecked to omit this section.</p>
+      <div id="laAttachList" class="la-attach-list">
+        <p class="la-attach-empty">No items in session report yet. Add calculators to your session from the workspace first.</p>
       </div>
     </div>
 

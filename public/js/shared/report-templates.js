@@ -1848,137 +1848,77 @@
 
   /* ---- Loan Analysis (Cover Page) ---- */
   extractors['loan-analysis'] = function (doc) {
-    // Check section toggle state (exposed by loan-analysis.js)
     var win = doc.defaultView || window;
-    var sec = win.__laSectionEnabled || function () { return true; };
-    var computed = win.__laComputedState || {};
     var sigData = win.__emailSignature || {};
 
+    // Read selected attachments from checkbox list
+    var attachments = [];
+    var checks = doc.querySelectorAll('#laAttachList input[type="checkbox"]:checked');
+    for (var i = 0; i < checks.length; i++) {
+      attachments.push({
+        name: checks[i].getAttribute('data-name') || '',
+        icon: checks[i].getAttribute('data-icon') || ''
+      });
+    }
+
     return {
-      intro: txt(doc, 'laIntro'),
-      borrower: sec('borrower') ? {
+      borrower: {
         name: txt(doc, 'laBorrowerName'),
         coBorrower: txt(doc, 'laCoBorrowerName'),
         street: txt(doc, 'laStreet'),
         city: txt(doc, 'laCity'),
         state: txt(doc, 'laState'),
         zip: txt(doc, 'laZip')
-      } : null,
-      oldLoan: sec('old-loan') ? {
-        lender: txt(doc, 'laOldLender'),
-        type: txt(doc, 'laOldLoanType'),
-        amount: val(doc, 'laOldAmount'),
-        rate: val(doc, 'laOldRate'),
-        term: val(doc, 'laOldTerm'),
-        pi: val(doc, 'laOldPayment'),
-        mi: val(doc, 'laOldMI'),
-        escrow: val(doc, 'laOldEscrow')
-      } : null,
-      newLoan: sec('new-loan') ? {
-        lender: txt(doc, 'laNewLender'),
-        type: txt(doc, 'laNewLoanType'),
-        amount: val(doc, 'laNewAmount'),
-        rate: val(doc, 'laNewRate'),
-        term: val(doc, 'laNewTerm'),
-        pi: val(doc, 'laNewPayment'),
-        mi: val(doc, 'laNewMI'),
-        escrow: val(doc, 'laNewEscrow')
-      } : null,
-      closingCosts: sec('closing') ? val(doc, 'laClosingCosts') : 0,
-      credits: sec('closing') ? val(doc, 'laCredits') : 0,
-      showClosing: sec('closing'),
-      monthlySavings: computed.monthlySavings || '',
-      netCosts: computed.netCosts || '',
-      breakeven: computed.breakeven || '',
-      lifetimeSavings: computed.lifetimeSavings || '',
-      emailSignature: sigData,
-      summary: sec('summary') ? txt(doc, 'laSummary') : '',
-      // Backward compat alias
-      notes: sec('summary') ? txt(doc, 'laSummary') : ''
+      },
+      body: txt(doc, 'laBody'),
+      attachments: attachments,
+      emailSignature: sigData
     };
   };
 
   renderers['loan-analysis'] = function (data) {
     var html = '';
-
-    // Intro
-    if (data.intro) {
-      html += '<div class="rpt-section"><p style="margin:0;font-style:italic;color:#555">' + data.intro.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p></div>';
-    }
+    var esc = function (s) { return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
 
     // Borrower
     var b = data.borrower;
-    if (b) {
+    if (b && b.name) {
       var addr = [b.street, b.city, b.state, b.zip].filter(function (s) { return s; }).join(', ');
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Borrower Information</h4>';
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Borrower</h4>';
       html += '<div class="rpt-params">';
-      if (b.name) html += '<div class="rpt-param"><span>Borrower</span><span>' + b.name + '</span></div>';
-      if (b.coBorrower) html += '<div class="rpt-param"><span>Co-Borrower</span><span>' + b.coBorrower + '</span></div>';
-      if (addr) html += '<div class="rpt-param"><span>Property</span><span>' + addr + '</span></div>';
+      html += '<div class="rpt-param"><span>Borrower</span><span>' + esc(b.name) + '</span></div>';
+      if (b.coBorrower) html += '<div class="rpt-param"><span>Co-Borrower</span><span>' + esc(b.coBorrower) + '</span></div>';
+      if (addr) html += '<div class="rpt-param"><span>Address</span><span>' + esc(addr) + '</span></div>';
       html += '</div></div>';
     }
 
-    // Comparison table
-    var ol = data.oldLoan;
-    var nl = data.newLoan;
-    if (ol || nl) {
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Comparison</h4>';
-      var cols = [];
-      if (ol) cols.push('Current');
-      if (nl) cols.push('Proposed');
-      html += '<table class="rpt-table"><thead><tr><th></th>';
-      cols.forEach(function (c) { html += '<th class="rpt-num">' + c + '</th>'; });
-      html += '</tr></thead><tbody>';
-      var rows = [
-        { label: 'Lender', oVal: ol ? (ol.lender || '--') : '', nVal: nl ? (nl.lender || '--') : '' },
-        { label: 'Loan Type', oVal: ol ? ol.type : '', nVal: nl ? nl.type : '' },
-        { label: 'Loan Amount', oVal: ol ? fmt(ol.amount) : '', nVal: nl ? fmt(nl.amount) : '' },
-        { label: 'Rate', oVal: ol ? pct(ol.rate) : '', nVal: nl ? pct(nl.rate) : '' },
-        { label: 'Term', oVal: ol ? ol.term + ' yrs' : '', nVal: nl ? nl.term + ' yrs' : '' },
-        { label: 'Monthly P&I', oVal: ol ? fmt(ol.pi) : '', nVal: nl ? fmt(nl.pi) : '' }
-      ];
-      if ((ol && ol.mi) || (nl && nl.mi)) rows.push({ label: 'Monthly MI', oVal: ol ? fmt(ol.mi) : '', nVal: nl ? fmt(nl.mi) : '' });
-      if ((ol && ol.escrow) || (nl && nl.escrow)) rows.push({ label: 'Monthly Escrow', oVal: ol ? fmt(ol.escrow) : '', nVal: nl ? fmt(nl.escrow) : '' });
-      rows.forEach(function (r) {
-        html += '<tr><td>' + r.label + '</td>';
-        if (ol) html += '<td class="rpt-num">' + r.oVal + '</td>';
-        if (nl) html += '<td class="rpt-num">' + r.nVal + '</td>';
-        html += '</tr>';
-      });
-      html += '</tbody></table></div>';
+    // Letter body
+    if (data.body) {
+      html += '<div class="rpt-section"><p style="white-space:pre-wrap;margin:0;color:#555">' + esc(data.body) + '</p></div>';
     }
 
-    // Savings
-    if (data.showClosing !== false && data.monthlySavings) {
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Savings Analysis</h4>';
-      html += '<div class="rpt-params">';
-      html += '<div class="rpt-param"><span>Monthly Savings</span><span>' + data.monthlySavings + '</span></div>';
-      html += '<div class="rpt-param"><span>Net Closing Costs</span><span>' + data.netCosts + '</span></div>';
-      html += '<div class="rpt-param"><span>Breakeven</span><span>' + data.breakeven + '</span></div>';
-      html += '</div>';
-      if (data.lifetimeSavings) html += '<div class="rpt-grand-total"><span>Lifetime Interest Savings</span><span>' + data.lifetimeSavings + '</span></div>';
-      html += '</div>';
-    }
-
-    // Summary (backward compat: data.summary || data.notes)
-    var summaryText = data.summary || data.notes || '';
-    if (summaryText) {
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Summary</h4>';
-      html += '<p style="white-space:pre-wrap;margin:0;color:#555">' + summaryText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p></div>';
-    }
-
-    // Email Signature
+    // Signature
     var sig = data.emailSignature || data.loanOfficer;
     if (sig && sig.name) {
       html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Officer</h4>';
       html += '<div class="rpt-params">';
-      html += '<div class="rpt-param"><span>Name</span><span>' + sig.name + '</span></div>';
-      if (sig.title) html += '<div class="rpt-param"><span>Title</span><span>' + sig.title + '</span></div>';
-      if (sig.nmls) html += '<div class="rpt-param"><span>NMLS #</span><span>' + sig.nmls + '</span></div>';
-      if (sig.phone) html += '<div class="rpt-param"><span>Phone</span><span>' + sig.phone + '</span></div>';
-      if (sig.email) html += '<div class="rpt-param"><span>Email</span><span>' + sig.email + '</span></div>';
-      if (sig.company) html += '<div class="rpt-param"><span>Company</span><span>' + sig.company + '</span></div>';
+      html += '<div class="rpt-param"><span>Name</span><span>' + esc(sig.name) + '</span></div>';
+      if (sig.title) html += '<div class="rpt-param"><span>Title</span><span>' + esc(sig.title) + '</span></div>';
+      if (sig.company) html += '<div class="rpt-param"><span>Company</span><span>' + esc(sig.company) + '</span></div>';
+      if (sig.phone) html += '<div class="rpt-param"><span>Phone</span><span>' + esc(sig.phone) + '</span></div>';
+      if (sig.email) html += '<div class="rpt-param"><span>Email</span><span>' + esc(sig.email) + '</span></div>';
+      if (sig.nmls) html += '<div class="rpt-param"><span>NMLS #</span><span>' + esc(sig.nmls) + '</span></div>';
       html += '</div></div>';
+    }
+
+    // Attached reports
+    var att = data.attachments;
+    if (att && att.length > 0) {
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Enclosed Reports</h4><ul style="margin:0;padding-left:20px">';
+      for (var i = 0; i < att.length; i++) {
+        html += '<li>' + esc(att[i].icon) + ' ' + esc(att[i].name) + '</li>';
+      }
+      html += '</ul></div>';
     }
 
     return html;
@@ -1987,89 +1927,45 @@
   pdfGenerators['loan-analysis'] = function (data) {
     var content = [];
     var b = data.borrower;
-    var ol = data.oldLoan;
-    var nl = data.newLoan;
-
-    // Intro
-    if (data.intro) {
-      content.push({ text: data.intro, italics: true, color: '#555', margin: [0, 0, 0, 8] });
-    }
 
     // Borrower
-    if (b) {
+    if (b && b.name) {
       var addr = [b.street, b.city, b.state, b.zip].filter(function (s) { return s; }).join(', ');
-      content.push({ text: 'Borrower Information', style: 'sectionTitle', margin: [0, 4, 0, 4] });
+      content.push({ text: 'Borrower', style: 'sectionTitle', margin: [0, 4, 0, 4] });
       var bRows = [];
-      if (b.name) bRows.push(['Borrower', b.name]);
+      bRows.push(['Borrower', b.name]);
       if (b.coBorrower) bRows.push(['Co-Borrower', b.coBorrower]);
-      if (addr) bRows.push(['Property', addr]);
-      if (bRows.length) {
-        content.push({ table: { widths: [120, '*'], body: bRows }, layout: 'noBorders', margin: [0, 0, 0, 8] });
-      }
+      if (addr) bRows.push(['Address', addr]);
+      content.push({ table: { widths: [100, '*'], body: bRows }, layout: 'noBorders', margin: [0, 0, 0, 8] });
     }
 
-    // Comparison table
-    if (ol || nl) {
-      content.push({ text: 'Loan Comparison', style: 'sectionTitle', margin: [0, 8, 0, 4] });
-      var headerRow = [{ text: '', style: 'tableHeader' }];
-      var widths = ['*'];
-      if (ol) { headerRow.push({ text: 'Current', style: 'tableHeader', alignment: 'right' }); widths.push(100); }
-      if (nl) { headerRow.push({ text: 'Proposed', style: 'tableHeader', alignment: 'right' }); widths.push(100); }
-
-      var cBody = [headerRow];
-      var pdfRows = [
-        { label: 'Loan Type', oVal: ol ? ol.type : '', nVal: nl ? nl.type : '' },
-        { label: 'Loan Amount', oVal: ol ? fmt(ol.amount) : '', nVal: nl ? fmt(nl.amount) : '' },
-        { label: 'Rate', oVal: ol ? pct(ol.rate) : '', nVal: nl ? pct(nl.rate) : '' },
-        { label: 'Term', oVal: ol ? ol.term + ' yrs' : '', nVal: nl ? nl.term + ' yrs' : '' },
-        { label: 'Monthly P&I', oVal: ol ? fmt(ol.pi) : '', nVal: nl ? fmt(nl.pi) : '' }
-      ];
-      if ((ol && ol.mi) || (nl && nl.mi)) pdfRows.push({ label: 'Monthly MI', oVal: ol ? fmt(ol.mi) : '', nVal: nl ? fmt(nl.mi) : '' });
-      if ((ol && ol.escrow) || (nl && nl.escrow)) pdfRows.push({ label: 'Monthly Escrow', oVal: ol ? fmt(ol.escrow) : '', nVal: nl ? fmt(nl.escrow) : '' });
-
-      pdfRows.forEach(function (r) {
-        var row = [r.label];
-        if (ol) row.push({ text: r.oVal, alignment: 'right' });
-        if (nl) row.push({ text: r.nVal, alignment: 'right' });
-        cBody.push(row);
-      });
-      content.push({ table: { headerRows: 1, widths: widths, body: cBody }, layout: 'lightHorizontalLines' });
+    // Letter body
+    if (data.body) {
+      content.push({ text: data.body, color: '#555', margin: [0, 4, 0, 8] });
     }
 
-    // Savings
-    if (data.showClosing !== false && data.monthlySavings) {
-      content.push({ text: 'Savings Analysis', style: 'sectionTitle', margin: [0, 10, 0, 4] });
-      content.push({ table: { widths: ['*', 120], body: [
-        ['Monthly Savings', { text: data.monthlySavings || '', alignment: 'right', bold: true }],
-        ['Net Closing Costs', { text: data.netCosts || '', alignment: 'right' }],
-        ['Breakeven', { text: data.breakeven || '', alignment: 'right' }]
-      ] }, layout: 'noBorders' });
-      if (data.lifetimeSavings) {
-        content.push({ columns: [
-          { text: 'Lifetime Interest Savings', bold: true, fontSize: 12, color: '#2d6a4f' },
-          { text: data.lifetimeSavings, alignment: 'right', bold: true, fontSize: 12, color: '#2d6a4f' }
-        ], margin: [0, 8, 0, 0] });
-      }
-    }
-
-    // Summary (backward compat)
-    var summaryText = data.summary || data.notes || '';
-    if (summaryText) {
-      content.push({ text: 'Summary', style: 'sectionTitle', margin: [0, 12, 0, 4] });
-      content.push({ text: summaryText, color: '#555', margin: [0, 0, 0, 8] });
-    }
-
-    // Email Signature
+    // Signature
     var sig = data.emailSignature || data.loanOfficer;
     if (sig && sig.name) {
       content.push({ text: 'Loan Officer', style: 'sectionTitle', margin: [0, 12, 0, 4] });
       var loRows = [['Name', sig.name]];
       if (sig.title) loRows.push(['Title', sig.title]);
-      if (sig.nmls) loRows.push(['NMLS #', sig.nmls]);
+      if (sig.company) loRows.push(['Company', sig.company]);
       if (sig.phone) loRows.push(['Phone', sig.phone]);
       if (sig.email) loRows.push(['Email', sig.email]);
-      if (sig.company) loRows.push(['Company', sig.company]);
+      if (sig.nmls) loRows.push(['NMLS #', sig.nmls]);
       content.push({ table: { widths: [80, '*'], body: loRows }, layout: 'noBorders' });
+    }
+
+    // Attached reports
+    var att = data.attachments;
+    if (att && att.length > 0) {
+      content.push({ text: 'Enclosed Reports', style: 'sectionTitle', margin: [0, 12, 0, 4] });
+      var items = [];
+      for (var i = 0; i < att.length; i++) {
+        items.push({ text: (att[i].icon || '') + ' ' + (att[i].name || ''), margin: [0, 2, 0, 2] });
+      }
+      content.push({ ul: items });
     }
 
     return content;

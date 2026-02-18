@@ -1,59 +1,85 @@
 /* =====================================================
-   Cover Letter — Custom Styles
+   Cover Letter — Clean Professional Styles
    ===================================================== */
 
-/* ---- Section Toggle Bar ---- */
-.la-section-toggles {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  padding: 10px 14px;
-  margin-bottom: var(--space-lg, 24px);
-  background: var(--color-gray-50, #f8f9fa);
+/* ---- Optional Badge ---- */
+.la-optional-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--color-gray-500, #6c757d);
+  background: var(--color-gray-100, #f0f1f3);
   border: 1px solid var(--color-gray-200, #e2e6ea);
-  border-radius: var(--radius-md, 8px);
+  border-radius: 10px;
+  padding: 1px 8px;
+  vertical-align: middle;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.la-toggle-label {
-  font-weight: 600;
+/* ---- Attachment Picker ---- */
+.la-attach-hint {
   font-size: 0.85rem;
-  color: var(--color-gray-600, #6c757d);
-  margin-right: 4px;
+  color: var(--color-gray-500, #6c757d);
+  margin: 0 0 12px 0;
 }
 
-.la-toggle {
-  display: inline-flex;
+.la-attach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.la-attach-empty {
+  font-size: 0.85rem;
+  color: var(--color-gray-400, #adb5bd);
+  font-style: italic;
+  margin: 0;
+  padding: 12px 0;
+}
+
+.la-attach-item {
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 0.82rem;
-  color: var(--color-gray-700, #495057);
+  gap: 8px;
+  padding: 8px 12px;
   background: var(--color-white, #fff);
   border: 1px solid var(--color-gray-200, #e2e6ea);
-  border-radius: 20px;
+  border-radius: var(--radius-md, 8px);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   user-select: none;
 }
 
-.la-toggle:hover {
-  background: var(--color-gray-100, #f0f1f3);
+.la-attach-item:hover {
+  background: var(--color-gray-50, #f8f9fa);
   border-color: var(--color-gray-300, #ced4da);
 }
 
-.la-toggle input[type="checkbox"] {
-  accent-color: var(--brand-primary, #2d6a4f);
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  cursor: pointer;
+.la-attach-item:has(input:checked) {
+  border-color: var(--brand-primary, #2d6a4f);
+  background: rgba(45, 106, 79, 0.04);
 }
 
-.la-toggle:has(input:checked) {
-  color: var(--brand-primary, #2d6a4f);
-  border-color: var(--brand-primary, #2d6a4f);
-  background: rgba(45, 106, 79, 0.06);
+.la-attach-item input[type="checkbox"] {
+  accent-color: var(--brand-primary, #2d6a4f);
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.la-attach-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.la-attach-name {
+  font-size: 0.88rem;
+  color: var(--color-gray-700, #495057);
+  font-weight: 500;
 }
 
 /* ---- Letter Preview Container ---- */
@@ -64,7 +90,6 @@
 .la-letter {
   max-width: 720px;
   margin: 0 auto;
-  padding: 48px 56px;
   background: #fff;
   border: 1px solid var(--color-gray-200, #e2e6ea);
   border-radius: var(--radius-md, 8px);
@@ -72,161 +97,63 @@
   color: var(--color-gray-800, #343a40);
   line-height: 1.7;
   font-size: 0.95rem;
+  overflow: hidden;
 }
 
-/* Logo */
-.la-letter__logo {
+/* ---- Branded Header Band ---- */
+.la-letter__header-band {
+  background: var(--brand-primary, #2d6a4f);
+  padding: 32px 40px;
   text-align: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--brand-primary, #2d6a4f);
 }
 
-.la-letter__logo img {
+.la-letter__header-logo {
   max-width: 220px;
   height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: brightness(0) invert(1);
 }
 
-/* Date */
+/* ---- Letter Content (below header) ---- */
 .la-letter__date {
-  text-align: right;
+  padding: 24px 48px 0;
   color: var(--color-gray-500, #6c757d);
   font-size: 0.88rem;
-  margin-bottom: 24px;
 }
 
-/* Address block */
 .la-letter__address {
-  margin-bottom: 20px;
+  padding: 16px 48px 0;
   line-height: 1.5;
   font-size: 0.92rem;
 }
 
-/* Greeting */
 .la-letter__greeting {
-  font-size: 1.05rem;
-  font-weight: 500;
-  margin-bottom: 8px;
-}
-
-/* Intro */
-.la-letter__intro {
-  margin-bottom: 28px;
-  font-size: 0.95rem;
-  line-height: 1.7;
-}
-
-/* Section blocks */
-.la-letter__section {
-  margin-bottom: 24px;
-}
-
-.la-letter__section h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--brand-primary, #2d6a4f);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--color-gray-200, #e2e6ea);
-  padding-bottom: 6px;
-  margin: 0 0 12px 0;
-}
-
-/* Letter Tables */
-.la-letter-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
-  margin-bottom: 4px;
-}
-
-.la-letter-table th {
-  text-align: right;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-bottom: 2px solid var(--color-gray-200, #e2e6ea);
-  color: var(--color-gray-600, #6c757d);
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.la-letter-table th:first-child {
-  text-align: left;
-}
-
-.la-letter-table td {
-  padding: 6px 12px;
-  border-bottom: 1px solid var(--color-gray-100, #f0f1f3);
-}
-
-.la-letter-table td:not(:first-child) {
-  text-align: right;
-}
-
-.la-letter-table tr.la-table-total td {
-  border-top: 2px solid var(--color-gray-300, #ced4da);
-  border-bottom: none;
-  padding-top: 8px;
-}
-
-/* Savings Grid */
-.la-savings-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 12px;
-}
-
-.la-savings-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 12px;
-  background: var(--color-gray-50, #f8f9fa);
-  border-radius: var(--radius-md, 8px);
-}
-
-.la-savings-label {
-  font-size: 0.78rem;
-  color: var(--color-gray-500, #6c757d);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  margin-bottom: 4px;
-}
-
-.la-savings-value {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-gray-800, #343a40);
-}
-
-.la-positive {
-  color: var(--brand-primary, #2d6a4f) !important;
-}
-
-.la-savings-highlight {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  background: rgba(45, 106, 79, 0.06);
-  border: 1px solid rgba(45, 106, 79, 0.15);
-  border-radius: var(--radius-md, 8px);
-  font-weight: 600;
+  padding: 20px 48px 0;
   font-size: 1rem;
 }
 
-/* Signature */
+/* ---- Body Paragraphs ---- */
+.la-letter__body {
+  padding: 12px 48px 0;
+}
+
+.la-letter__body p {
+  margin: 0 0 16px 0;
+  line-height: 1.7;
+}
+
+.la-letter__body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- Signature ---- */
 .la-letter__signature {
-  margin-top: 36px;
-  padding-top: 8px;
+  padding: 32px 48px 0;
 }
 
 .la-sig-closing {
-  margin: 0 0 24px 0;
-  font-style: italic;
+  margin: 0 0 20px 0;
 }
 
 .la-sig-name {
@@ -243,40 +170,78 @@
   line-height: 1.5;
 }
 
-/* Disclaimer */
+/* ---- Attachments ---- */
+.la-letter__attachments {
+  padding: 28px 0 0;
+  border-top: 1px solid var(--color-gray-200, #e2e6ea);
+  margin: 28px 48px 0;
+}
+
+.la-letter__attachments h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand-primary, #2d6a4f);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0 0 10px 0;
+}
+
+.la-letter__attachments ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.la-letter__attachments li {
+  padding: 6px 0;
+  font-size: 0.88rem;
+  color: var(--color-gray-700, #495057);
+  border-bottom: 1px solid var(--color-gray-100, #f0f1f3);
+}
+
+.la-letter__attachments li:last-child {
+  border-bottom: none;
+}
+
+.la-attach-li-icon {
+  margin-right: 4px;
+}
+
+/* ---- Disclaimer ---- */
 .la-letter__disclaimer {
-  margin-top: 32px;
-  padding-top: 12px;
+  margin: 32px 48px 0;
+  padding: 12px 0 32px;
   border-top: 1px solid var(--color-gray-200, #e2e6ea);
   font-size: 0.72rem;
   color: var(--color-gray-400, #adb5bd);
   line-height: 1.5;
 }
 
-/* Responsive */
+/* ---- Responsive ---- */
 @media (max-width: 640px) {
-  .la-letter {
+  .la-letter__header-band {
     padding: 24px 20px;
   }
-  .la-savings-grid {
-    grid-template-columns: 1fr;
+  .la-letter__date,
+  .la-letter__address,
+  .la-letter__greeting,
+  .la-letter__body,
+  .la-letter__signature,
+  .la-letter__disclaimer {
+    padding-left: 24px;
+    padding-right: 24px;
   }
-  .la-letter-table {
-    font-size: 0.82rem;
-  }
-  .la-letter-table td,
-  .la-letter-table th {
-    padding: 5px 8px;
+  .la-letter__attachments {
+    margin-left: 24px;
+    margin-right: 24px;
   }
 }
 
-/* Print */
+/* ---- Print ---- */
 @media print {
-  .la-section-toggles,
-  .action-bar,
   .calc-page__header,
-  .calc-page__footer,
-  [data-section] {
+  .calc-page__body > .calc-section,
+  .action-bar {
     display: none !important;
   }
   .la-letter-preview {
@@ -286,7 +251,7 @@
   .la-letter {
     box-shadow: none;
     border: none;
-    padding: 0;
+    border-radius: 0;
     max-width: 100%;
   }
 }
