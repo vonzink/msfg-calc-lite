@@ -25,29 +25,6 @@
         <h1>Should I Refinance?</h1>
     </div>
 
-    <!-- ====================================================
-         CLIENT PROFILES BAR
-         ==================================================== -->
-    <div class="profile-bar" id="profileBar">
-        <div class="profile-bar-inner">
-            <div class="profile-controls">
-                <div class="profile-select-group">
-                    <label for="profileSelect" class="profile-label">Client Profiles:</label>
-                    <select id="profileSelect">
-                        <option value="">-- Select a Profile --</option>
-                    </select>
-                    <button class="btn btn-sm btn-primary" id="btnLoadProfile" title="Load selected profile">Load</button>
-                    <button class="btn btn-sm btn-danger-outline" id="btnDeleteProfile" title="Delete selected profile">Delete</button>
-                </div>
-                <div class="profile-save-group">
-                    <input type="text" id="profileNameInput" placeholder="Client / Profile Name" maxlength="80">
-                    <button class="btn btn-sm btn-accent" id="btnSaveProfile" title="Save current inputs as a named profile">Save Profile</button>
-                </div>
-            </div>
-            <div class="profile-status" id="profileStatus"></div>
-        </div>
-    </div>
-
     <div class="content" id="printableArea">
 
         <!-- ====================================================
@@ -76,6 +53,11 @@
                     <div class="input-group">
                         <label for="currentPropertyValue">Property Value ($)</label>
                         <input type="number" id="currentPropertyValue" value="660000" min="0" step="1000">
+                    </div>
+                    <div class="input-group">
+                        <label for="monthlyEscrow">Mo. Escrow — T&I ($)</label>
+                        <input type="number" id="monthlyEscrow" value="0" min="0" step="1">
+                        <span class="field-hint">Same for all scenarios. Does not affect breakeven.</span>
                     </div>
                     <div class="input-group">
                         <label for="currentLoanType">Current Loan Type</label>
@@ -119,15 +101,6 @@
                             <span class="mi-computed-hint" id="currentMIHint"></span>
                         </div>
                         <div class="mi-detail mi-note" id="currentMINote"></div>
-                    </div>
-                </div>
-
-                <!-- Monthly Escrow (Taxes & Insurance) — shared across all scenarios -->
-                <div class="input-grid" style="margin-top:1rem;">
-                    <div class="input-group">
-                        <label for="monthlyEscrow">Monthly Escrow — Taxes & Insurance ($)</label>
-                        <input type="number" id="monthlyEscrow" value="0" min="0" step="1">
-                        <span class="field-hint">Same for all scenarios. Added to payment displays only — does not affect breakeven.</span>
                     </div>
                 </div>
 
@@ -409,53 +382,48 @@
                         </div>
                     </div>
 
-                    <!-- Prepaids (displayed but excluded from breakeven) -->
-                    <div class="fee-section fee-section-excluded">
-                        <h4>Prepaids <span class="excluded-badge">Excluded from Breakeven</span></h4>
-                        <div class="fee-grid">
-                            <div class="fee-item">
-                                <label for="feePrepaidInterest">Prepaid Interest ($)</label>
-                                <input type="number" id="feePrepaidInterest" value="0" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="total-row excluded-total">
-                            <label>Prepaids Total:</label>
-                            <span class="total-value" id="totalPrepaids">$0.00</span>
-                        </div>
-                    </div>
+                    <!-- Hidden MI fields (sourced from Refi MI inputs, used by engine) -->
+                    <input type="hidden" id="feeUpfrontMI" value="0">
+                    <input type="hidden" id="feeMonthlyMI" value="0">
 
-                    <!-- Initial Escrow (displayed but excluded from breakeven) -->
-                    <div class="fee-section fee-section-excluded">
-                        <h4>Initial Escrow Payment at Closing <span class="excluded-badge">Excluded from Breakeven</span></h4>
-                        <div class="fee-grid">
-                            <div class="fee-item">
-                                <label for="feeEscrowTax">County Property Tax ($)</label>
-                                <input type="number" id="feeEscrowTax" value="911.91" min="0" step="0.01">
-                            </div>
-                            <div class="fee-item">
-                                <label for="feeEscrowInsurance">Hazard Insurance ($)</label>
-                                <input type="number" id="feeEscrowInsurance" value="474.34" min="0" step="0.01">
-                            </div>
-                        </div>
-                        <div class="total-row excluded-total">
-                            <label>Initial Escrow Total:</label>
-                            <span class="total-value" id="totalEscrow">$0.00</span>
-                        </div>
+                    <!-- Prepaids & Initial Escrow — collapsible, hidden by default -->
+                    <div class="fee-section-toggle">
+                        <button type="button" class="fee-toggle-btn" id="btnTogglePrepaids">
+                            <span class="fee-toggle-icon">&#9654;</span>
+                            Prepaids & Initial Escrow at Closing
+                            <span class="excluded-badge">Excluded from Breakeven</span>
+                        </button>
                     </div>
-
-                    <!-- Mortgage Insurance / Funding Fees (sourced from Refi MI inputs above) -->
-                    <div class="fee-section" id="feesMISection">
-                        <h4>Mortgage Insurance / Funding Fees <span class="form-note" style="font-weight:400;">(from Refi Loan Terms MI inputs)</span></h4>
-                        <div class="fee-grid">
-                            <div class="fee-item">
-                                <label>Upfront MI / Funding Fee ($)</label>
-                                <span class="mi-value fee-mi-display" id="feeUpfrontMIDisplay">$0.00</span>
-                                <input type="hidden" id="feeUpfrontMI" value="0">
+                    <div class="fee-prepaids-wrap" id="prepaidsSectionWrap" style="display:none;">
+                        <div class="fee-section fee-section-excluded">
+                            <h4>Prepaids</h4>
+                            <div class="fee-grid">
+                                <div class="fee-item">
+                                    <label for="feePrepaidInterest">Prepaid Interest ($)</label>
+                                    <input type="number" id="feePrepaidInterest" value="0" min="0" step="0.01">
+                                </div>
                             </div>
-                            <div class="fee-item">
-                                <label>Monthly MI ($)</label>
-                                <span class="mi-value fee-mi-display" id="feeMonthlyMIDisplay">$0.00</span>
-                                <input type="hidden" id="feeMonthlyMI" value="0">
+                            <div class="total-row excluded-total">
+                                <label>Prepaids Total:</label>
+                                <span class="total-value" id="totalPrepaids">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="fee-section fee-section-excluded">
+                            <h4>Initial Escrow Payment at Closing</h4>
+                            <div class="fee-grid">
+                                <div class="fee-item">
+                                    <label for="feeEscrowTax">County Property Tax ($)</label>
+                                    <input type="number" id="feeEscrowTax" value="911.91" min="0" step="0.01">
+                                </div>
+                                <div class="fee-item">
+                                    <label for="feeEscrowInsurance">Hazard Insurance ($)</label>
+                                    <input type="number" id="feeEscrowInsurance" value="474.34" min="0" step="0.01">
+                                </div>
+                            </div>
+                            <div class="total-row excluded-total">
+                                <label>Initial Escrow Total:</label>
+                                <span class="total-value" id="totalEscrow">$0.00</span>
                             </div>
                         </div>
                     </div>
@@ -928,7 +896,6 @@
 <script src="js/refi-ui.js"></script>
 <script src="js/refi-charts.js"></script>
 <script src="js/refi-advice.js"></script>
-<script src="js/refi-profiles.js"></script>
 <script>window.__calcSlug = 'refi';</script>
 <script src="/js/shared/report-templates.js"></script>
 <script src="/js/shared/report.js"></script>

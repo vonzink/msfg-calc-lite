@@ -244,6 +244,17 @@ const RefiUI = (() => {
         // Future MI input — debounced
         if (dom.futureMIInput) dom.futureMIInput.addEventListener('input', debouncedLiveCalc);
 
+        // Prepaids & Initial Escrow collapsible toggle
+        const btnTogglePrepaids = document.getElementById('btnTogglePrepaids');
+        const prepaidsSectionWrap = document.getElementById('prepaidsSectionWrap');
+        if (btnTogglePrepaids && prepaidsSectionWrap) {
+            btnTogglePrepaids.addEventListener('click', () => {
+                const isOpen = prepaidsSectionWrap.style.display !== 'none';
+                prepaidsSectionWrap.style.display = isOpen ? 'none' : '';
+                btnTogglePrepaids.classList.toggle('open', !isOpen);
+            });
+        }
+
         // Print
         dom.btnPrint.addEventListener('click', () => {
             // Open all collapsible sections before printing

@@ -1195,7 +1195,6 @@ input.input-highlight {
   }
 
   /* ---- Hide non-essential ---- */
-  .profile-bar,
   .action-buttons,
   .btn-calculate,
   #btnReset,
@@ -1207,8 +1206,14 @@ input.input-highlight {
   .form-note,
   .info-text,
   .chart-description,
+  .fee-section-toggle,
   canvas {
     display: none !important;
+  }
+
+  /* Show collapsed prepaids/escrow in print */
+  .fee-prepaids-wrap {
+    display: block !important;
   }
 
   /* ---- Content area ---- */

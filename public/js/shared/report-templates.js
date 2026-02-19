@@ -1863,7 +1863,8 @@
   renderers['loan-analysis'] = function (data) {
     // Render the captured letter directly — it already contains the full formatted letter
     if (data.letterHtml) {
-      return '<div style="line-height:1.7;font-size:0.95rem">' + data.letterHtml + '</div>';
+      return '<style>.rpt-cover-letter .la-letter__header-logo{max-width:120px;height:auto;display:block;}.rpt-cover-letter .la-letter__header{padding:0 0 8px;}</style>' +
+        '<div class="rpt-cover-letter" style="line-height:1.7;font-size:0.95rem">' + data.letterHtml + '</div>';
     }
     return '<p class="rpt-no-template">No cover letter generated.</p>';
   };

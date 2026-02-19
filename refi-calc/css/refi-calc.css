@@ -4,121 +4,6 @@
    ===================================================== */
 
 /* =====================================================
-   PROFILE BAR
-   ===================================================== */
-.profile-bar {
-    background: linear-gradient(135deg, #f0f7f4 0%, #e8f5e8 100%);
-    border-bottom: 2px solid var(--border);
-    padding: 0.75rem 2rem;
-}
-
-.profile-bar-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.profile-controls {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.profile-select-group,
-.profile-save-group {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.profile-label {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 0.85rem;
-    white-space: nowrap;
-}
-
-#profileSelect {
-    padding: 0.35rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    min-width: 220px;
-    background: var(--light);
-    cursor: pointer;
-}
-
-#profileNameInput {
-    padding: 0.35rem 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.85rem;
-    min-width: 200px;
-    background: var(--light);
-}
-
-#profileNameInput:focus,
-#profileSelect:focus {
-    border-color: var(--accent);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.15);
-}
-
-.btn-sm {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.8rem;
-    border-radius: 5px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    font-weight: 500;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-
-.btn-sm.btn-primary {
-    background: var(--primary);
-    color: var(--light);
-}
-.btn-sm.btn-primary:hover {
-    background: var(--secondary);
-}
-
-.btn-sm.btn-accent {
-    background: var(--accent);
-    color: var(--light);
-}
-.btn-sm.btn-accent:hover {
-    background: var(--primary);
-}
-
-.btn-sm.btn-danger-outline {
-    background: transparent;
-    color: var(--danger);
-    border-color: var(--danger);
-}
-.btn-sm.btn-danger-outline:hover {
-    background: var(--danger);
-    color: var(--light);
-}
-
-.profile-status {
-    font-size: 0.8rem;
-    margin-top: 0.3rem;
-    min-height: 1.2rem;
-    transition: all 0.3s;
-}
-
-.profile-status-success {
-    color: var(--success);
-    font-weight: 500;
-}
-
-.profile-status-error {
-    color: var(--danger);
-    font-weight: 500;
-}
-
-/* =====================================================
    COLLAPSIBLE INPUT SECTIONS
    ===================================================== */
 .collapsible-section-wrap {
@@ -925,22 +810,6 @@
         flex-wrap: wrap;
     }
 
-    .profile-controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .profile-select-group,
-    .profile-save-group {
-        flex-wrap: wrap;
-    }
-
-    #profileSelect,
-    #profileNameInput {
-        min-width: 0;
-        flex: 1;
-    }
-
     .breakdown-section {
         grid-template-columns: 1fr;
     }
@@ -1131,6 +1000,47 @@
     font-style: italic;
     white-space: nowrap;
     margin-left: 0.25rem;
+}
+
+/* Prepaids & Escrow collapsible toggle */
+.fee-section-toggle {
+    margin: 0.75rem 0 0.25rem;
+}
+
+.fee-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--gray);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all 0.2s;
+}
+
+.fee-toggle-btn:hover {
+    border-color: var(--primary);
+    color: var(--dark);
+}
+
+.fee-toggle-icon {
+    font-size: 0.65rem;
+    transition: transform 0.2s;
+}
+
+.fee-toggle-btn.open .fee-toggle-icon {
+    transform: rotate(90deg);
+}
+
+.fee-prepaids-wrap {
+    border-left: 2px dashed var(--border);
+    margin-left: 0.5rem;
+    padding-left: 0.75rem;
 }
 
 /* Payment breakdown detail — fine print below totals */
