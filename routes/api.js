@@ -8,7 +8,7 @@ const multer = require('multer');
 const https = require('https');
 
 const siteConfigPath = path.join(__dirname, '..', 'config', 'site.json');
-const promptsPath = path.join(__dirname, '..', 'config', 'ai-prompts.json');
+const promptsDir = path.join(__dirname, '..', 'config', 'ai-prompts');
 
 function readSiteConfig() {
   try {
@@ -20,7 +20,13 @@ function readSiteConfig() {
 
 function readPrompts() {
   try {
-    return JSON.parse(fs.readFileSync(promptsPath, 'utf-8'));
+    var result = {};
+    fs.readdirSync(promptsDir).forEach(function(file) {
+      if (path.extname(file) !== '.json') return;
+      var slug = path.basename(file, '.json');
+      result[slug] = JSON.parse(fs.readFileSync(path.join(promptsDir, file), 'utf-8'));
+    });
+    return result;
   } catch (err) {
     return null;
   }
