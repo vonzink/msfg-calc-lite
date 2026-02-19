@@ -1,11 +1,11 @@
 {
-  "siteName": "MSFG Calculator Suite",
+  "siteName": "Compass Calculator Suite",
   "companyName": "Mountain State Financial Group LLC",
   "nmls": "1314257",
-  "tradeName": "",
+  "tradeName": "Compass Home Loans is a trade name of",
   "logo": {
-    "src": "https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/MSFG/MSFG+w+Home+Loan+Under.png",
-    "alt": "MSFG Home Loans",
+    "src": "https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/Compass/Compass+Home+Loan+-+Color+Transparent+Background.png",
+    "alt": "Compass Home Loans",
     "width": 250
   },
   "equalHousingLogo": "https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/EQUAL+HOUSING+LENDER+W+NMLS.jpg",

@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
-const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 
 const fs = require('fs');
@@ -20,7 +19,7 @@ try {
 // Calculator config is static — loaded once at startup
 const calcConfig = require('./config/calculators.json');
 
-// Site config is mutable (settings page can update it) — read fresh each request
+// Site config — read fresh each request so branding changes take effect immediately
 const siteConfigPath = path.join(__dirname, 'config', 'site.json');
 function getSiteConfig() {
   try {
@@ -52,7 +51,7 @@ app.use(helmet({
         "https://fonts.googleapis.com"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
+      imgSrc: ["'self'", "data:", "blob:", "https://msfg-media.s3.us-west-2.amazonaws.com"],
       frameSrc: ["'self'"],
       connectSrc: ["'self'", "https://cdnjs.cloudflare.com"]
     }
@@ -69,11 +68,7 @@ app.set('layout', 'layouts/main');
 
 // Make config available to all templates
 app.use((req, res, next) => {
-  const cfg = getSiteConfig();
-  // Strip sensitive fields before exposing to templates
-  const safeCfg = Object.assign({}, cfg);
-  delete safeCfg.ai;
-  res.locals.site = safeCfg;
+  res.locals.site = getSiteConfig();
   res.locals.calculators = calcConfig.calculators;
   res.locals.categories = calcConfig.categories;
   res.locals.currentPath = req.path;
@@ -81,55 +76,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Static files — new assets first, then legacy CSS/JS fallback
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/css', express.static(path.join(__dirname, 'css')));
-app.use('/js', express.static(path.join(__dirname, 'js')));
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Legacy standalone apps (served via iframe from EJS wrappers)
-
-// Helper: serve a static HTML file with cache-busting ?v= injected on local JS/CSS tags
-function serveLegacyHtml(filePath) {
-  const template = fs.readFileSync(filePath, 'utf-8');
-  return (req, res) => {
-    const html = template
-      .replace(/(src|href)="((?:js|css)\/[^"]+\.(?:js|css))"/g, `$1="$2?v=${ASSET_VERSION}"`)
-      .replace(/(src|href)="(\/js\/[^"]+\.(?:js|css))"/g, `$1="$2?v=${ASSET_VERSION}"`);
-    res.type('html').send(html);
-  };
-}
-
-app.get('/legacy/refi-calc/index.html', serveLegacyHtml(path.join(__dirname, 'refi-calc', 'index.html')));
-app.use('/legacy/amort-calc', express.static(path.join(__dirname, 'amort-calc')));
-
-app.get('/calculators/llpm', serveLegacyHtml(path.join(__dirname, 'llpm-calc', 'LLPMTool.html')));
-app.use('/calculators/llpm', express.static(path.join(__dirname, 'llpm-calc')));
-
-app.get('/calculators/batch-llpm', serveLegacyHtml(path.join(__dirname, 'batch-llpm', 'index.html')));
-app.use('/calculators/batch-llpm', express.static(path.join(__dirname, 'batch-llpm')));
-
-app.get('/calculators/mismo', serveLegacyHtml(path.join(__dirname, 'gen-calc', 'mismo-calc', 'MISMO_Document_Analyzer.html')));
-app.use('/calculators/mismo', express.static(path.join(__dirname, 'gen-calc', 'mismo-calc')));
 
 // Routes
 app.use('/', require('./routes/index'));
 app.use('/calculators', require('./routes/calculators'));
 app.use('/workspace', require('./routes/workspace'));
 app.use('/report', require('./routes/report'));
-app.use('/settings', require('./routes/settings'));
-app.use('/api', require('./routes/api'));
-
-// Serve legacy calculator files (for iframe stubs during migration)
-// Only expose the specific directories that legacy iframes actually need
-app.use('/legacy/income', express.static(path.join(__dirname, 'income')));
-app.use('/legacy/refi-calc', express.static(path.join(__dirname, 'refi-calc')));
-app.use('/legacy/fha-calc', express.static(path.join(__dirname, 'fha-calc')));
-app.use('/legacy/gen-calc', express.static(path.join(__dirname, 'gen-calc')));
-app.use('/legacy/calc-reo', express.static(path.join(__dirname, 'calc-reo')));
-app.use('/legacy/buydown-calc', express.static(path.join(__dirname, 'buydown-calc')));
 
 // 404 handler
 app.use((req, res) => {
@@ -147,7 +101,7 @@ app.use((err, req, res, next) => {
 // Start server when run directly; export app for testing
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`MSFG Calculator Suite running at http://localhost:${PORT}`);
+    console.log(`MSFG Calculator Lite running at http://localhost:${PORT}`);
   });
 }
 

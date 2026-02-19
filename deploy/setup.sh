@@ -1,48 +1,38 @@
 #!/bin/bash
 # =============================================================
-# MSFG Calculator Suite — EC2 Initial Setup (Ubuntu)
-# Run this ONCE on a fresh EC2 instance
+# MSFG Calculator Lite — EC2 Setup (adds to existing server)
+# Run this ONCE on the EC2 instance that already runs msfg-calc.
 # Usage: bash deploy/setup.sh
 # =============================================================
 
 set -e
 
 echo "========================================="
-echo "  MSFG Calculator Suite — Server Setup"
+echo "  MSFG Calculator Lite — Server Setup"
 echo "========================================="
 
-# Update system
-echo "[1/6] Updating system packages..."
-sudo apt update && sudo apt upgrade -y
+# Node.js, PM2, and nginx are already installed from main msfg-calc.
+# This script just adds the lite nginx config and installs deps.
 
-# Install Node.js 20 LTS
-echo "[2/6] Installing Node.js 20 LTS..."
-if ! command -v node &> /dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt install -y nodejs
-fi
-echo "  Node: $(node --version)"
-echo "  npm:  $(npm --version)"
+# Configure nginx — add lite server blocks alongside existing config
+echo "[1/3] Configuring nginx for lite sites..."
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/msfg-calc-lite
+sudo ln -sf /etc/nginx/sites-available/msfg-calc-lite /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
 
-# Install PM2 globally
-echo "[3/6] Installing PM2 process manager..."
-sudo npm install -g pm2
-
-# Install nginx
-echo "[4/6] Installing nginx..."
-sudo apt install -y nginx
-
-# Configure nginx
-echo "[5/6] Configuring nginx..."
-sudo cp deploy/nginx.conf /etc/nginx/sites-available/msfg-calc
-sudo ln -sf /etc/nginx/sites-available/msfg-calc /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-sudo nginx -t && sudo systemctl restart nginx
-sudo systemctl enable nginx
-
-# Install app dependencies
-echo "[6/6] Installing app dependencies..."
+# Install dependencies for MSFG brand
+echo "[2/3] Installing MSFG brand dependencies..."
+cd ~/msfg-calc-lite-msfg
 npm ci --production
+
+# Install dependencies for Compass brand
+echo "[3/3] Installing Compass brand dependencies..."
+cd ~/msfg-calc-lite-compass
+npm ci --production
+
+# Swap Compass config
+cp config/site-compass.json config/site.json
+echo "  Swapped site-compass.json → site.json for Compass deploy"
 
 echo ""
 echo "========================================="

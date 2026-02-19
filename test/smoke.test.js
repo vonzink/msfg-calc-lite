@@ -1,5 +1,5 @@
 /**
- * Smoke tests for MSFG Calculator Suite
+ * Smoke tests for MSFG Calculator Lite
  *
  * Verifies that the server starts, all routes respond,
  * and key static assets are accessible.
@@ -63,8 +63,8 @@ describe('Hub', () => {
 
 describe('General calculators', () => {
   const slugs = [
-    'apr', 'fha', 'va-prequal', 'blended-rate', 'buydown',
-    'buy-vs-rent', 'cash-vs-mortgage', 'refi', 'reo', 'escrow', 'fha-refi'
+    'apr', 'blended-rate', 'buydown', 'buy-vs-rent',
+    'cash-vs-mortgage', 'refi', 'reo', 'amortization'
   ];
 
   for (const slug of slugs) {
@@ -73,29 +73,6 @@ describe('General calculators', () => {
       assert.strictEqual(res.statusCode, 200);
     });
   }
-});
-
-describe('Income calculators', () => {
-  const slugs = ['1040', '1065', '1120', '1120s', 'schedule-c', 'schedule-e'];
-
-  for (const slug of slugs) {
-    it(`GET /calculators/income/${slug} returns 200`, async () => {
-      const res = await get(`/calculators/income/${slug}`);
-      assert.strictEqual(res.statusCode, 200);
-    });
-  }
-});
-
-describe('Standalone tools', () => {
-  it('GET /calculators/llpm returns 200', async () => {
-    const res = await get('/calculators/llpm');
-    assert.strictEqual(res.statusCode, 200);
-  });
-
-  it('GET /calculators/mismo returns 200', async () => {
-    const res = await get('/calculators/mismo');
-    assert.strictEqual(res.statusCode, 200);
-  });
 });
 
 describe('App pages', () => {
@@ -108,12 +85,26 @@ describe('App pages', () => {
     const res = await get('/report');
     assert.strictEqual(res.statusCode, 200);
   });
+});
 
-  it('GET /settings returns 200 (no password set)', async () => {
-    const res = await get('/settings');
-    // 200 when SETTINGS_PASSWORD is empty, 403 when set
-    assert.ok(res.statusCode === 200 || res.statusCode === 403);
-  });
+describe('Removed routes return 404', () => {
+  const removed = [
+    '/settings',
+    '/calculators/fha',
+    '/calculators/va-prequal',
+    '/calculators/escrow',
+    '/calculators/fha-refi',
+    '/calculators/income/1040',
+    '/calculators/llpm',
+    '/calculators/mismo'
+  ];
+
+  for (const path of removed) {
+    it(`GET ${path} returns 404`, async () => {
+      const res = await get(path);
+      assert.strictEqual(res.statusCode, 404);
+    });
+  }
 });
 
 describe('404 handling', () => {
