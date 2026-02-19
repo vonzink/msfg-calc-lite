@@ -35,6 +35,7 @@ pm2 restart msfg-lite-compass
 echo ""
 echo "========================================="
 echo "  Deploy complete!"
+echo "  Port map: MSFG=3003, Compass=3002"
 echo "  pm2 logs msfg-lite-msfg     — MSFG logs"
 echo "  pm2 logs msfg-lite-compass  — Compass logs"
 echo "========================================="

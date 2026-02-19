@@ -8,13 +8,13 @@ set -e
 
 echo "Starting MSFG Calculator Lite (both brands)..."
 
-# ---- MSFG Brand (port 3001) ----
+# ---- MSFG Brand (port 3003) ----
 echo ""
 echo "--- MSFG Brand (calc.msfginfo.com) ---"
 cd ~/msfg-calc-lite-msfg
 
 if [ ! -f .env ]; then
-    echo "PORT=3001" > .env
+    echo "PORT=3003" > .env
     echo "NODE_ENV=production" >> .env
     echo "  Created .env"
 fi
@@ -24,7 +24,7 @@ pm2 describe msfg-lite-msfg > /dev/null 2>&1 && {
     pm2 restart msfg-lite-msfg
 } || {
     echo "  Starting new process..."
-    PM2_APP_NAME=msfg-lite-msfg PORT=3001 pm2 start ecosystem.config.js
+    PM2_APP_NAME=msfg-lite-msfg PORT=3003 pm2 start ecosystem.config.js
 }
 
 # ---- Compass Brand (port 3002) ----
@@ -54,7 +54,7 @@ echo ""
 echo "========================================="
 echo "  Both brands running!"
 echo ""
-echo "  MSFG:    port 3001 → calc.msfginfo.com"
+echo "  MSFG:    port 3003 → calc.msfginfo.com"
 echo "  Compass: port 3002 → compass.msfginfo.com"
 echo ""
 echo "  Useful commands:"
