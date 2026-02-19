@@ -88,15 +88,18 @@ const incomeCalcs = [
 incomeCalcs.forEach(ic => {
   router.get(`/income/${ic.slug}`, (req, res) => {
     const ver = res.locals.v;
-    const extraHeadParts = [];
+    const extraHeadParts = [
+      `<link rel="stylesheet" href="/css/calculators/income-base.css?v=${ver}">`
+    ];
     if (ic.css) extraHeadParts.push(`<link rel="stylesheet" href="/css/calculators/${ic.css}.css?v=${ver}">`);
     if (ic.cdnScripts) extraHeadParts.push(...ic.cdnScripts);
 
     res.render(`calculators/${ic.view}`, {
       title: ic.title,
       calc: findCalc(`income/${ic.slug}`),
-      extraHead: extraHeadParts.length ? extraHeadParts.join('') : undefined,
-      extraScripts: `<script src="/js/calculators/${ic.view}.js?v=${ver}"></script>`
+      extraHead: extraHeadParts.join(''),
+      extraScripts: `<script src="/js/shared/income-upload.js?v=${ver}"></script>` +
+                    `<script src="/js/calculators/${ic.view}.js?v=${ver}"></script>`
     });
   });
 });
