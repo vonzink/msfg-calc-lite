@@ -1,8 +1,189 @@
 <div class="calc-page">
   <div class="calc-page__header">
-    <h1>Income Calculator Schedule B</h1>
+    <h1>Schedule B Interest &amp; Dividend Income Calculator</h1>
+    <p>Calculate qualifying monthly income from interest and dividend sources reported on Schedule B (Form 1040).</p>
   </div>
-  <div class="calc-page__body" style="padding: 0;">
-    <iframe src="/legacy/income/IncomeCalculatorScheduleB.html" style="width: 100%; min-height: 80vh; border: none; display: block;"></iframe>
+
+  <div class="calc-page__body">
+
+    <!-- Upload Zone -->
+    <div class="calc-section">
+      <h2>Upload Schedule B</h2>
+      <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Upload Schedule B or 1040 pages showing interest and dividend income. Upload one per tax year (max 2).</p>
+
+      <div class="upload-zone" data-upload-type="income-schedule-b">
+        <div class="upload-zone__icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone__text">
+          <strong>Upload Schedule B / 1040</strong>
+          <span>Drop or click to upload an image or PDF</span>
+        </div>
+        <input type="file" class="upload-zone__input" accept="image/*,application/pdf" style="display: none;">
+        <div class="upload-zone__status"></div>
+      </div>
+
+      <!-- JS-rendered document cards -->
+      <div id="docCards"></div>
+    </div>
+
+    <!-- Policy Explanation -->
+    <div class="calc-section">
+      <div class="policy-box">
+        <h5>Interest &amp; Dividend Income Policy</h5>
+        <p>
+          Interest and dividend income must have a 2-year recurring history to be used for qualification.
+          If two years are provided and the most recent year exceeds the prior year, the average of both
+          years is divided by 24 months. Otherwise, only the most recent year is divided by 12 months.
+        </p>
+      </div>
+    </div>
+
+    <!-- Institution 1 -->
+    <div class="calc-section">
+      <h2>Interest &amp; Dividend Income</h2>
+
+      <div class="institution-block">
+        <h3>Institution 1</h3>
+        <table class="income-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Sign</th>
+              <th>Year 1 (Most Recent)</th>
+              <th>Year 2 (Prior)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Interest Income <span class="line-number">(Line 1 / 1040 line 2b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst1_interest_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst1_interest_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Tax-Exempt Interest <span class="line-number">(1040 line 2a)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst1_taxexempt_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst1_taxexempt_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Dividend Income <span class="line-number">(Line 5 / 1040 line 3b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst1_dividend_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst1_dividend_y2" value="0" oninput="calculate()"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Institution 2 -->
+      <div class="institution-block">
+        <h3>Institution 2</h3>
+        <table class="income-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Sign</th>
+              <th>Year 1 (Most Recent)</th>
+              <th>Year 2 (Prior)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Interest Income <span class="line-number">(Line 1 / 1040 line 2b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst2_interest_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst2_interest_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Tax-Exempt Interest <span class="line-number">(1040 line 2a)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst2_taxexempt_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst2_taxexempt_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Dividend Income <span class="line-number">(Line 5 / 1040 line 3b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst2_dividend_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst2_dividend_y2" value="0" oninput="calculate()"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Institution 3 -->
+      <div class="institution-block">
+        <h3>Institution 3</h3>
+        <table class="income-table">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>Sign</th>
+              <th>Year 1 (Most Recent)</th>
+              <th>Year 2 (Prior)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Interest Income <span class="line-number">(Line 1 / 1040 line 2b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst3_interest_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst3_interest_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Tax-Exempt Interest <span class="line-number">(1040 line 2a)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst3_taxexempt_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst3_taxexempt_y2" value="0" oninput="calculate()"></td>
+            </tr>
+            <tr>
+              <td>Dividend Income <span class="line-number">(Line 5 / 1040 line 3b)</span></td>
+              <td class="sign-col add">+</td>
+              <td><input type="number" id="inst3_dividend_y1" value="0" oninput="calculate()"></td>
+              <td><input type="number" id="inst3_dividend_y2" value="0" oninput="calculate()"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Combined Results -->
+    <div class="calc-section">
+      <h2>Combined Results</h2>
+
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-card__label">Total Year 1</div>
+          <div class="result-card__value" id="totalYear1">$0.00</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card__label">Total Year 2</div>
+          <div class="result-card__value" id="totalYear2">$0.00</div>
+        </div>
+      </div>
+
+      <div class="result-highlight" style="margin-top: var(--space-lg);">
+        <div class="result-highlight__label">Monthly Qualifying Income</div>
+        <div class="result-highlight__value" id="incomeToUse">$0.00</div>
+      </div>
+
+      <div class="action-bar">
+        <button type="button" class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+        <button type="button" class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <%- include('../../partials/show-calculations', { calcId: 'income-schedule-b' }) %>
+
+  </div>
+
+  <div class="calc-page__footer">
+    <div class="calc-page__footer-title">Schedule B Guidelines</div>
+    <p>
+      Use the Dividend/Interest field on the Monthly Income Screen. Must have documentation that
+      income will continue from the listed asset for a minimum of three years.
+    </p>
   </div>
 </div>

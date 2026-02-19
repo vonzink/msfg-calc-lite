@@ -1,8 +1,154 @@
 <div class="calc-page">
   <div class="calc-page__header">
-    <h1>Income Calculator Schedule E</h1>
+    <h1>Schedule E Non-Subject Property Calculator</h1>
+    <p>Calculate monthly qualifying income from rental real estate reported on IRS Schedule E (Form 1040) for non-subject properties. Includes monthly payment subtraction from credit report.</p>
   </div>
-  <div class="calc-page__body" style="padding: 0;">
-    <iframe src="/legacy/income/IncomeCalculatorScheduleE.html" style="width: 100%; min-height: 80vh; border: none; display: block;"></iframe>
+
+  <div class="calc-page__body">
+
+    <!-- Upload Zone -->
+    <div class="calc-section">
+      <h2>Upload Schedule E</h2>
+      <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Upload IRS Schedule E pages to auto-fill fields. Upload one per tax year (max 2).</p>
+
+      <div class="upload-zone" data-upload-type="income-schedule-e">
+        <div class="upload-zone__icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone__text">
+          <strong>Upload Schedule E</strong>
+          <span>Drop or click to upload a Schedule E image or PDF</span>
+        </div>
+        <input type="file" class="upload-zone__input" accept="image/*,application/pdf" style="display: none;">
+        <div class="upload-zone__status"></div>
+      </div>
+
+      <!-- JS-rendered document cards -->
+      <div id="docCards"></div>
+    </div>
+
+    <!-- Policy Explanation -->
+    <div class="calc-section">
+      <div class="policy-box">
+        <h5>Schedule E Non-Subject Property Policy</h5>
+        <p>
+          Only add lines 9 &amp; 16 (insurance and taxes) if the borrower needs them to qualify.
+          If added back, a Mortgage Statement or Lender's Activity Statement will be required to
+          verify payment includes PITI.
+        </p>
+      </div>
+    </div>
+
+    <!-- Property Income Line Items -->
+    <div class="calc-section">
+      <h2>Rental Property Income</h2>
+      <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Enter line items from Schedule E for the non-subject property. Positive values are added; Total Expenses is subtracted.</p>
+
+      <table class="income-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Line #</th>
+            <th>Sign</th>
+            <th>Year 1 (Most Recent)</th>
+            <th>Year 2 (Prior)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Rents Received</td>
+            <td class="line-number">3</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_rents_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_rents_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Royalties Received</td>
+            <td class="line-number">4</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_royalties_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_royalties_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Amortization / Casualty Loss</td>
+            <td class="line-number">19</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_amort_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_amort_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Total Expenses (SUBTRACT)</td>
+            <td class="line-number">20</td>
+            <td class="sign-col subtract">&minus;</td>
+            <td><input type="number" id="prop1_expenses_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_expenses_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Depreciation</td>
+            <td class="line-number">18</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_deprec_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_deprec_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Insurance (if PITI)</td>
+            <td class="line-number">9</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_insurance_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_insurance_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Mortgage Interest</td>
+            <td class="line-number">12</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_mortint_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_mortint_y2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Taxes (if PITI)</td>
+            <td class="line-number">16</td>
+            <td class="sign-col add">+</td>
+            <td><input type="number" id="prop1_taxes_y1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="prop1_taxes_y2" value="0" oninput="calculate()"></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="monthly-pmt-row">
+        <label>Monthly Payment on Credit Report:</label>
+        <input type="number" id="prop1_monthly_pmt" value="0" oninput="calculate()">
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="calc-section">
+      <h2>Results</h2>
+
+      <div class="result-highlight">
+        <div class="result-highlight__label">Monthly Qualifying Income (Net of Payment)</div>
+        <div class="result-highlight__value" id="prop1_result">$0.00</div>
+      </div>
+
+      <div class="action-bar">
+        <button type="button" class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+        <button type="button" class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <%- include('../../partials/show-calculations', { calcId: 'income-schedule-e' }) %>
+
+  </div>
+
+  <div class="calc-page__footer">
+    <div class="calc-page__footer-title">Schedule E Non-Subject Property Guidelines</div>
+    <p>
+      Rental income from non-subject properties reported on Schedule E is calculated by adding
+      rents received, royalties, depreciation, amortization/casualty loss, and conditionally
+      insurance, mortgage interest, and taxes (if PITI), then subtracting total expenses. Standard
+      averaging applies when two years are available and Year 1 exceeds Year 2. The monthly
+      payment from the credit report is subtracted from the monthly average. A positive result
+      adds to qualifying income; a negative result is treated as a monthly liability.
+    </p>
   </div>
 </div>

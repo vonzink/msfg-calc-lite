@@ -74,15 +74,15 @@ const incomeCalcs = [
   { slug: '1065',              view: 'income/1065',              title: 'Form 1065 Income Calculator', css: 'income-1065' },
   { slug: '1120',              view: 'income/1120',              title: 'Form 1120 Income Calculator', css: 'income-1120' },
   { slug: '1120s',             view: 'income/1120s',             title: 'Form 1120S Income Calculator', css: 'income-1120s' },
-  { slug: '1120s-k1',          view: 'income/1120s-k1',          title: '1120S K-1 Income Calculator' },
-  { slug: 'k1',                view: 'income/k1',                title: 'Schedule K-1 Income Calculator' },
-  { slug: 'rental-1038',       view: 'income/rental-1038',       title: 'Rental Property Income (1038)' },
-  { slug: 'schedule-b',        view: 'income/schedule-b',        title: 'Schedule B Income Calculator' },
-  { slug: 'schedule-c',        view: 'income/schedule-c',        title: 'Schedule C Income Calculator' },
-  { slug: 'schedule-d',        view: 'income/schedule-d',        title: 'Schedule D Income Calculator' },
-  { slug: 'schedule-e',        view: 'income/schedule-e',        title: 'Schedule E Income Calculator' },
-  { slug: 'schedule-e-subject', view: 'income/schedule-e-subject', title: 'Schedule E (Subject Property)' },
-  { slug: 'schedule-f',        view: 'income/schedule-f',        title: 'Schedule F Income Calculator' }
+  { slug: '1120s-k1',          view: 'income/1120s-k1',          title: '1120S K-1 Income Calculator', css: 'income-1120s-k1' },
+  { slug: 'k1',                view: 'income/k1',                title: 'Schedule K-1 Income Calculator', css: 'income-k1' },
+  { slug: 'rental-1038',       view: 'income/rental-1038',       title: 'Rental Property Income (1038)', css: 'income-rental-1038' },
+  { slug: 'schedule-b',        view: 'income/schedule-b',        title: 'Schedule B Income Calculator', css: 'income-schedule-b' },
+  { slug: 'schedule-c',        view: 'income/schedule-c',        title: 'Schedule C Income Calculator', css: 'income-schedule-c' },
+  { slug: 'schedule-d',        view: 'income/schedule-d',        title: 'Schedule D Income Calculator', css: 'income-schedule-d' },
+  { slug: 'schedule-e',        view: 'income/schedule-e',        title: 'Schedule E Income Calculator', css: 'income-schedule-e' },
+  { slug: 'schedule-e-subject', view: 'income/schedule-e-subject', title: 'Schedule E (Subject Property)', css: 'income-schedule-e-subject' },
+  { slug: 'schedule-f',        view: 'income/schedule-f',        title: 'Schedule F Income Calculator', css: 'income-schedule-f' }
 ];
 
 incomeCalcs.forEach(ic => {

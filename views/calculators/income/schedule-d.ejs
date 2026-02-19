@@ -1,8 +1,109 @@
 <div class="calc-page">
   <div class="calc-page__header">
-    <h1>Income Calculator Schedule D</h1>
+    <h1>Schedule D Capital Gains/Losses Calculator</h1>
+    <p>Calculate monthly income from Schedule D (Capital Gains and Losses). Enter short-term and long-term gains or losses for each tax year.</p>
   </div>
-  <div class="calc-page__body" style="padding: 0;">
-    <iframe src="/legacy/income/IncomeCalculatorScheduleD.html" style="width: 100%; min-height: 80vh; border: none; display: block;"></iframe>
+
+  <div class="calc-page__body">
+
+    <!-- Upload Zone -->
+    <div class="calc-section">
+      <h2>Upload Schedule D</h2>
+      <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Upload IRS Schedule D to auto-fill fields. Upload one per tax year (max 2).</p>
+
+      <div class="upload-zone" data-upload-type="income-schedule-d">
+        <div class="upload-zone__icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone__text">
+          <strong>Upload Schedule D</strong>
+          <span>Drop or click to upload a Schedule D image or PDF</span>
+        </div>
+        <input type="file" class="upload-zone__input" accept="image/*,application/pdf" style="display: none;">
+        <div class="upload-zone__status"></div>
+      </div>
+
+      <div id="docCards"></div>
+    </div>
+
+    <!-- Policy -->
+    <div class="calc-section">
+      <div class="policy-box">
+        <h5>Capital Gains Income Policy</h5>
+        <p>
+          Enter the short-term and long-term capital gains or losses. Losses should be entered as negative numbers.
+          If two years are provided and Year 1 exceeds Year 2, income is averaged over 24 months. Otherwise, only the most recent year is used (Year 1 / 12).
+        </p>
+      </div>
+    </div>
+
+    <!-- Capital Gains Table -->
+    <div class="calc-section">
+      <h2>Schedule D &ndash; Capital Gains/Losses</h2>
+
+      <table class="income-table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Sign</th>
+            <th>Year 1 (Most Recent)</th>
+            <th>Year 2 (Prior)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Short-Term Capital Gain/Loss</td>
+            <td class="sign-col add">+/&minus;</td>
+            <td><input type="number" id="d_stcg1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="d_stcg2" value="0" oninput="calculate()"></td>
+          </tr>
+          <tr>
+            <td>Long-Term Capital Gain/Loss</td>
+            <td class="sign-col add">+/&minus;</td>
+            <td><input type="number" id="d_ltcg1" value="0" oninput="calculate()"></td>
+            <td><input type="number" id="d_ltcg2" value="0" oninput="calculate()"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Results -->
+    <div class="calc-section">
+      <h2>Results</h2>
+
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-card__label">Year 1 Total</div>
+          <div class="result-card__value" id="d_total1">$0.00</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card__label">Year 2 Total</div>
+          <div class="result-card__value" id="d_total2">$0.00</div>
+        </div>
+      </div>
+
+      <div class="result-highlight" style="margin-top: var(--space-lg);">
+        <div class="result-highlight__label">Monthly Income</div>
+        <div class="result-highlight__value" id="d_monthly">$0.00</div>
+      </div>
+
+      <div class="action-bar">
+        <button type="button" class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+        <button type="button" class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <%- include('../../partials/show-calculations', { calcId: 'income-schedule-d' }) %>
+
+  </div>
+
+  <div class="calc-page__footer">
+    <div class="calc-page__footer-title">Schedule D Guidelines</div>
+    <p>
+      Capital gains income from Schedule D includes both short-term and long-term gains or losses.
+      The calculator applies the standard income averaging policy for mortgage qualification.
+      Losses should be entered as negative numbers.
+    </p>
   </div>
 </div>

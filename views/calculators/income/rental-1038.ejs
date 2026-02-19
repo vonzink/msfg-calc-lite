@@ -1,8 +1,197 @@
 <div class="calc-page">
   <div class="calc-page__header">
-    <h1>Income Calculator Rental 1038</h1>
+    <h1>Rental Income Worksheet (1038)</h1>
+    <p>Calculate qualifying rental property income using Schedule E (Method A) or Lease Agreement / Form 1007/1025 (Method B).</p>
   </div>
-  <div class="calc-page__body" style="padding: 0;">
-    <iframe src="/legacy/income/IncomeCalculatorRental1038.html" style="width: 100%; min-height: 80vh; border: none; display: block;"></iframe>
+
+  <div class="calc-page__body">
+
+    <!-- Upload Zone -->
+    <div class="calc-section">
+      <h2>Upload Schedule E</h2>
+      <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Upload IRS Schedule E (Form 1040) to auto-fill Method A fields. Supports PNG, JPG, WebP, or PDF.</p>
+
+      <div class="upload-zone" data-upload-type="income-rental-1038">
+        <div class="upload-zone__icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone__text">
+          <strong>Upload Schedule E</strong>
+          <span>Drop or click to upload a Schedule E image or PDF</span>
+        </div>
+        <input type="file" class="upload-zone__input" accept="image/*,application/pdf" style="display: none;">
+        <div class="upload-zone__status"></div>
+      </div>
+
+      <!-- JS-rendered document cards -->
+      <div id="docCards"></div>
+    </div>
+
+    <!-- Policy Explanation -->
+    <div class="calc-section">
+      <div class="policy-box">
+        <h5>Documentation Required</h5>
+        <p>
+          Schedule E (IRS Form 1040) <strong>OR</strong> Lease Agreement or Fannie Mae Form 1007/1025.
+          Use Method A when Schedule E data is available from tax returns. Use Method B when
+          qualifying based on a current lease agreement with the standard 75% vacancy/expense factor.
+        </p>
+      </div>
+    </div>
+
+    <!-- Method Selector -->
+    <div class="calc-section">
+      <h2>Select Calculation Method</h2>
+      <div class="method-selector">
+        <div class="method-btn active" onclick="selectMethod('scheduleE')">
+          <h4>Method A: Schedule E</h4>
+          <p>Use tax return Schedule E data</p>
+        </div>
+        <div class="method-btn" onclick="selectMethod('lease')">
+          <h4>Method B: Lease Agreement</h4>
+          <p>Use lease or Form 1007/1025</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- METHOD A: Schedule E                          -->
+    <!-- ============================================= -->
+    <div id="methodA" class="method-content active">
+
+      <div class="calc-section">
+        <h2><span class="step-label">Step 1</span> Months in Service</h2>
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Number of months the property was rented during the tax year (from Schedule E fair rental days).</p>
+        <div class="input-row">
+          <label for="methodA_months">Months in service</label>
+          <input type="number" id="methodA_months" value="12" min="1" max="12" step="1" oninput="calculate()">
+        </div>
+      </div>
+
+      <div class="calc-section">
+        <h2><span class="step-label">Step 2</span> Schedule E Income &amp; Adjustments</h2>
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Enter amounts from Schedule E. Green rows are added back; red rows are subtracted.</p>
+
+        <div class="input-row add-row">
+          <label for="methodA_rents">A1. Total rents received</label>
+          <input type="number" id="methodA_rents" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row subtract-row">
+          <label for="methodA_expenses">A2. Total expenses</label>
+          <input type="number" id="methodA_expenses" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_insurance">A3. Insurance (add back)</label>
+          <input type="number" id="methodA_insurance" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_mortint">A4. Mortgage interest (add back)</label>
+          <input type="number" id="methodA_mortint" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_taxes">A5. Taxes (add back)</label>
+          <input type="number" id="methodA_taxes" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_hoa">A6. HOA dues (add back)</label>
+          <input type="number" id="methodA_hoa" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_deprec">A7. Depreciation (add back)</label>
+          <input type="number" id="methodA_deprec" value="0" oninput="calculate()">
+        </div>
+
+        <div class="input-row add-row">
+          <label for="methodA_onetime">A8. One-time expense (add back)</label>
+          <input type="number" id="methodA_onetime" value="0" oninput="calculate()">
+        </div>
+
+        <div class="adjusted-result">
+          <span class="label"><span class="step-label">A9</span> Adjusted Monthly Income</span>
+          <span class="value" id="methodA_adjusted">$0.00</span>
+        </div>
+      </div>
+
+      <div class="calc-section">
+        <h2><span class="step-label">Step 3</span> Proposed PITIA</h2>
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Subtract the proposed Principal, Interest, Taxes, Insurance &amp; Association dues for the subject property.</p>
+
+        <div class="input-row subtract-row">
+          <label for="methodA_pitia">A10. Proposed PITIA</label>
+          <input type="number" id="methodA_pitia" value="0" oninput="calculate()">
+        </div>
+
+        <div class="result-highlight" style="margin-top: var(--space-md);">
+          <div class="result-highlight__label">Net Rental Income (Method A)</div>
+          <div class="result-highlight__value" id="methodA_result">$0.00</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ============================================= -->
+    <!-- METHOD B: Lease Agreement                     -->
+    <!-- ============================================= -->
+    <div id="methodB" class="method-content">
+
+      <div class="calc-section">
+        <h2><span class="step-label">Step 1</span> Gross Monthly Rent</h2>
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Enter the gross monthly rental income from the lease agreement or Form 1007/1025.</p>
+
+        <div class="input-row add-row">
+          <label for="methodB_grossrent">B1. Gross monthly rent</label>
+          <input type="number" id="methodB_grossrent" value="0" oninput="calculate()">
+        </div>
+
+        <div class="adjusted-result">
+          <span class="label"><span class="step-label">B2</span> Adjusted Monthly (Gross &times; 75%)</span>
+          <span class="value" id="methodB_adjusted">$0.00</span>
+        </div>
+      </div>
+
+      <div class="calc-section">
+        <h2><span class="step-label">Step 2</span> Proposed PITIA</h2>
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-sm);">Subtract the proposed Principal, Interest, Taxes, Insurance &amp; Association dues for the subject property.</p>
+
+        <div class="input-row subtract-row">
+          <label for="methodB_pitia">B3. Proposed PITIA</label>
+          <input type="number" id="methodB_pitia" value="0" oninput="calculate()">
+        </div>
+
+        <div class="result-highlight" style="margin-top: var(--space-md);">
+          <div class="result-highlight__label">Net Rental Income (Method B)</div>
+          <div class="result-highlight__value" id="methodB_result">$0.00</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Bar -->
+    <div class="calc-section">
+      <div class="action-bar">
+        <button type="button" class="btn btn-secondary" onclick="exportCSV()">Export CSV</button>
+        <button type="button" class="btn btn-secondary" onclick="window.print()">Print</button>
+        <button type="button" class="btn btn-ghost" onclick="clearAll()">Clear All</button>
+      </div>
+    </div>
+
+    <%- include('../../partials/show-calculations', { calcId: 'income-rental-1038' }) %>
+
+  </div>
+
+  <div class="calc-page__footer">
+    <div class="calc-page__footer-title">Rental Income Guidelines</div>
+    <p>
+      Positive result = income that can be added to qualifying income.
+      Negative result = monthly housing expense that must be included in the borrower's liabilities.
+      Method A uses Schedule E data with add-backs for PITIA-related expenses and depreciation.
+      Method B applies the standard 75% factor to gross rent per Fannie Mae guidelines.
+    </p>
   </div>
 </div>
