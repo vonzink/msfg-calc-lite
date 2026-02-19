@@ -131,10 +131,10 @@
 
     var html = '';
 
-    // --- Branded Header ---
+    // --- Logo Header ---
     var logoSrc = window.__companyLogo || '/images/msfg-logo.png';
     var companyName = window.__companyName || '';
-    html += '<div class="la-letter__header-band">';
+    html += '<div class="la-letter__header">';
     html += '<img src="' + escHtml(logoSrc) + '" alt="' + escHtml(companyName) + '" class="la-letter__header-logo">';
     html += '</div>';
 

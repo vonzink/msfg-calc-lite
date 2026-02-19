@@ -1847,126 +1847,72 @@
     return content;
   };
 
-  /* ---- Loan Analysis (Cover Page) ---- */
+  /* ---- Loan Analysis (Cover Letter) ---- */
   extractors['loan-analysis'] = function (doc) {
-    var win = doc.defaultView || window;
-    var sigData = win.__emailSignature || {};
+    // Capture the generated letter HTML directly — this is the actual letter the user sees
+    var letterEl = doc.getElementById('laLetterContent');
+    var letterHtml = letterEl ? letterEl.innerHTML.trim() : '';
 
-    // Read selected attachments from checkbox list
-    var attachments = [];
-    var checks = doc.querySelectorAll('#laAttachList input[type="checkbox"]:checked');
-    for (var i = 0; i < checks.length; i++) {
-      attachments.push({
-        name: checks[i].getAttribute('data-name') || '',
-        icon: checks[i].getAttribute('data-icon') || ''
-      });
-    }
+    if (!letterHtml) return null; // letter not generated yet
 
     return {
-      borrower: {
-        name: txt(doc, 'laBorrowerName'),
-        coBorrower: txt(doc, 'laCoBorrowerName'),
-        street: txt(doc, 'laStreet'),
-        city: txt(doc, 'laCity'),
-        state: txt(doc, 'laState'),
-        zip: txt(doc, 'laZip')
-      },
-      body: txt(doc, 'laBody'),
-      attachments: attachments,
-      emailSignature: sigData
+      letterHtml: letterHtml
     };
   };
 
   renderers['loan-analysis'] = function (data) {
-    var html = '';
-    var esc = function (s) { return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
-
-    // Borrower
-    var b = data.borrower;
-    if (b && b.name) {
-      var addr = [b.street, b.city, b.state, b.zip].filter(function (s) { return s; }).join(', ');
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Borrower</h4>';
-      html += '<div class="rpt-params">';
-      html += '<div class="rpt-param"><span>Borrower</span><span>' + esc(b.name) + '</span></div>';
-      if (b.coBorrower) html += '<div class="rpt-param"><span>Co-Borrower</span><span>' + esc(b.coBorrower) + '</span></div>';
-      if (addr) html += '<div class="rpt-param"><span>Address</span><span>' + esc(addr) + '</span></div>';
-      html += '</div></div>';
+    // Render the captured letter directly — it already contains the full formatted letter
+    if (data.letterHtml) {
+      return '<div style="line-height:1.7;font-size:0.95rem">' + data.letterHtml + '</div>';
     }
-
-    // Letter body
-    if (data.body) {
-      html += '<div class="rpt-section"><p style="white-space:pre-wrap;margin:0;color:#555">' + esc(data.body) + '</p></div>';
-    }
-
-    // Signature
-    var sig = data.emailSignature || data.loanOfficer;
-    if (sig && sig.name) {
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Officer</h4>';
-      html += '<div class="rpt-params">';
-      html += '<div class="rpt-param"><span>Name</span><span>' + esc(sig.name) + '</span></div>';
-      if (sig.title) html += '<div class="rpt-param"><span>Title</span><span>' + esc(sig.title) + '</span></div>';
-      if (sig.company) html += '<div class="rpt-param"><span>Company</span><span>' + esc(sig.company) + '</span></div>';
-      if (sig.phone) html += '<div class="rpt-param"><span>Phone</span><span>' + esc(sig.phone) + '</span></div>';
-      if (sig.email) html += '<div class="rpt-param"><span>Email</span><span>' + esc(sig.email) + '</span></div>';
-      if (sig.nmls) html += '<div class="rpt-param"><span>NMLS #</span><span>' + esc(sig.nmls) + '</span></div>';
-      html += '</div></div>';
-    }
-
-    // Attached reports
-    var att = data.attachments;
-    if (att && att.length > 0) {
-      html += '<div class="rpt-section"><h4 class="rpt-section-title">Enclosed Reports</h4><ul style="margin:0;padding-left:20px">';
-      for (var i = 0; i < att.length; i++) {
-        html += '<li>' + esc(att[i].icon) + ' ' + esc(att[i].name) + '</li>';
-      }
-      html += '</ul></div>';
-    }
-
-    return html;
+    return '<p class="rpt-no-template">No cover letter generated.</p>';
   };
 
   pdfGenerators['loan-analysis'] = function (data) {
+    // Cover letter PDF: extract plain text from the stored HTML
+    if (!data.letterHtml) return [{ text: 'No cover letter generated.', italics: true, color: '#888' }];
+
+    // Parse the HTML to extract text segments
+    var temp = document.createElement('div');
+    temp.innerHTML = data.letterHtml;
     var content = [];
-    var b = data.borrower;
 
-    // Borrower
-    if (b && b.name) {
-      var addr = [b.street, b.city, b.state, b.zip].filter(function (s) { return s; }).join(', ');
-      content.push({ text: 'Borrower', style: 'sectionTitle', margin: [0, 4, 0, 4] });
-      var bRows = [];
-      bRows.push(['Borrower', b.name]);
-      if (b.coBorrower) bRows.push(['Co-Borrower', b.coBorrower]);
-      if (addr) bRows.push(['Address', addr]);
-      content.push({ table: { widths: [100, '*'], body: bRows }, layout: 'noBorders', margin: [0, 0, 0, 8] });
+    // Extract text from each section by class
+    var date = temp.querySelector('.la-letter__date');
+    if (date) content.push({ text: date.textContent.trim(), color: '#888', margin: [0, 0, 0, 8] });
+
+    var addr = temp.querySelector('.la-letter__address');
+    if (addr) content.push({ text: addr.textContent.trim(), margin: [0, 0, 0, 8] });
+
+    var greet = temp.querySelector('.la-letter__greeting');
+    if (greet) content.push({ text: greet.textContent.trim(), margin: [0, 0, 0, 8] });
+
+    var bodyPs = temp.querySelectorAll('.la-letter__body p');
+    for (var i = 0; i < bodyPs.length; i++) {
+      content.push({ text: bodyPs[i].textContent.trim(), margin: [0, 0, 0, 8] });
     }
 
-    // Letter body
-    if (data.body) {
-      content.push({ text: data.body, color: '#555', margin: [0, 4, 0, 8] });
-    }
-
-    // Signature
-    var sig = data.emailSignature || data.loanOfficer;
-    if (sig && sig.name) {
-      content.push({ text: 'Loan Officer', style: 'sectionTitle', margin: [0, 12, 0, 4] });
-      var loRows = [['Name', sig.name]];
-      if (sig.title) loRows.push(['Title', sig.title]);
-      if (sig.company) loRows.push(['Company', sig.company]);
-      if (sig.phone) loRows.push(['Phone', sig.phone]);
-      if (sig.email) loRows.push(['Email', sig.email]);
-      if (sig.nmls) loRows.push(['NMLS #', sig.nmls]);
-      content.push({ table: { widths: [80, '*'], body: loRows }, layout: 'noBorders' });
-    }
-
-    // Attached reports
-    var att = data.attachments;
-    if (att && att.length > 0) {
-      content.push({ text: 'Enclosed Reports', style: 'sectionTitle', margin: [0, 12, 0, 4] });
-      var items = [];
-      for (var i = 0; i < att.length; i++) {
-        items.push({ text: (att[i].icon || '') + ' ' + (att[i].name || ''), margin: [0, 2, 0, 2] });
+    var sigEl = temp.querySelector('.la-letter__signature');
+    if (sigEl) {
+      content.push({ text: '', margin: [0, 8, 0, 0] });
+      var sigLines = sigEl.querySelectorAll('p');
+      for (var j = 0; j < sigLines.length; j++) {
+        var line = sigLines[j].textContent.trim();
+        if (!line) continue;
+        var isBold = sigLines[j].classList.contains('la-sig-name');
+        content.push({ text: line, bold: isBold, fontSize: isBold ? 11 : 9, color: isBold ? '#2d6a4f' : '#666', margin: [0, 1, 0, 1] });
       }
-      content.push({ ul: items });
+    }
+
+    var attSection = temp.querySelector('.la-letter__attachments');
+    if (attSection) {
+      content.push({ text: 'Enclosed Reports', style: 'sectionTitle', margin: [0, 12, 0, 4] });
+      var lis = attSection.querySelectorAll('li');
+      var items = [];
+      for (var k = 0; k < lis.length; k++) {
+        items.push({ text: lis[k].textContent.trim(), margin: [0, 2, 0, 2] });
+      }
+      if (items.length) content.push({ ul: items });
     }
 
     return content;

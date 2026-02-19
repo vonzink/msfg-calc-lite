@@ -100,19 +100,16 @@
   overflow: hidden;
 }
 
-/* ---- Branded Header Band ---- */
-.la-letter__header-band {
-  background: var(--brand-primary, #2d6a4f);
-  padding: 32px 40px;
-  text-align: center;
+/* ---- Logo Header ---- */
+.la-letter__header {
+  padding: 32px 48px 0;
+  text-align: left;
 }
 
 .la-letter__header-logo {
-  max-width: 220px;
+  max-width: 200px;
   height: auto;
   display: block;
-  margin: 0 auto;
-  filter: brightness(0) invert(1);
 }
 
 /* ---- Letter Content (below header) ---- */
@@ -219,8 +216,8 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
-  .la-letter__header-band {
-    padding: 24px 20px;
+  .la-letter__header {
+    padding: 24px 24px 0;
   }
   .la-letter__date,
   .la-letter__address,
