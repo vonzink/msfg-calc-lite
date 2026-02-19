@@ -72,37 +72,28 @@ router.post('/ai/extract', upload.single('file'), (req, res) => {
   const model = promptConfig.model || 'gpt-4o';
   const systemPrompt = promptConfig.prompt;
 
-  // Build base64 data URI
   const mimeType = req.file.mimetype;
   const base64 = req.file.buffer.toString('base64');
+  const isPdf = mimeType === 'application/pdf';
 
-  // Build OpenAI Chat Completions request
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    {
-      role: 'user',
-      content: [
-        {
-          type: 'image_url',
-          image_url: {
-            url: `data:${mimeType};base64,${base64}`,
-            detail: 'high'
-          }
-        }
-      ]
-    }
-  ];
+  // Build user content block — PDFs use input_file, images use image_url
+  const fileBlock = isPdf
+    ? { type: 'input_file', filename: req.file.originalname || 'document.pdf', file_data: `data:${mimeType};base64,${base64}` }
+    : { type: 'input_image', image_url: `data:${mimeType};base64,${base64}` };
 
+  // Use OpenAI Responses API (supports PDF input natively)
   const requestBody = JSON.stringify({
     model: model,
-    messages: messages,
-    max_tokens: 2000,
-    response_format: { type: 'json_object' }
+    instructions: systemPrompt,
+    input: [
+      { role: 'user', content: [fileBlock, { type: 'input_text', text: 'Extract the data from this document. Return only valid JSON.' }] }
+    ],
+    text: { format: { type: 'json_object' } }
   });
 
   const options = {
     hostname: 'api.openai.com',
-    path: '/v1/chat/completions',
+    path: '/v1/responses',
     method: 'POST',
     headers: {
       'Authorization': 'Bearer ' + siteConfig.ai.apiKey,
@@ -123,12 +114,14 @@ router.post('/ai/extract', upload.single('file'), (req, res) => {
           return res.status(502).json({ success: false, message: errMsg });
         }
 
-        const content = parsed.choices?.[0]?.message?.content;
+        // Responses API returns output[].content[].text
+        const textBlock = parsed.output?.find(o => o.type === 'message')
+          ?.content?.find(c => c.type === 'output_text');
+        const content = textBlock?.text;
         if (!content) {
           return res.status(502).json({ success: false, message: 'No content in AI response.' });
         }
 
-        // Parse the JSON response from GPT
         const extracted = JSON.parse(content);
         res.json({ success: true, data: extracted });
       } catch (err) {
