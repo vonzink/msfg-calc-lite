@@ -91,6 +91,9 @@ app.use('/legacy/buydown-calc', express.static(path.join(__dirname, 'buydown-cal
 app.use('/legacy/refi-calc', express.static(path.join(__dirname, 'refi-calc')));
 app.use('/legacy/calc-reo', express.static(path.join(__dirname, 'calc-reo')));
 
+// Legacy shared CSS (referenced by iframe calculators as /css/main.css)
+app.use('/css', express.static(path.join(__dirname, 'css')));
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Page Not Found' });
