@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REO Investment ROI Calculator | MSFG</title>
+
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="/css/main.css" />
+  <!-- Calculator-specific + print styles -->
+  <link rel="stylesheet" href="./reo.css" />
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="header print-no-break">
+      <img
+        src="/images/msfg-logo.png"
+        alt="MSFG Home Loans"
+        class="header-logo"
+      />
+      <h1>REO Investment ROI Calculator</h1>
+      <p>Professional investment property worksheet with 5-year projections, cap rate, DCR, cash-on-cash, and equity.</p>
+
+      <div class="action-buttons no-print">
+        <button class="btn btn-primary" id="btnRecalc">Recalculate</button>
+        <button class="btn btn-secondary" id="btnPrint">Print / Save PDF</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Property -->
+      <div class="section print-no-break">
+        <h2><span class="section-number">1</span>Property</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="street">Street Address</label>
+            <input id="street" type="text" value="1234 Example Street" />
+          </div>
+          <div class="input-group">
+            <label for="city">City</label>
+            <input id="city" type="text" value="Your City" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Acquisition & Financing -->
+      <div class="section">
+        <h2><span class="section-number">2</span>Acquisition & Financing</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="purchasePrice">Purchase Price</label>
+            <input id="purchasePrice" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="downPct">Downpayment %</label>
+            <input id="downPct" type="number" step="0.01" value="20" />
+            <div class="info-text">Enter percent down (e.g., 20 for 20%).</div>
+          </div>
+
+          <div class="input-group">
+            <label for="rate">Interest Rate %</label>
+            <input id="rate" type="number" step="0.01" value="7.00" />
+          </div>
+
+          <div class="input-group">
+            <label for="termYears">Loan Term (years)</label>
+            <input id="termYears" type="number" step="1" value="30" />
+          </div>
+
+          <div class="input-group">
+            <label for="amortType">Amortization Type</label>
+            <select id="amortType">
+              <option value="pi" selected>P & I</option>
+              <option value="io">Interest-Only</option>
+              <option value="cash">All Cash (No Loan)</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="acqCosts">Acquisition / Closing Costs</label>
+            <input id="acqCosts" type="number" step="0.01" value="5000" />
+            <div class="info-text">Default matches legacy sheet assumption.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Renovation -->
+      <div class="section">
+        <h2><span class="section-number">3</span>Renovation</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="renoPaint">Paint</label>
+            <input id="renoPaint" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoFloor">Carpets / Flooring</label>
+            <input id="renoFloor" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoAppl">Appliances</label>
+            <input id="renoAppl" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoFireplace">Fireplace Cleaning</label>
+            <input id="renoFireplace" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoRoof">Roof</label>
+            <input id="renoRoof" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoPest">Pest Repairs</label>
+            <input id="renoPest" type="number" step="0.01" value="0" />
+          </div>
+          <div class="input-group">
+            <label for="renoOther">Other Repairs</label>
+            <input id="renoOther" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="renoMonths">Timeframe to Complete (months)</label>
+            <input id="renoMonths" type="number" step="1" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="renoValue">Renovated Value (optional)</label>
+            <input id="renoValue" type="number" step="0.01" value="0" />
+            <div class="info-text">If 0, we assume renovated value = purchase price.</div>
+          </div>
+
+          <div class="input-group">
+            <label for="sellCostPct">Estimated Selling Costs %</label>
+            <input id="sellCostPct" type="number" step="0.01" value="6.25" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Income & Expenses -->
+      <div class="section">
+        <h2><span class="section-number">4</span>Income & Operating Expenses (Monthly)</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="grossRents">Gross Rents (monthly)</label>
+            <input id="grossRents" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="hoa">HOA Dues (monthly)</label>
+            <input id="hoa" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="adv">Advertising</label>
+            <input id="adv" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="autoTravel">Auto & Travel</label>
+            <input id="autoTravel" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="ins">Insurance</label>
+            <input id="ins" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="landscape">Landscape Maintenance</label>
+            <input id="landscape" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="propMaint">Property Maintenance</label>
+            <input id="propMaint" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="mgmt">Management Fees</label>
+            <input id="mgmt" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="otherExp">Other</label>
+            <input id="otherExp" type="number" step="0.01" value="0" />
+          </div>
+
+          <div class="input-group">
+            <label for="propTaxRate">Property Tax Rate % (annual)</label>
+            <input id="propTaxRate" type="number" step="0.001" value="1.30" />
+            <div class="info-text">Legacy sheet assumed ~1.30% annually.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market Assumptions -->
+      <div class="section">
+        <h2><span class="section-number">5</span>Market Assumptions</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="appreciation">Property Appreciation %</label>
+            <input id="appreciation" type="number" step="0.01" value="3.00" />
+          </div>
+          <div class="input-group">
+            <label for="rentIncrease">Rent Increase %</label>
+            <input id="rentIncrease" type="number" step="0.01" value="4.00" />
+          </div>
+          <div class="input-group">
+            <label for="expIncrease">Expense Increase %</label>
+            <input id="expIncrease" type="number" step="0.01" value="2.00" />
+          </div>
+          <div class="input-group">
+            <label for="vacancy">Vacancy Rate %</label>
+            <input id="vacancy" type="number" step="0.01" value="10.00" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Depreciation -->
+      <div class="section">
+        <h2><span class="section-number">6</span>Depreciation Assumptions</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label for="improvePct">Market Value of Improvements (portion)</label>
+            <input id="improvePct" type="number" step="0.01" value="75.00" />
+            <div class="info-text">Legacy sheet default: 75% of renovation counted as improvements.</div>
+          </div>
+
+          <div class="input-group">
+            <label for="taxBracket">Effective Income Tax Bracket %</label>
+            <input id="taxBracket" type="number" step="0.01" value="29.90" />
+          </div>
+
+          <div class="input-group">
+            <label for="deprYears">Depreciable Years</label>
+            <input id="deprYears" type="number" step="0.1" value="27.5" />
+          </div>
+        </div>
+
+        <div class="info-text">
+          Note: This tool mirrors the legacy worksheet approach where “after-tax cash-flow” adds depreciation to cash-flow as an approximation.
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="results-section print-no-break">
+        <h2>Summary</h2>
+        <div class="results-grid">
+          <div class="result-card highlight">
+            <h3>Rent to Price Ratio</h3>
+            <div class="result-value" id="r2p">—</div>
+          </div>
+          <div class="result-card">
+            <h3>Total Renovation Cost</h3>
+            <div class="result-value" id="renoTotal">—</div>
+          </div>
+          <div class="result-card">
+            <h3>Renovated Market Value</h3>
+            <div class="result-value" id="renValueOut">—</div>
+          </div>
+          <div class="result-card">
+            <h3>Cash Invested</h3>
+            <div class="result-value" id="cashInvested">—</div>
+          </div>
+          <div class="result-card">
+            <h3>Monthly NOI</h3>
+            <div class="result-value" id="noiMonthly">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 Year Projection Table -->
+      <div class="section">
+        <h2>5-Year Projection</h2>
+        <div class="table-wrap">
+          <table class="reo-table" aria-label="Five year projection">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Yr 1</th>
+                <th>Yr 2</th>
+                <th>Yr 3</th>
+                <th>Yr 4</th>
+                <th>Yr 5</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Property Value</td><td id="pv1"></td><td id="pv2"></td><td id="pv3"></td><td id="pv4"></td><td id="pv5"></td></tr>
+              <tr><td>Gross Income (Annual)</td><td id="gi1"></td><td id="gi2"></td><td id="gi3"></td><td id="gi4"></td><td id="gi5"></td></tr>
+              <tr><td>Expenses (Annual)</td><td id="ex1"></td><td id="ex2"></td><td id="ex3"></td><td id="ex4"></td><td id="ex5"></td></tr>
+              <tr><td>NOI (Annual)</td><td id="noi1"></td><td id="noi2"></td><td id="noi3"></td><td id="noi4"></td><td id="noi5"></td></tr>
+              <tr><td>Cap Rate</td><td id="cap1"></td><td id="cap2"></td><td id="cap3"></td><td id="cap4"></td><td id="cap5"></td></tr>
+              <tr><td>Debt Service (Annual)</td><td id="ds1"></td><td id="ds2"></td><td id="ds3"></td><td id="ds4"></td><td id="ds5"></td></tr>
+              <tr><td>Debt Coverage Ratio</td><td id="dcr1"></td><td id="dcr2"></td><td id="dcr3"></td><td id="dcr4"></td><td id="dcr5"></td></tr>
+              <tr><td>Cash-Flow (Before Tax)</td><td id="cf1"></td><td id="cf2"></td><td id="cf3"></td><td id="cf4"></td><td id="cf5"></td></tr>
+              <tr><td>After-Tax Cash-Flow (Approx)</td><td id="at1"></td><td id="at2"></td><td id="at3"></td><td id="at4"></td><td id="at5"></td></tr>
+              <tr><td>Cash-on-Cash Return</td><td id="coc1"></td><td id="coc2"></td><td id="coc3"></td><td id="coc4"></td><td id="coc5"></td></tr>
+              <tr><td>Net Equity (after sell costs)</td><td id="eq1"></td><td id="eq2"></td><td id="eq3"></td><td id="eq4"></td><td id="eq5"></td></tr>
+              <tr><td>Cumulative After-Tax Return</td><td id="car1"></td><td id="car2"></td><td id="car3"></td><td id="car4"></td><td id="car5"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-text">
+          Print tip: click <strong>Print / Save PDF</strong>, choose “Save as PDF”, and the worksheet will format cleanly.
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="footer">
+        <div class="footer-title">Important Disclaimers</div>
+        <p>
+          This worksheet is a preliminary evaluation based on user inputs and market assumptions. It is not tax or investment advice,
+          and is not a guarantee of return. Consult your tax and investment advisors.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./reo.js"></script>
+</body>
+</html>

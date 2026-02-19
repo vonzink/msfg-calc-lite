@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSFG • MISMO Document Analyzer</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c8e6c9 100%);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--light);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .brand img {
+            height: 60px;
+            width: auto;
+        }
+
+        .brand-text h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .brand-text .subtitle {
+            margin-top: 0.5rem;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 4rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin: 0 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .dropzone {
+            border: 3px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: var(--light-gray);
+        }
+
+        .dropzone.dragover {
+            border-color: var(--accent);
+            background: #e8f5e8;
+            box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) inset;
+        }
+
+        .dropzone input {
+            display: none;
+        }
+
+        .dz-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-flex;
+            gap: 0.5rem;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: none;
+            color: var(--light);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 700px) {
+            .summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kv {
+            background: var(--light-gray);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .kv .k {
+            color: var(--gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .kv .v {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .chip.ok {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-color: #a5d6a7;
+        }
+
+        .chip.warn {
+            background: #fff3e0;
+            color: #e65100;
+            border-color: #ffcc80;
+        }
+
+        .chip.need {
+            background: #ffebee;
+            color: #c62828;
+            border-color: #ef9a9a;
+        }
+
+        .checklist-section {
+            margin-bottom: 2rem;
+        }
+
+        .checklist-section h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin: 0 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .doc-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            border-left: 4px solid transparent;
+        }
+
+        .doc-item.required {
+            background: #ffebee;
+            border-left-color: #c62828;
+        }
+
+        .doc-item.conditional {
+            background: #fff3e0;
+            border-left-color: #e65100;
+        }
+
+        .doc-item.ok {
+            background: #e8f5e9;
+            border-left-color: #2e7d32;
+        }
+
+        .doc-item .doc-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .doc-item .doc-reason {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .doc-item .doc-status {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+
+        .doc-item.required .doc-status {
+            background: #c62828;
+            color: white;
+        }
+
+        .doc-item.conditional .doc-status {
+            background: #e65100;
+            color: white;
+        }
+
+        .doc-item.ok .doc-status {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <img src="/images/msfg-logo.png" alt="MSFG Logo">
+            <div class="brand-text">
+                <h1>MISMO Document Analyzer</h1>
+                <div class="subtitle">Upload your MISMO 3.4 XML file to generate a comprehensive document checklist</div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="grid">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2>📁 Upload MISMO XML</h2>
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="fileInput" accept=".xml" />
+                    <div class="dz-title">Drop MISMO XML file here</div>
+                    <div style="color: var(--gray); margin-bottom: 1rem;">or</div>
+                    <button class="btn" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loan Summary -->
+            <div class="card">
+                <h2>📋 Loan Summary</h2>
+                <div class="summary">
+                    <div class="kv">
+                        <div class="k">Borrower(s)</div>
+                        <div class="v" id="kvBorrower">—</div>
+                    </div>
+                    <div class="kv">
+                        <div class="k">Loan Purpose</div>
+                        <div class="v" id="kvPurpose">—</div>
+                    </div>
+                    <div class="kv">
+                        <div class="k">Loan Type</div>
+                        <div class="v" id="kvType">—</div>
+                    </div>
+                    <div class="kv">
+                        <div class="k">Loan Amount</div>
+                        <div class="v" id="kvAmount">—</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--gray);">Status Indicators</h3>
+                    <div class="chips">
+                        <div class="chip" id="chipEmp">Employment: Pending</div>
+                        <div class="chip" id="chipRes">Residence: Pending</div>
+                        <div class="chip" id="chipREO">REO: Pending</div>
+                        <div class="chip" id="chipDec">Declarations: Pending</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsWrap" class="hidden">
+            <!-- Income Documentation -->
+            <div class="card checklist-section">
+                <h3>💼 Income Documentation</h3>
+                <div id="incomeChecklist"></div>
+            </div>
+
+            <!-- General Documentation -->
+            <div class="card checklist-section">
+                <h3>📄 General Documentation</h3>
+                <div id="generalChecklist"></div>
+            </div>
+
+            <!-- Asset Documentation -->
+            <div class="card checklist-section">
+                <h3>💰 Asset Documentation</h3>
+                <div id="assetChecklist"></div>
+            </div>
+
+            <!-- Credit Documentation -->
+            <div class="card checklist-section">
+                <h3>🏦 Credit Documentation</h3>
+                <div id="creditChecklist"></div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="card empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3>No file uploaded yet</h3>
+            <p>Upload a MISMO 3.4 XML file to begin analysis</p>
+        </div>
+    </main>
+
+    <!-- Load JavaScript modules -->
+    <script src="mismo-parser.js"></script>
+    <script src="income-logic.js"></script>
+    
+    <script>
+        // Utility Functions
+        function $(id) { return document.getElementById(id); }
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        function setChip(id, label, state) {
+            const el = $(id);
+            if (!el) return;
+            el.classList.remove('ok', 'warn', 'need');
+            el.textContent = label;
+            if (state) el.classList.add(state);
+        }
+
+        // File Upload Handlers
+        const dropzone = $('dropzone');
+        const fileInput = $('fileInput');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Main File Handler
+        function handleFile(file) {
+            if (!file.name.endsWith('.xml')) {
+                alert('Please upload a valid XML file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(e.target.result, 'text/xml');
+                    
+                    // Check for parse errors
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        alert('Error parsing XML file. Please ensure it is a valid MISMO 3.4 file.');
+                        return;
+                    }
+
+                    processXML(xmlDoc);
+                } catch (error) {
+                    console.error('Error processing XML:', error);
+                    alert('Error processing XML file: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Process XML and Generate Checklist
+        function processXML(xmlDoc) {
+            // Parse MISMO using parser module
+            const data = window.MISMOParser.parseMISMO(xmlDoc);
+            
+            // Generate income documentation for each borrower
+            const incomeDocuments = [];
+            data.borrowers.forEach(borrower => {
+                const docs = window.IncomeLogic.determineIncomeDocumentation(borrower);
+                incomeDocuments.push(...docs);
+            });
+
+            // Generate other documentation (general, assets, credit)
+            const otherDocuments = generateOtherDocumentation(data);
+
+            // Update UI
+            updateLoanSummary(data);
+            updateStatusChips(data);
+            renderChecklist('incomeChecklist', incomeDocuments);
+            renderChecklist('generalChecklist', otherDocuments.general);
+            renderChecklist('assetChecklist', otherDocuments.assets);
+            renderChecklist('creditChecklist', otherDocuments.credit);
+
+            // Show results
+            $('resultsWrap').classList.remove('hidden');
+            $('emptyState').classList.add('hidden');
+        }
+
+        // Update Loan Summary
+        function updateLoanSummary(data) {
+            const names = data.borrowers.map(b => b.name).join(', ');
+            $('kvBorrower').textContent = names || '—';
+            $('kvPurpose').textContent = data.loanPurpose || '—';
+            $('kvType').textContent = data.mortgageType || '—';
+            $('kvAmount').textContent = data.baseLoanAmount ? formatCurrency(data.baseLoanAmount) : '—';
+        }
+
+        // Update Status Chips
+        function updateStatusChips(data) {
+            // Employment coverage
+            const empCoverages = data.borrowers.map(b => 
+                window.MISMOParser.calculateEmploymentCoverage(b)
+            );
+            const worstEmpCoverage = empCoverages.reduce((worst, curr) => 
+                curr.monthsNeeded > worst.monthsNeeded ? curr : worst
+            , { monthsNeeded: 0, totalMonths: 0 });
+
+            if (worstEmpCoverage.monthsNeeded > 0) {
+                setChip('chipEmp', `Employment: need +${worstEmpCoverage.monthsNeeded} mo`, 'need');
+            } else {
+                setChip('chipEmp', 'Employment: 24 mo ✓', 'ok');
+            }
+
+            // Residence coverage
+            const resCoverages = data.borrowers.map(b => 
+                window.MISMOParser.calculateResidenceCoverage(b)
+            );
+            const worstResCoverage = resCoverages.reduce((worst, curr) => 
+                curr.monthsNeeded > worst.monthsNeeded ? curr : worst
+            , { monthsNeeded: 0, totalMonths: 0 });
+
+            if (worstResCoverage.monthsNeeded > 0) {
+                setChip('chipRes', `Residence: need +${worstResCoverage.monthsNeeded} mo`, 'need');
+            } else {
+                setChip('chipRes', 'Residence: 24 mo ✓', 'ok');
+            }
+
+            // REO properties
+            const reoCount = data.reoProperties.length;
+            setChip('chipREO', reoCount > 0 ? `REO: ${reoCount}` : 'REO: none', reoCount > 0 ? 'warn' : 'ok');
+
+            // Declarations
+            const anyDeclarations = data.borrowers.some(b => 
+                b.declarations.bankruptcy || 
+                b.declarations.foreclosure || 
+                b.declarations.judgments || 
+                b.declarations.usCitizen === false
+            );
+            setChip('chipDec', anyDeclarations ? 'Declarations: flags present' : 'Declarations: clear', anyDeclarations ? 'warn' : 'ok');
+        }
+
+        // Render Checklist
+        function renderChecklist(elementId, documents) {
+            const container = $(elementId);
+            if (!documents || documents.length === 0) {
+                container.innerHTML = '<div style="color: var(--gray); font-style: italic;">No documents required in this category</div>';
+                return;
+            }
+
+            container.innerHTML = documents.map(doc => `
+                <div class="doc-item ${doc.status}">
+                    <div class="doc-name">
+                        ${doc.name}
+                        <span class="doc-status">${doc.status}</span>
+                    </div>
+                    <div class="doc-reason">${doc.reason}</div>
+                </div>
+            `).join('');
+        }
+
+        // Generate Other Documentation (simplified from original)
+        function generateOtherDocumentation(data) {
+            const general = [];
+            const assets = [];
+            const credit = [];
+
+            // General documents
+            general.push({
+                name: 'IRS Form 4506-C (transcript authorization)',
+                status: 'required',
+                reason: 'Standard for income verification.'
+            });
+
+            if ((data.loanPurpose || '').toLowerCase() === 'purchase') {
+                general.push({
+                    name: 'Executed purchase contract',
+                    status: 'required',
+                    reason: 'Loan purpose is Purchase.'
+                });
+                general.push({
+                    name: 'Earnest money proof (canceled check / statement)',
+                    status: 'required',
+                    reason: 'Shows source of EMD.'
+                });
+            } else if ((data.loanPurpose || '').toLowerCase() === 'refinance') {
+                general.push({
+                    name: 'Current mortgage statement (subject property)',
+                    status: 'required',
+                    reason: 'Refinance transaction.'
+                });
+                general.push({
+                    name: 'Promissory Note (copy)',
+                    status: 'required',
+                    reason: 'Refinance transaction.'
+                });
+            }
+
+            // Per-borrower documents
+            data.borrowers.forEach(b => {
+                const tag = `[${b.name}]`;
+                general.push({
+                    name: `${tag} Government-issued photo ID`,
+                    status: 'required',
+                    reason: 'Always required per borrower.'
+                });
+
+                // Citizenship
+                if (b.declarations.usCitizen === false) {
+                    if (b.declarations.permResident) {
+                        general.push({
+                            name: `${tag} I-551 (Green Card) – front & back`,
+                            status: 'required',
+                            reason: 'Non-US citizen (permanent resident).'
+                        });
+                    } else if (b.declarations.nonPermResident) {
+                        general.push({
+                            name: `${tag} Valid EAD card (I-766) or visa with work authorization + I-94`,
+                            status: 'required',
+                            reason: 'Non-permanent resident alien.'
+                        });
+                    }
+                }
+
+                // Declarations
+                if (b.declarations.bankruptcy) {
+                    credit.push({
+                        name: `${tag} Bankruptcy documents (petition, schedules, discharge)`,
+                        status: 'required',
+                        reason: 'Bankruptcy indicated on declarations.'
+                    });
+                }
+                if (b.declarations.foreclosure) {
+                    credit.push({
+                        name: `${tag} Foreclosure / short sale documents + LOE`,
+                        status: 'required',
+                        reason: 'History of foreclosure/short sale.'
+                    });
+                }
+                if (b.declarations.judgments) {
+                    credit.push({
+                        name: `${tag} Court payoff / release for outstanding judgments`,
+                        status: 'required',
+                        reason: 'Outstanding judgments indicated.'
+                    });
+                }
+            });
+
+            // Assets
+            if (data.assets.length > 0) {
+                data.assets.forEach(asset => {
+                    const label = asset.holderName || asset.accountIdentifier || 'Account';
+                    assets.push({
+                        name: `Account statements (2 months) – ${asset.type || 'Asset'} at ${label}`,
+                        status: 'required',
+                        reason: 'Verify funds to close & reserves.'
+                    });
+                });
+            } else if ((data.loanPurpose || '').toLowerCase() === 'purchase') {
+                assets.push({
+                    name: 'Proof of funds for down payment & closing',
+                    status: 'required',
+                    reason: 'No assets listed in XML.'
+                });
+            }
+
+            // REO Properties
+            if (data.reoProperties.length > 0) {
+                data.reoProperties.forEach((prop, idx) => {
+                    const label = prop.address || `Property #${idx + 1}`;
+                    credit.push({
+                        name: `Mortgage/HELOC statement – ${label}`,
+                        status: 'required',
+                        reason: 'REO property identified.'
+                    });
+                    credit.push({
+                        name: `Hazard insurance declaration – ${label}`,
+                        status: 'required',
+                        reason: 'Verify coverage.'
+                    });
+                });
+            }
+
+            return { general, assets, credit };
+        }
+    </script>
+  <script src="/js/shared/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MSFG • Loan Doc Checklist (MISMO 3.4)</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    /* XML Reader specific styles */
+    body {
+      padding: 0;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c8e6c9 100%);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: var(--light);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .brand img {
+      height: 60px;
+      width: auto;
+    }
+
+    .brand-text h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 300;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-text .subtitle {
+      margin-top: 0.5rem;
+      opacity: 0.9;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1000px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--light);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      color: var(--primary);
+      font-size: 1.4rem;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    .dropzone {
+      border: 3px dashed var(--border);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      background: var(--light-gray);
+    }
+
+    .dropzone.dragover {
+      border-color: var(--accent);
+      background: #e8f5e8;
+      box-shadow: 0 0 0 3px rgba(64, 145, 108, 0.1) inset;
+    }
+
+    .dropzone input {
+      display: none;
+    }
+
+    .dz-title {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    .btn {
+      display: inline-flex;
+      gap: 0.5rem;
+      align-items: center;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      border: none;
+      color: var(--light);
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 700px) {
+      .summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kv {
+      background: var(--light-gray);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 6px;
+    }
+
+    .kv .k {
+      color: var(--gray);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .kv .v {
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .chip {
+      background: var(--light-gray);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .chip.ok {
+      border-color: var(--success);
+      color: var(--success);
+      background: #e8f5e9;
+    }
+
+    .chip.warn {
+      border-color: var(--warning);
+      color: var(--warning);
+      background: #fff8e1;
+    }
+
+    .chip.need {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: #ffebee;
+    }
+
+    .section {
+      margin-top: 1.5rem;
+    }
+
+    .section h3 {
+      margin: 1rem 0 0.75rem;
+      font-size: 1.1rem;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.95rem;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--light-gray);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    tr:hover td {
+      background: var(--light-gray);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: 1px solid;
+    }
+
+    .status.required {
+      background: #ffebee;
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .status.conditional {
+      background: #fff8e1;
+      color: var(--warning);
+      border-color: var(--warning);
+    }
+
+    .status.review {
+      background: #e3f2fd;
+      color: #1976d2;
+      border-color: #1976d2;
+    }
+
+    .status.ok {
+      background: #e8f5e9;
+      color: var(--success);
+      border-color: var(--success);
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+      margin-top: 1rem;
+    }
+
+    .small {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+
+    .info-box {
+      background: var(--light-gray);
+      border-left: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .info-box ul {
+      margin: 0.5rem 0 0 0;
+      padding-left: 1.5rem;
+    }
+
+    .info-box li {
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="/images/msfg-logo.png" alt="MSFG Logo">
+      <div class="brand-text">
+        <h1>MSFG Loan Doc Checklist • MISMO 3.4</h1>
+        <div class="subtitle">Drop a DU/MISMO 3.4 XML to auto-build a borrower+property documentation list. Runs fully in-browser. If you Download from LendingPad use MISMO 3.4 Closing</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <div class="card">
+        <h2>Upload File</h2>
+        <div id="drop" class="dropzone" tabindex="0" role="button" aria-label="Drop XML here or choose file">
+          <div class="dz-title">Drop your MISMO 3.4 XML here</div>
+          <div class="small">or <label class="btn" for="file">Choose file</label></div>
+          <input id="file" type="file" accept=".xml,application/xml" />
+          <div class="small" style="margin-top:1rem; color: var(--gray)">No data leaves your browser. Parsed locally.</div>
+        </div>
+        <div id="fileInfo" class="small mono" style="margin-top:1rem"></div>
+      </div>
+
+      <div class="card">
+        <h2>Snapshot</h2>
+        <div class="summary" id="summary">
+          <div class="kv"><div class="k">Borrowers</div><div class="v" id="kvBorrower">—</div></div>
+          <div class="kv"><div class="k">Purpose</div><div class="v" id="kvPurpose">—</div></div>
+          <div class="kv"><div class="k">Mortgage Type</div><div class="v" id="kvType">—</div></div>
+          <div class="kv"><div class="k">Base Loan</div><div class="v" id="kvAmount">—</div></div>
+        </div>
+        <div class="section">
+          <h3>Coverage Checks</h3>
+          <div class="chips">
+            <div class="chip" id="chipEmp">Employment: —</div>
+            <div class="chip" id="chipRes">Residence: —</div>
+            <div class="chip" id="chipREO">REO: —</div>
+            <div class="chip" id="chipDec">Declarations: —</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>Checklist</h2>
+      <div class="small" style="margin-bottom:1rem">Statuses: <span class="status required">Required</span> <span class="status conditional">Conditional</span> <span class="status review">Review</span></div>
+      <div id="resultsWrap" class="hidden">
+        <div class="section">
+          <h3>Identity & General</h3>
+          <table id="tbl-general"><thead><tr><th>Item</th><th>Status</th><th>Reason</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="section">
+          <h3>Income (Per Borrower)</h3>
+          <table id="tbl-income"><thead><tr><th>Item</th><th>Status</th><th>Reason</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="section">
+          <h3>Assets</h3>
+          <table id="tbl-assets"><thead><tr><th>Item</th><th>Status</th><th>Reason</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="section">
+          <h3>Credit & REO</h3>
+          <table id="tbl-credit"><thead><tr><th>Item</th><th>Status</th><th>Reason</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="actions">
+          <button id="btnCsv" class="btn" type="button">Export CSV</button>
+          <button id="btnPrint" class="btn" type="button">Print</button>
+        </div>
+      </div>
+      <div id="emptyState" class="small">Upload a file to generate a checklist.</div>
+    </div>
+
+    <div class="card info-box">
+      <h2>How it Decides</h2>
+      <ul class="small">
+        <li><strong>Per-borrower items:</strong> ID, paystubs/W‑2s, self‑employment packages, citizenship docs, and BK/foreclosure documents are requested for the specific borrower(s).</li>
+        <li><strong>Employment & Residence:</strong> Each borrower needs 24 months coverage. Gaps prompt prior history and letters.</li>
+        <li><strong>Self‑employment:</strong> If indicated and ownership ≥ 25%: K‑1s + 1120S (S‑Corp) or K‑1s + 1065 (Partnership). Otherwise K‑1s only.</li>
+        <li><strong>REO:</strong> If REO properties exist, requests statements and insurance per address; taxes and HOA are conditional; leases required for rentals.</li>
+      </ul>
+    </div>
+  </main>
+  <script>
+  // ————— Helpers —————
+  const NS = 'http://www.mismo.org/residential/2009/schemas';
+  const $ = sel => document.querySelector(sel);
+  function parseDate(s){ if(!s) return null; const d = new Date(s); return isFinite(d) ? d : null; }
+  function monthsBetween(a,b){ if(!a||!b) return null; let m = (b.getFullYear()-a.getFullYear())*12 + (b.getMonth()-a.getMonth()); if(b.getDate()<a.getDate()) m--; return Math.max(0,m); }
+  function fmtMoney(n){ if(n==null) return '—'; return Number(n).toLocaleString(undefined,{style:'currency',currency:'USD',maximumFractionDigits:0}); }
+  function textOf(el){ return (el && el.textContent||'').trim(); }
+  function first(el, name){ return el.getElementsByTagNameNS(NS, name)[0] || null; }
+  function all(el, name){ return Array.from(el.getElementsByTagNameNS(NS, name)); }
+  function setChip(id, label, state){ const el = $(id); if(!el) return; el.classList.remove('ok','warn','need'); el.textContent = label; if(state) el.classList.add(state); }
+  const item = (name,status,reason)=>({name,status,reason});
+
+  // ————— Parse MISMO (multi-borrower aware) —————
+  function parseMismo(doc){
+    const ctx = {
+      borrowers: [],
+      loanPurpose: null, mortgageType: null, baseLoanAmount: null,
+      assets: [], liabilities: [], inquiries: [],
+      reoProperties: [], inferredREOCount: 0, hasHOA: false,
+      rentalIncomePresent: false, helocCount: 0, mortgageLienCount: 0
+    };
+
+    // Terms
+    const terms = first(doc,'TERMS_OF_LOAN');
+    if(terms){
+      ctx.baseLoanAmount = textOf(first(terms,'BaseLoanAmount')) || null;
+      ctx.loanPurpose = textOf(first(terms,'LoanPurposeType')) || null;
+      ctx.mortgageType = textOf(first(terms,'MortgageType')) || null;
+    }
+
+    // Build a name list to pair with borrowers if MISMO doesn't nest names under BORROWER
+    const individuals = all(doc,'INDIVIDUAL');
+    const individualNames = individuals.map(ind=>{
+      const nm = first(ind,'NAME');
+      const full = (nm && (textOf(first(nm,'FullName')) || `${textOf(first(nm,'FirstName'))} ${textOf(first(nm,'LastName'))}`.trim())) || '';
+      return full || 'Borrower';
+    });
+
+    // Borrowers
+    const bEls = all(doc,'BORROWER');
+    bEls.forEach((bEl, i)=>{
+      const nameGuess = individualNames[i] || `Borrower #${i+1}`;
+      const b = {
+        name: nameGuess,
+        incomes: [], incomeTypes: [],
+        selfEmployed: false, hasSCorp: false, hasPartnership: false,
+        own25SCorp: false, own25Partnership: false,
+        empMonths: 0, resMonths: 0,
+        needEmpMonths: 0, needResMonths: 0,
+        declarations: { usCitizen: null, permResident: null, nonPermResident: null, bankruptcy: false, foreclosure: false, judgments: false }
+      };
+
+      // Income
+      const ci = first(bEl,'CURRENT_INCOME');
+      if(ci){
+        const items = first(ci,'CURRENT_INCOME_ITEMS');
+        if(items){
+          all(items,'CURRENT_INCOME_ITEM').forEach(it=>{
+            const det = first(it,'CURRENT_INCOME_ITEM_DETAIL');
+            if(!det) return;
+            const t = textOf(first(det,'IncomeType'));
+            const monthly = textOf(first(det,'CurrentIncomeMonthlyTotalAmount'));
+            const empInc = textOf(first(det,'EmploymentIncomeIndicator'))==='true';
+            b.incomes.push({type:t, monthly, employmentIncome:empInc});
+            if(t) b.incomeTypes.push(t);
+            if((t||'').match(/rental/i)) ctx.rentalIncomePresent = true;
+            if((t||'').match(/self|business|partnership|s-?corp|s\s*corporation|schedule\s*c|1099/i)) b.selfEmployed = true;
+            if((t||'').match(/partnership/i)) b.hasPartnership = true;
+            if((t||'').match(/s-?corp|s\s*corporation/i)) b.hasSCorp = true;
+          });
+        }
+      }
+
+      // Employment coverage + entity classification + ownership %
+      const employers = first(bEl,'EMPLOYERS');
+      if(employers){
+        const now = new Date();
+        all(employers,'EMPLOYER').forEach(emp=>{
+          const empNode = first(emp,'EMPLOYMENT'); if(!empNode) return;
+          const start = parseDate(textOf(first(empNode,'EmploymentStartDate')));
+          const endText = textOf(first(empNode,'EmploymentEndDate'));
+          const end = endText ? parseDate(endText) : now;
+          const m = monthsBetween(start,end); if(m!=null) b.empMonths += m;
+          const se = textOf(first(empNode,'EmploymentBorrowerSelfEmployedIndicator'))==='true';
+          const cls = textOf(first(empNode,'EmploymentClassificationType'));
+          if(se || (cls||'').match(/self/i)) b.selfEmployed = true;
+          if((cls||'').match(/partnership/i)) b.hasPartnership = true;
+          if((cls||'').match(/s-?corp|s\s*corporation/i)) b.hasSCorp = true;
+          // Ownership % — try several common element names
+          let ownPct = null;
+          const tryNames = ['EmploymentOwnershipInterestPercent','OwnershipInterestPercent','OwnershipPercent','OwnershipPercentage'];
+          for(const nm of tryNames){ const val = textOf(first(empNode,nm)); if(val){ ownPct = parseFloat(val); if(!isNaN(ownPct)) break; }}
+          if(ownPct!=null){
+            if(b.hasSCorp && ownPct>=25) b.own25SCorp = true;
+            if(b.hasPartnership && ownPct>=25) b.own25Partnership = true;
+          }
+        });
+      }
+      b.needEmpMonths = Math.max(0, 24 - b.empMonths);
+
+      // Residence coverage
+      const resid = first(bEl,'RESIDENCES');
+      if(resid){
+        all(resid,'RESIDENCE').forEach(r=>{
+          const det = first(r,'RESIDENCE_DETAIL');
+          b.resMonths += Number(textOf(first(det,'BorrowerResidencyDurationMonthsCount'))||0);
+        });
+      }
+      b.needResMonths = Math.max(0, 24 - b.resMonths);
+
+      // Declarations & citizenship
+      const decl = first(bEl,'DECLARATION') || bEl;
+      const dd = first(decl,'DECLARATION_DETAIL') || decl;
+      const getBool = (nm)=>{ const v=textOf(first(dd,nm)); return v===''?null:(v==='true'); };
+      b.declarations.usCitizen = getBool('USCitizenIndicator');
+      b.declarations.permResident = getBool('PermanentResidentAlienIndicator');
+      b.declarations.nonPermResident = getBool('NonPermanentResidentAlienIndicator');
+      b.declarations.bankruptcy = getBool('BankruptcyIndicator') || getBool('BorrowerHadBankruptcyIndicator') || false;
+      b.declarations.foreclosure = getBool('PropertyForeclosureIndicator') || getBool('BorrowerHadPropertyForeclosedIndicator') || false;
+      b.declarations.judgments = getBool('OutstandingJudgmentsIndicator') || false;
+
+      ctx.borrowers.push(b);
+    });
+
+    // Assets
+    all(doc,'ASSET').forEach(a=>{
+      const det = first(a,'ASSET_DETAIL');
+      ctx.assets.push({ type:textOf(first(det,'AssetType')), acct:textOf(first(det,'HolderName'))||textOf(first(det,'AccountIdentifier')), amount:textOf(first(det,'AssetCashOrMarketValueAmount')) });
+    });
+
+    // Liabilities
+    all(doc,'LIABILITY').forEach(l=>{
+      const det = first(l,'LIABILITY_DETAIL'); if(!det) return;
+      const lt = textOf(first(det,'LiabilityType'));
+      const payoff = textOf(first(det,'PayoffIncludedInClosingIndicator'))==='true';
+      const acct = textOf(first(det,'AccountIdentifier'));
+      ctx.liabilities.push({ type: lt, toBePaidAtClosing: payoff, account: acct });
+      if((lt||'').match(/mortgage/i)) ctx.mortgageLienCount++;
+      if((lt||'').match(/heloc/i)) ctx.helocCount++;
+    });
+
+    // Credit inquiries
+    all(doc,'CREDIT_INQUIRY').forEach(q=>{ const dt=textOf(first(q,'CreditInquiryDate')); if(dt) ctx.inquiries.push(dt); });
+
+    // REO
+    const reos = all(doc,'REO_PROPERTY');
+    reos.forEach(rp=>{
+      // address can be under REO_PROPERTY/PROPERTY/ADDRESS or directly under REO_PROPERTY/ADDRESS
+      const propNode = rp.getElementsByTagNameNS(NS,'PROPERTY')[0];
+      const addr = (propNode && propNode.getElementsByTagNameNS(NS,'ADDRESS')[0]) || rp.getElementsByTagNameNS(NS,'ADDRESS')[0];
+      const line = addr ? (textOf(first(addr,'AddressLineText')) || textOf(first(addr,'AddressLine1Text'))) : '';
+      const city = addr ? textOf(first(addr,'CityName')) : '';
+      const st = addr ? textOf(first(addr,'StateCode')) : '';
+      const usageNode = rp.getElementsByTagNameNS(NS,'PropertyUsageType')[0] || (propNode && propNode.getElementsByTagNameNS(NS,'PropertyUsageType')[0]);
+      const usage = usageNode ? textOf(usageNode) : '';
+      const cityState = (city && st) ? `${city}, ${st}` : (city || st || '');
+      const label = [line, cityState].filter(Boolean).join(' ');
+      ctx.reoProperties.push({ address: label, usage: usage });
+    });
+    // HOA hint
+    all(doc,'HOUSING_EXPENSE').forEach(hx=>{ const t=textOf(first(hx,'HousingExpenseType')); if((t||'').match(/association|hoa/i)) ctx.hasHOA=true; });
+    const propDet = first(doc,'PROPERTY_DETAIL'); if(propDet){ const pud = textOf(first(propDet,'PUDIndicator'))==='true'; if(pud) ctx.hasHOA = true; }
+    if(!ctx.reoProperties.length && (ctx.mortgageLienCount+ctx.helocCount)>0){ ctx.inferredREOCount = ctx.mortgageLienCount+ctx.helocCount; }
+
+    return ctx;
+  }
+
+  // ————— Build checklist —————
+  function buildChecklist(ctx){
+    const out = { general: [], income: [], assets: [], credit: [] };
+
+    // General (application-level)
+    out.general.push(item('IRS Form 4506-C (transcript authorization)','required','Standard for income verification.'));
+    if((ctx.loanPurpose||'').toLowerCase()==='purchase'){
+      out.general.push(item('Executed purchase contract','required','Loan purpose is Purchase.'));
+      out.general.push(item('Earnest money proof (canceled check / statement)','required','Shows source of EMD.'));
+      out.general.push(item('(Conditional) Gift letter + donor ability evidence','conditional','If gift funds are used.'));
+    } else if ((ctx.loanPurpose||'').toLowerCase()==='refinance'){
+      out.general.push(item('Current mortgage statement (subject property)','required','Refinance.'));
+      out.general.push(item('Promissory Note (copy)','required','Refinance.'));
+      out.general.push(item('Insurance declaration page (subject)','required','Verify hazard coverage.'));
+    }
+
+    // Per-borrower core docs
+    ctx.borrowers.forEach(b=>{
+      const tag = `[${b.name}]`;
+      out.general.push(item(`${tag} Government-issued photo ID`,'required','Always required per borrower.'));
+
+      // Coverage
+      if(b.needEmpMonths>0){ out.general.push(item(`${tag} Prior employment history to cover missing ${b.needEmpMonths} months`,'required','Must document 24 months employment.')); out.general.push(item(`${tag} Letter of explanation for any gaps > 30 days`,'review','Request if gaps are identified.')); }
+      else { out.general.push(item(`${tag} Employment history coverage (24 months)`,'ok','Sufficient based on XML dates.')); }
+      if(b.needResMonths>0){ out.general.push(item(`${tag} Prior residence addresses to cover missing ${b.needResMonths} months`,'required','Must provide 24 months address history.')); }
+      else { out.general.push(item(`${tag} Residence history coverage (24 months)`,'ok','Sufficient based on durations.')); }
+
+      // Citizenship / residency
+      if(b.declarations.usCitizen===false){
+        if(b.declarations.permResident){ out.general.push(item(`${tag} I-551 (Permanent Resident/Green Card) – front & back`,'required','Non‑US citizen (permanent resident).')); }
+        else if(b.declarations.nonPermResident){ out.general.push(item(`${tag} Valid EAD card (I-766) or visa with work authorization + I-94`,'required','Non‑permanent resident alien.')); }
+        else { out.general.push(item(`${tag} Proof of lawful residency and work authorization`,'required','Citizenship indicator is false.')); }
+      }
+
+      // Declarations: Bankruptcy / Foreclosure / Judgments
+      if(b.declarations.bankruptcy){ out.credit.push(item(`${tag} Bankruptcy documents (petition, schedules, discharge). If Ch. 13: 12 months trustee payment history`,'required','BK indicated on declarations.')); }
+      if(b.declarations.foreclosure){ out.credit.push(item(`${tag} Foreclosure / short sale documents + LOE`,'required','History of foreclosure/short sale.')); }
+      if(b.declarations.judgments){ out.credit.push(item(`${tag} Court payoff / release for outstanding judgments or liens`,'required','Outstanding judgments indicated.')); }
+
+      // Income: W‑2 vs variable
+      const hasW2 = b.incomes.some(i=>i.employmentIncome && ['Base','Hourly','Commission','Bonus','Overtime'].includes(i.type));
+      const hasBonus = b.incomes.some(i=>i.type==='Bonus');
+      const hasOT = b.incomes.some(i=>i.type==='Overtime');
+      const hasComm = b.incomes.some(i=>i.type==='Commission');
+      if(hasW2){ out.income.push(item(`${tag} 30 days most recent pay stubs`,'required','W‑2 employment income present.')); out.income.push(item(`${tag} W‑2s for last 2 years`,'required','Standard for W‑2 income.')); }
+      if(hasBonus||hasOT||hasComm){ out.income.push(item(`${tag} VOE confirming 2‑year history of bonus/OT/commission`,'required','Needed to use variable income.')); }
+
+      // Self‑employment & ownership
+      if(b.selfEmployed){
+        out.income.push(item(`${tag} 1040 personal tax returns – last 2 years`,'required','Self‑employment indicated.'));
+        out.income.push(item(`${tag} Year‑to‑date P&L and balance sheet`,'required','Support current year performance.'));
+        // S‑Corp
+        if(b.hasSCorp){
+          if(b.own25SCorp){
+            out.income.push(item(`${tag} K‑1s (S‑Corp) – last 2 years`,'required','Ownership ≥ 25%.'));
+            out.income.push(item(`${tag} 1120S business tax returns – last 2 years`,'required','Ownership ≥ 25%.'));
+          } else {
+            out.income.push(item(`${tag} K‑1s (S‑Corp) – last 2 years`,'conditional','Ownership < 25%. Business returns usually not required.'));
+          }
+        }
+        // Partnership
+        if(b.hasPartnership){
+          if(b.own25Partnership){
+            out.income.push(item(`${tag} K‑1s (Partnership) – last 2 years`,'required','Ownership ≥ 25%.'));
+            out.income.push(item(`${tag} 1065 partnership tax returns – last 2 years`,'required','Ownership ≥ 25%.'));
+          } else {
+            out.income.push(item(`${tag} K‑1s (Partnership) – last 2 years`,'conditional','Ownership < 25%. Business returns usually not required.'));
+          }
+        }
+        out.income.push(item(`${tag} (Conditional) Business bank statements (2–3 months)`,'conditional','If needed to support cash flow/P&L.'));
+      }
+
+      // Rental income
+      if(b.incomeTypes.some(t=>(t||'').match(/rental/i)))
+        out.income.push(item(`${tag} Current lease(s) + 2 months rent receipts`,'conditional','Rental income present.'));
+      // Always request a conditional credit inquiry LOE per borrower
+      out.credit.push(item(`${tag} Letter of explanation for any recent credit inquiries`,'conditional','Requested for underwriting clarity.'));
+    });
+
+    // Assets
+    if(ctx.assets.length){ ctx.assets.forEach(a=> out.assets.push(item(`Account statements (2 months) – ${a.type||'Asset'} ${a.acct||''}`.trim(),'required','Verify funds to close & reserves.'))); }
+    else if((ctx.loanPurpose||'').toLowerCase()==='purchase'){ out.assets.push(item('Proof of funds for down payment & closing','required','No assets listed in XML.')); }
+    else { out.assets.push(item('Asset statements (if cash‑to‑close required)','conditional','Provide if needed.')); }
+
+    // Credit & REO
+    if(ctx.liabilities.some(l=>l.toBePaidAtClosing)) out.credit.push(item('Payoff statements for debts to be paid at closing','required','Flagged in liabilities.'));
+    if(ctx.inquiries.length) out.credit.push(item('Letter of explanation for recent credit inquiries','review',`${ctx.inquiries.length} inquiry(ies) found.`));
+
+    const reoCount = ctx.reoProperties.length || ctx.inferredREOCount;
+    if(reoCount>0){
+      if(ctx.reoProperties.length){
+        ctx.reoProperties.forEach((p, idx)=>{
+          const label = p.address ? ` – ${p.address}` : ` #${idx+1}`;
+          out.credit.push(item(`Mortgage/HELOC statement${label}`,'required','REO property identified.'));
+          out.credit.push(item(`Hazard insurance declaration page${label}`,'required','Verify coverage.'));
+          out.credit.push(item(`Property tax bill${label}`,'conditional','Provide if taxes are not escrowed.'));
+          if(ctx.hasHOA) out.credit.push(item(`HOA statement${label}`,'conditional','HOA dues present/possible.'));
+          if((p.usage||'').match(/invest/i) || ctx.rentalIncomePresent) out.income.push(item(`Lease agreement${label}`,'conditional','Investment/rental property.'));
+        });
+      } else {
+        out.credit.push(item('Mortgage/HELOC statement(s) – each REO property','required','Mortgage/HELOC liabilities present.'));
+        out.credit.push(item('Hazard insurance declaration page – each REO property','required','Verify coverage on owned properties.'));
+        out.credit.push(item('Property tax bill – each REO property','conditional','Provide if taxes not escrowed.'));
+        if(ctx.hasHOA) out.credit.push(item('HOA statement – each REO property','conditional','HOA dues present/possible.'));
+      }
+    }
+    if(ctx.helocCount>0) out.credit.push(item('HELOC statement(s) (most recent)','required','HELOC liability detected.'));
+
+    return out;
+  }
+
+  // ————— Render —————
+  function renderSnapshot(ctx){
+    const names = ctx.borrowers.map(b=>b.name).join(', ');
+    document.getElementById('kvBorrower').textContent = names || '—';
+    document.getElementById('kvPurpose').textContent = ctx.loanPurpose || '—';
+    document.getElementById('kvType').textContent = ctx.mortgageType || '—';
+    document.getElementById('kvAmount').textContent = ctx.baseLoanAmount ? fmtMoney(ctx.baseLoanAmount) : '—';
+
+    // Aggregate coverage (min across borrowers)
+    const empNeed = Math.max(...ctx.borrowers.map(b=>b.needEmpMonths),0);
+    const empCovered = Math.min(...ctx.borrowers.map(b=>b.empMonths),0) || 0; // show worst-case
+    const resNeed = Math.max(...ctx.borrowers.map(b=>b.needResMonths),0);
+    const resCovered = Math.min(...ctx.borrowers.map(b=>b.resMonths),0) || 0;
+    setChip('#chipEmp', empNeed>0 ? `Employment: need +${empNeed} mo (min covered ${empCovered})` : 'Employment: 24 mo ✓', empNeed>0?'need':'ok');
+    setChip('#chipRes', resNeed>0 ? `Residence: need +${resNeed} mo (min covered ${resCovered})` : 'Residence: 24 mo ✓', resNeed>0?'need':'ok');
+
+    const reoCount = ctx.reoProperties.length || ctx.inferredREOCount; setChip('#chipREO', reoCount>0?`REO: ${reoCount}`:'REO: none', reoCount>0?'warn':'ok');
+
+    const anyDec = ctx.borrowers.some(b=> b.declarations.bankruptcy || b.declarations.foreclosure || b.declarations.judgments || b.declarations.usCitizen===false );
+    setChip('#chipDec', anyDec? 'Declarations: flags present' : 'Declarations: clear', anyDec?'warn':'ok');
+  }
+
+  function renderChecklist(list){
+    document.getElementById('resultsWrap').classList.remove('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+    fillTable('#tbl-general tbody', list.general);
+    fillTable('#tbl-income tbody', list.income);
+    fillTable('#tbl-assets tbody', list.assets);
+    fillTable('#tbl-credit tbody', list.credit);
+  }
+
+  function fillTable(sel, rows){
+    const tb = document.querySelector(sel); tb.innerHTML = '';
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      const td1 = document.createElement('td'); td1.textContent = r.name;
+      const td2 = document.createElement('td'); const s = document.createElement('span'); s.className = 'status '+r.status; s.textContent = r.status[0].toUpperCase()+r.status.slice(1); td2.appendChild(s);
+      const td3 = document.createElement('td'); td3.textContent = r.reason;
+      tr.append(td1,td2,td3); tb.appendChild(tr);
+    })
+  }
+
+  function toCSV(sections){
+    const esc = v => '"'+String(v).replaceAll('"','""')+'"';
+    const lines = [['Section','Item','Status','Reason']];
+    for(const [sec, rows] of Object.entries(sections)) rows.forEach(r=> lines.push([sec, r.name, r.status, r.reason]));
+    return lines.map(r=>r.map(esc).join(',')).join('\n');
+  }
+
+  // ————— Wire up —————
+  const drop = document.getElementById('drop'); const fileInput = document.getElementById('file'); const fileInfo = document.getElementById('fileInfo');
+  ['dragenter','dragover'].forEach(e=> drop.addEventListener(e, ev=>{ ev.preventDefault(); drop.classList.add('dragover'); }));
+  ;['dragleave','drop'].forEach(e=> drop.addEventListener(e, ev=>{ ev.preventDefault(); drop.classList.remove('dragover'); }));
+  drop.addEventListener('drop', ev=> { const f = ev.dataTransfer.files[0]; if(f) handleFile(f); });
+  drop.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', ()=> { const f = fileInput.files[0]; if(f) handleFile(f); });
+
+  function handleFile(file){
+    fileInfo.textContent = `${file.name} • ${(file.size/1024).toFixed(1)} KB`;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const xml = new DOMParser().parseFromString(String(reader.result), 'application/xml');
+        const err = xml.getElementsByTagName('parsererror')[0]; if(err) throw new Error('Invalid XML');
+        const ctx = parseMismo(xml);
+        renderSnapshot(ctx);
+        const ck = buildChecklist(ctx);
+        renderChecklist(ck);
+        document.getElementById('btnCsv').onclick = ()=>{
+          const csv = toCSV(ck);
+          const blob = new Blob([csv], {type:'text/csv'});
+          const url = URL.createObjectURL(blob);
+          const a = Object.assign(document.createElement('a'), {href:url, download:`doc-checklist-${Date.now()}.csv`});
+          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+        };
+        document.getElementById('btnPrint').onclick = ()=> window.print();
+      }catch(e){ console.error(e); alert('Sorry, could not parse that XML. Make sure it\'s MISMO 3.4.'); }
+    };
+    reader.readAsText(file);
+  }
+  </script>
+</body>
+</html>

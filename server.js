@@ -85,6 +85,12 @@ app.use('/calculators', require('./routes/calculators'));
 app.use('/workspace', require('./routes/workspace'));
 app.use('/report', require('./routes/report'));
 
+// Serve legacy calculator files (iframe stubs)
+app.use('/legacy/gen-calc', express.static(path.join(__dirname, 'gen-calc')));
+app.use('/legacy/buydown-calc', express.static(path.join(__dirname, 'buydown-calc')));
+app.use('/legacy/refi-calc', express.static(path.join(__dirname, 'refi-calc')));
+app.use('/legacy/calc-reo', express.static(path.join(__dirname, 'calc-reo')));
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).render('404', { title: 'Page Not Found' });
