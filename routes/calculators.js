@@ -73,7 +73,7 @@ const incomeCalcs = [
   { slug: '1040',              view: 'income/1040',              title: 'Form 1040 Income Calculator', css: 'income-1040' },
   { slug: '1065',              view: 'income/1065',              title: 'Form 1065 Income Calculator', css: 'income-1065' },
   { slug: '1120',              view: 'income/1120',              title: 'Form 1120 Income Calculator', css: 'income-1120' },
-  { slug: '1120s',             view: 'income/1120s',             title: 'Form 1120S Income Calculator' },
+  { slug: '1120s',             view: 'income/1120s',             title: 'Form 1120S Income Calculator', css: 'income-1120s' },
   { slug: '1120s-k1',          view: 'income/1120s-k1',          title: '1120S K-1 Income Calculator' },
   { slug: 'k1',                view: 'income/k1',                title: 'Schedule K-1 Income Calculator' },
   { slug: 'rental-1038',       view: 'income/rental-1038',       title: 'Rental Property Income (1038)' },
