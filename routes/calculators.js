@@ -38,7 +38,7 @@ const generalCalcs = [
       '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>'
     ]
   },
-  { slug: 'var-income',      view: 'calculators/var-income',      title: 'Variable Income Analyzer' },
+  { slug: 'var-income',      view: 'calculators/var-income',      title: 'Variable Income Analyzer', css: 'var-income' },
   { slug: 'loan-analysis',  view: 'calculators/loan-analysis',  title: 'Cover Letter',               css: 'loan-analysis' }
 ];
 

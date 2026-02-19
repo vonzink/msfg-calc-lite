@@ -120,6 +120,7 @@ app.use('/calculators', require('./routes/calculators'));
 app.use('/workspace', require('./routes/workspace'));
 app.use('/report', require('./routes/report'));
 app.use('/settings', require('./routes/settings'));
+app.use('/api', require('./routes/api'));
 
 // Serve legacy calculator files (for iframe stubs during migration)
 // Only expose the specific directories that legacy iframes actually need

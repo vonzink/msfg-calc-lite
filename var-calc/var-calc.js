@@ -67,7 +67,7 @@ function addDoc(docs, item) {
  *  notes:string[]
  * }}
  */
-export function underwriteVariableIncome(input) {
+function underwriteVariableIncome(input) {
   const flags = [];
   const docs = [];
   const notes = [];
@@ -189,3 +189,5 @@ export function underwriteVariableIncome(input) {
 
   return { monthlyUsable, monthlyByType, docsRequired: docs, flags, notes };
 }
+
+if (typeof module !== 'undefined') module.exports = { underwriteVariableIncome };
