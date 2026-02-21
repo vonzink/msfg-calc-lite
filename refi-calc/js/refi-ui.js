@@ -421,6 +421,7 @@ function updateLiveCalculations() {
 
     // Refi payment (including MI)
     const refiPmt = RefiEngine.calcMonthlyPayment(refiLoanAmount, refiRate, refiTerm);
+    // MI is resolved below after MI display update, but we need it here for display.
     // Pre-resolve refi monthly MI for the payment display.
     const refiMIDollarForDisplay = dom.refiMIMonthlyInput && dom.refiMIMonthlyModeBtn
         ? resolveMIDollar(dom.refiMIMonthlyInput, dom.refiMIMonthlyModeBtn, refiLoanAmount, false) : 0;
@@ -482,8 +483,10 @@ function updateLiveCalculations() {
     }
 
     // Cash out adjusted savings
+    // When full payment override is active, use the full amount directly (MI/escrow included)
+    // and compare against the full refi payment (P&I + MI) — escrow cancels out
     const currentPmtFinal = dom.manualFullPaymentToggle.checked
-        ? RefiEngine.round2(num(dom.currentFullPaymentManual) - escrow)
+        ? num(dom.currentFullPaymentManual)
         : (dom.manualPaymentToggle.checked ? num(dom.currentPaymentManual) : currentPmt);
     const refiPmtFinal = dom.manualFullPaymentToggle.checked
         ? RefiEngine.round2(refiPmt + refiMIDollarForDisplay + escrow)
@@ -880,7 +883,7 @@ function updateMIDisplay(prefix, miData) {
                 ' (P&I: ' + formatMoney(analysis.piSavingsNow) + ' + Debt: ' + formatMoney(analysis.cashOutDebtPayments) + ')'
             );
         } else {
-            savingsCard.querySelector('h3').textContent = 'Monthly P&I Savings';
+            savingsCard.querySelector('h3').textContent = 'Monthly Savings';
             setText('resultMonthlySavings', formatMoney(analysis.monthlySavingsNow));
         }
 
@@ -964,6 +967,13 @@ function updateMIDisplay(prefix, miData) {
         setText('breakdownWaitSavings', formatMoney(analysis.futureMonthlySavings) + '/mo');
         setText('breakdownWaitBreakeven', analysis.breakevenWait === Infinity ? 'N/A' : analysis.breakevenWait + ' mo');
         setText('breakdownWaitNet', formatMoney(analysis.waitNetSavings));
+
+        // Scenario pills — rate & wait period context
+        const pillRefiNow = document.getElementById('pillRefiNow');
+        if (pillRefiNow) pillRefiNow.textContent = r.inputs.refiRate + '%';
+
+        const pillWait = document.getElementById('pillWait');
+        if (pillWait) pillWait.textContent = r.inputs.futureRate + '% · ' + analysis.monthsToWait + ' mo wait';
 
         // Difference card
         const diffCard = document.getElementById('differenceCard');
@@ -1049,6 +1059,13 @@ function updateMIDisplay(prefix, miData) {
         setText('compare3WaitSavings', formatMoney(analysis.futureMonthlySavings) + '/mo');
         setText('compare3WaitNet', formatMoney(analysis.waitNetSavings));
 
+        // 3-way comparison pills
+        const pillRefiNowOnly = document.getElementById('pillRefiNowOnly');
+        if (pillRefiNowOnly) pillRefiNowOnly.textContent = r.inputs.refiRate + '%';
+
+        const pillWaitOnce = document.getElementById('pillWaitOnce');
+        if (pillWaitOnce) pillWaitOnce.textContent = r.inputs.futureRate + '% · ' + analysis.monthsToWait + ' mo wait';
+
         // Determine best strategy
         const scenarios = [
             { label: 'Refi Now Only', net: analysis.refiNowNetSavings },
@@ -1091,7 +1108,7 @@ function updateMIDisplay(prefix, miData) {
         // Current Payment
         html += `
         <div class="math-group">
-            <h4>Current Monthly P&I Payment</h4>
+            <h4>Current Monthly Payment</h4>
             <div class="math-step">
                 <div class="step-label">Formula: M = P &times; [r(1+r)<sup>n</sup>] / [(1+r)<sup>n</sup> - 1]</div>
                 <div class="step-formula">
@@ -1104,7 +1121,7 @@ function updateMIDisplay(prefix, miData) {
         // Refi Payment
         html += `
         <div class="math-group">
-            <h4>Refinance Monthly P&I Payment</h4>
+            <h4>New Monthly Payment</h4>
             <div class="math-step">
                 <div class="step-formula">
                     P = ${formatMoney(r.inputs.refiLoanAmount)} | r = ${r.inputs.refiRate}% / 12 = ${(r.inputs.refiRate / 1200).toFixed(8)} | n = ${r.inputs.refiTerm}
@@ -1170,7 +1187,7 @@ function updateMIDisplay(prefix, miData) {
                     <div class="step-result">= ${formatMoney(analysis.balanceAfterWait)}</div>
                 </div>
                 <div class="math-step">
-                    <div class="step-label">Future P&I Payment (${r.inputs.futureRate}% on ${formatMoney(analysis.balanceAfterWait)})</div>
+                    <div class="step-label">Future Monthly Payment (${r.inputs.futureRate}% on ${formatMoney(analysis.balanceAfterWait)})</div>
                     <div class="step-result">= ${formatMoney(r.futurePayment)}</div>
                 </div>
                 <div class="math-step">
