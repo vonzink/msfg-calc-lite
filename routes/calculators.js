@@ -25,6 +25,7 @@ const generalCalcs = [
     ]
   },
   { slug: 'reo',             view: 'calculators/reo',             title: 'REO Investment ROI' },
+  { slug: 'compare',        view: 'calculators/compare',        title: 'Loan Comparison',            css: 'compare' },
   {
     slug: 'amortization',
     view: 'calculators/amortization',
