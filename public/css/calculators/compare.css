@@ -24,7 +24,8 @@
 
 .cmp-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   min-width: 500px;
 }
 
@@ -47,6 +48,24 @@
   min-width: 160px;
 }
 
+/* ---- Loan column borders ---- */
+.cmp-col-th {
+  border-left: 2px solid var(--color-gray-300);
+  border-right: 2px solid var(--color-gray-300);
+  border-top: 2px solid var(--color-gray-300);
+}
+
+/* Apply left/right borders to body cells under each loan column */
+.cmp-table tbody td.cmp-loan-cell {
+  border-left: 2px solid var(--color-gray-300);
+  border-right: 2px solid var(--color-gray-300);
+}
+
+/* Bottom border on the last data row's loan cells */
+.cmp-table tbody tr:last-child td.cmp-loan-cell {
+  border-bottom: 2px solid var(--color-gray-300);
+}
+
 .cmp-col-header {
   display: flex;
   align-items: center;
@@ -55,14 +74,16 @@
 }
 
 .cmp-col-label {
-  width: 100px;
-  padding: 3px 6px;
-  border: 1px solid var(--color-gray-300);
+  width: 110px;
+  padding: 4px 8px;
+  border: 1px solid var(--brand-primary);
   border-radius: 4px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-family: var(--font-body);
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--brand-primary);
+  background: #fff;
 }
 
 .cmp-col-label:focus {
@@ -124,20 +145,20 @@
 
 /* ---- Section header rows ---- */
 .cmp-section-row td {
-  background: var(--brand-primary);
-  color: #fff;
+  background: #e8f5e9;
+  color: #2e7d32;
   font-weight: 700;
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 6px var(--space-md) !important;
-  border-bottom: none !important;
+  border-bottom: 1px solid #a5d6a7 !important;
   cursor: pointer;
   user-select: none;
 }
 
 .cmp-section-row td:first-child {
-  color: #fff;
+  color: #2e7d32;
 }
 
 .cmp-section-toggle {
@@ -213,6 +234,113 @@
   background: #e8f5e9;
 }
 
+/* ---- Add Custom Item bar ---- */
+.cmp-add-item {
+  margin-bottom: var(--space-md);
+}
+
+.cmp-add-item__form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.cmp-add-item__form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.cmp-add-item__form select,
+.cmp-add-item__form input[type="text"] {
+  padding: 5px 10px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+}
+
+.cmp-add-item__form select {
+  min-width: 140px;
+}
+
+.cmp-add-item__form input[type="text"] {
+  min-width: 180px;
+}
+
+.cmp-add-item__form select:focus,
+.cmp-add-item__form input[type="text"]:focus {
+  outline: none;
+  border-color: var(--brand-accent);
+}
+
+/* ---- Custom row label with remove button ---- */
+.cmp-custom-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.cmp-custom-name span {
+  font-style: italic;
+  color: var(--color-gray-600);
+}
+
+.cmp-custom-remove {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-gray-400);
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.cmp-custom-remove:hover {
+  color: #c0392b;
+  background: rgba(192, 57, 43, 0.08);
+}
+
+/* ---- Notes textarea ---- */
+.cmp-notes {
+  width: 100%;
+  min-width: 110px;
+  padding: 5px 8px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  resize: vertical;
+  line-height: 1.4;
+  color: var(--color-gray-700);
+}
+
+.cmp-notes:focus {
+  outline: none;
+  border-color: var(--brand-accent);
+}
+
+.cmp-notes::placeholder {
+  color: var(--color-gray-400);
+  font-style: italic;
+}
+
+/* Notes row label */
+tr[data-row="notes"] td:first-child {
+  vertical-align: top;
+  padding-top: 10px;
+}
+
 /* ---- Disclaimer ---- */
 .cmp-disclaimer {
   margin-top: var(--space-lg);
@@ -237,6 +365,8 @@
 @media print {
   .cmp-add-col,
   .cmp-remove-btn,
+  .cmp-custom-remove,
+  .cmp-add-item,
   .cmp-disclaimer,
   .action-bar,
   .calc-page__header,
@@ -255,7 +385,25 @@
   .cmp-col-label {
     border: none;
     font-weight: 700;
+    color: #000;
+    background: transparent;
   }
 
+  .cmp-col-th,
+  .cmp-table tbody td.cmp-loan-cell {
+    border-left: 1px solid #999;
+    border-right: 1px solid #999;
+  }
+  .cmp-col-th { border-top: 1px solid #999; }
+  .cmp-table tbody tr:last-child td.cmp-loan-cell { border-bottom: 1px solid #999; }
+
   .cmp-detail-row--hidden { display: table-row; }
+
+  .cmp-notes {
+    border: none;
+    background: transparent;
+    resize: none;
+    padding: 0;
+    font-size: 0.8rem;
+  }
 }
