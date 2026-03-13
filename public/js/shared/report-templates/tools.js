@@ -92,6 +92,7 @@
         purchasePrice: val(doc,'fwPurchasePrice'),
         estPrepaids: val(doc,'fwEstPrepaids'),
         estClosing: val(doc,'fwEstClosing'),
+        discount: val(doc,'fwDiscount'),
         totalDue: val(doc,'fwTotalDue'),
         summaryLoanAmt: val(doc,'fwSummaryLoanAmt'),
         totalPaid: val(doc,'fwTotalPaid'),
@@ -118,16 +119,16 @@
         return '<tr><td>' + label + '</td><td class="rpt-num">' + fmt(amount) + '</td></tr>';
       }
       function feeMultiLine(label, amt, qty, unit, total) {
-        if (!amt && !total) return '';
+        if (typeof total === 'number' && !total) return '';
         var detail = amt ? fmt(amt) + ' x ' + qty + ' ' + unit : '';
-        var totalStr = (typeof total === 'number') ? fmt(total) : (total || '');
+        var totalStr = (typeof total === 'number') ? fmt(total) : fmt(0);
         return '<tr><td>' + label + (detail ? ' <span style="color:#888;font-size:0.85em">(' + detail + ')</span>' : '') + '</td><td class="rpt-num">' + totalStr + '</td></tr>';
       }
       function customLines(section) {
         var out = '';
         items.forEach(function (ci) {
-          if (ci.section === section && ci.amount) {
-            out += '<tr><td><em>' + ci.name + '</em></td><td class="rpt-num">' + fmt(ci.amount) + '</td></tr>';
+          if (ci.section === section) {
+            out += '<tr><td><em>' + ci.name + '</em></td><td class="rpt-num">' + fmt(ci.amount || 0) + '</td></tr>';
           }
         });
         return out;
@@ -136,19 +137,19 @@
       /* Loan Information */
       html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Information</h4>';
       html += '<div class="rpt-params">';
-      if (data.borrower) html += '<div class="rpt-param"><span>Borrower(s)</span><span>' + data.borrower + '</span></div>';
-      if (data.fileNumber) html += '<div class="rpt-param"><span>File #</span><span>' + data.fileNumber + '</span></div>';
-      if (data.prepDate) html += '<div class="rpt-param"><span>Preparation Date</span><span>' + data.prepDate + '</span></div>';
+      html += '<div class="rpt-param"><span>Borrower(s)</span><span>' + (data.borrower || '') + '</span></div>';
+      html += '<div class="rpt-param"><span>File #</span><span>' + (data.fileNumber || '') + '</span></div>';
+      html += '<div class="rpt-param"><span>Preparation Date</span><span>' + (data.prepDate || '') + '</span></div>';
       html += '<div class="rpt-param"><span>Property Value</span><span>' + fmt(data.propertyValue) + '</span></div>';
-      if (data.purpose) html += '<div class="rpt-param"><span>Loan Purpose</span><span>' + data.purpose + '</span></div>';
-      if (data.product) html += '<div class="rpt-param"><span>Product</span><span>' + data.product + '</span></div>';
-      if (data.downPayment) html += '<div class="rpt-param"><span>Down Payment</span><span>' + fmt(data.downPayment) + '</span></div>';
+      html += '<div class="rpt-param"><span>Loan Purpose</span><span>' + (data.purpose || '') + '</span></div>';
+      html += '<div class="rpt-param"><span>Product</span><span>' + (data.product || '') + '</span></div>';
+      html += '<div class="rpt-param"><span>Down Payment</span><span>' + fmt(data.downPayment || 0) + '</span></div>';
       html += '<div class="rpt-param"><span>Loan Amount</span><span>' + fmt(data.loanAmount) + '</span></div>';
-      if (data.occupancy) html += '<div class="rpt-param"><span>Occupancy</span><span>' + data.occupancy + '</span></div>';
+      html += '<div class="rpt-param"><span>Occupancy</span><span>' + (data.occupancy || '') + '</span></div>';
       html += '<div class="rpt-param"><span>Interest Rate</span><span>' + ratePct(data.rate) + '</span></div>';
-      if (data.totalLoanAmt) html += '<div class="rpt-param"><span>Total Loan Amount</span><span>' + fmt(data.totalLoanAmt) + '</span></div>';
-      if (data.propertyType) html += '<div class="rpt-param"><span>Property Type</span><span>' + data.propertyType + '</span></div>';
-      if (data.apr) html += '<div class="rpt-param"><span>APR</span><span>' + ratePct(data.apr) + '</span></div>';
+      html += '<div class="rpt-param"><span>Total Loan Amount</span><span>' + fmt(data.totalLoanAmt || 0) + '</span></div>';
+      html += '<div class="rpt-param"><span>Property Type</span><span>' + (data.propertyType || '') + '</span></div>';
+      html += '<div class="rpt-param"><span>APR</span><span>' + ratePct(data.apr || 0) + '</span></div>';
       html += '<div class="rpt-param"><span>Term</span><span>' + data.termMonths + ' months</span></div>';
       html += '</div></div>';
 
@@ -187,15 +188,19 @@
       html += customLines('canShop');
       html += '</tbody></table>';
 
+      var isRefi = data.purpose && data.purpose.indexOf('Refinance') !== -1;
       html += '<table class="rpt-table rpt-table--compact"><thead><tr><th colspan="2" style="font-weight:700">Total Estimated Funds Needed To Close</th></tr></thead><tbody>';
-      html += '<tr><td>' + (data.purpose === 'Purchase' ? 'Purchase Price' : 'Payoff Amount') + '</td><td class="rpt-num">' + fmt(data.purchasePrice || 0) + '</td></tr>';
+      html += '<tr><td>' + (isRefi ? 'Refinance' : 'Purchase Price') + '</td><td class="rpt-num">' + fmt(data.purchasePrice || 0) + '</td></tr>';
       html += '<tr><td>Estimated Prepaid Items</td><td class="rpt-num">' + fmt(data.estPrepaids || 0) + '</td></tr>';
-      html += '<tr><td>Estimated Closing Cost</td><td class="rpt-num">' + fmt(data.estClosing || 0) + '</td></tr>';
-      html += '<tr style="font-weight:600;border-top:1px solid #ccc"><td>Total Due from Borrower (K)</td><td class="rpt-num">' + fmt(data.totalDue || 0) + '</td></tr>';
+      html += '<tr><td>Estimate Closing Cost</td><td class="rpt-num">' + fmt(data.estClosing || 0) + '</td></tr>';
+      if (data.discount) {
+        html += '<tr><td>Discount</td><td class="rpt-num">' + fmt(data.discount) + '</td></tr>';
+      }
+      html += '<tr style="font-weight:600;border-top:1px solid #ccc"><td>Total Due from Borrower at Closing (K)</td><td class="rpt-num">' + fmt(data.totalDue || 0) + '</td></tr>';
       html += '<tr><td>Loan Amount</td><td class="rpt-num">' + fmt(data.summaryLoanAmt || 0) + '</td></tr>';
       html += '<tr><td>Total Paid by/on Behalf of Borrower (L)</td><td class="rpt-num">' + fmt(data.totalPaid || 0) + '</td></tr>';
-      if (data.sellerCredits) html += '<tr><td>Seller Credits</td><td class="rpt-num">' + fmt(data.sellerCredits) + '</td></tr>';
-      if (data.lenderCredits) html += '<tr><td>Lender Credits</td><td class="rpt-num">' + fmt(data.lenderCredits) + '</td></tr>';
+      html += '<tr><td>Seller Credits</td><td class="rpt-num">' + fmt(data.sellerCredits || 0) + '</td></tr>';
+      html += '<tr><td>Lender Credits</td><td class="rpt-num">' + fmt(data.lenderCredits || 0) + '</td></tr>';
       html += '</tbody></table>';
       html += '<div class="rpt-grand-total"><span>Total Estimated Funds From You</span><span>' + data.fundsFromYou + '</span></div>';
       html += '</div>';
@@ -227,11 +232,11 @@
       html += '</tbody></table>';
 
       html += '<table class="rpt-table rpt-table--compact"><thead><tr><th colspan="2" style="font-weight:700">Total Estimated Monthly Housing Payment</th></tr></thead><tbody>';
-      html += '<tr><td>First Mortgage (P&I)</td><td class="rpt-num">' + fmt(data.monthlyPI) + '</td></tr>';
+      html += '<tr><td>First Mortgage</td><td class="rpt-num">' + fmt(data.monthlyPI) + '</td></tr>';
       html += '<tr><td>Hazard Insurance</td><td class="rpt-num">' + fmt(data.monthlyIns) + '</td></tr>';
       html += '<tr><td>Property Tax</td><td class="rpt-num">' + fmt(data.monthlyTax) + '</td></tr>';
-      if (data.monthlyMI) html += '<tr><td>MI</td><td class="rpt-num">' + fmt(data.monthlyMI) + '</td></tr>';
-      if (data.monthlyHOA) html += '<tr><td>HOA</td><td class="rpt-num">' + fmt(data.monthlyHOA) + '</td></tr>';
+      html += '<tr><td>Mortgage Insurance</td><td class="rpt-num">' + fmt(data.monthlyMI || 0) + '</td></tr>';
+      html += '<tr><td>HOA</td><td class="rpt-num">' + fmt(data.monthlyHOA || 0) + '</td></tr>';
       html += '</tbody></table>';
       html += '<div class="rpt-grand-total"><span>Total Monthly Payment</span><span>' + data.totalMonthly + '</span></div>';
       html += '</div>';
@@ -249,16 +254,16 @@
         return [label, { text: fmt(amount), alignment: 'right' }];
       }
       function fml(label, amt, qty, unit, total) {
-        if (!amt && !total) return null;
+        if (!total) return null;
         var detail = amt ? fmt(amt) + ' x ' + qty + ' ' + unit : '';
-        var totalStr = (typeof total === 'number') ? fmt(total) : (total || '');
+        var totalStr = (typeof total === 'number') ? fmt(total) : fmt(0);
         return [label + (detail ? ' (' + detail + ')' : ''), { text: totalStr, alignment: 'right' }];
       }
       function cfl(section) {
         var out = [];
         items.forEach(function (ci) {
-          if (ci.section === section && ci.amount) {
-            out.push([{ text: ci.name, italics: true }, { text: fmt(ci.amount), alignment: 'right' }]);
+          if (ci.section === section) {
+            out.push([{ text: ci.name, italics: true }, { text: fmt(ci.amount || 0), alignment: 'right' }]);
           }
         });
         return out;
@@ -266,25 +271,24 @@
       function sectionTable(title, totalStr, rows) {
         var body = [[{ text: title, style: 'tableHeader' }, { text: totalStr, style: 'tableHeader', alignment: 'right' }]];
         rows.forEach(function (r) { if (r) body.push(r); });
-        if (body.length < 2) body.push(['\u2014', { text: '$0.00', alignment: 'right' }]);
         return { table: { headerRows: 1, widths: ['*', 90], body: body }, layout: 'lightHorizontalLines', margin: [0, 0, 0, 4] };
       }
 
       /* Loan info */
       var infoRows = [];
-      if (data.borrower) infoRows.push(['Borrower(s)', data.borrower]);
-      if (data.fileNumber) infoRows.push(['File #', data.fileNumber]);
-      if (data.prepDate) infoRows.push(['Preparation Date', data.prepDate]);
+      infoRows.push(['Borrower(s)', data.borrower || '']);
+      infoRows.push(['File #', data.fileNumber || '']);
+      infoRows.push(['Preparation Date', data.prepDate || '']);
       infoRows.push(['Property Value', fmt(data.propertyValue)]);
-      if (data.purpose) infoRows.push(['Loan Purpose', data.purpose]);
-      if (data.product) infoRows.push(['Product', data.product]);
-      if (data.downPayment) infoRows.push(['Down Payment', fmt(data.downPayment)]);
+      infoRows.push(['Loan Purpose', data.purpose || '']);
+      infoRows.push(['Product', data.product || '']);
+      infoRows.push(['Down Payment', fmt(data.downPayment || 0)]);
       infoRows.push(['Loan Amount', fmt(data.loanAmount)]);
-      if (data.occupancy) infoRows.push(['Occupancy', data.occupancy]);
+      infoRows.push(['Occupancy', data.occupancy || '']);
       infoRows.push(['Interest Rate', ratePct(data.rate)]);
-      if (data.totalLoanAmt) infoRows.push(['Total Loan Amount', fmt(data.totalLoanAmt)]);
-      if (data.propertyType) infoRows.push(['Property Type', data.propertyType]);
-      if (data.apr) infoRows.push(['APR', ratePct(data.apr)]);
+      infoRows.push(['Total Loan Amount', fmt(data.totalLoanAmt || 0)]);
+      infoRows.push(['Property Type', data.propertyType || '']);
+      infoRows.push(['APR', ratePct(data.apr || 0)]);
       infoRows.push(['Term', data.termMonths + ' months']);
       var infoBody = [[{ text: 'Loan Information', style: 'tableHeader' }, { text: '', style: 'tableHeader' }]];
       infoRows.forEach(function (r) { infoBody.push([r[0], { text: r[1], alignment: 'right' }]); });
@@ -298,24 +302,26 @@
       content.push(sectionTable('Initial Escrow Payment at Closing', data.escrowTotal, [fml('County Property Tax', data.escTaxAmt, data.escTaxMonths, 'mth(s)', data.escrowTax), fml('Hazard Insurance', data.escInsAmt, data.escInsMonths, 'mth(s)', data.escrowIns)].concat(cfl('escrow'))));
       content.push(sectionTable('Other', data.otherTotal, [fl('Other Fee 1', data.other1), fl('Other Fee 2', data.other2)].concat(cfl('other'))));
 
+      var isRefi = data.purpose && data.purpose.indexOf('Refinance') !== -1;
       var fundsBody = [[{ text: 'Funds Needed To Close', style: 'tableHeader' }, { text: '', style: 'tableHeader' }]];
-      fundsBody.push([(data.purpose === 'Purchase' ? 'Purchase Price' : 'Payoff Amount'), { text: fmt(data.purchasePrice || 0), alignment: 'right' }]);
+      fundsBody.push([(isRefi ? 'Refinance' : 'Purchase Price'), { text: fmt(data.purchasePrice || 0), alignment: 'right' }]);
       fundsBody.push(['Estimated Prepaid Items', { text: fmt(data.estPrepaids || 0), alignment: 'right' }]);
       fundsBody.push(['Estimated Closing Cost', { text: fmt(data.estClosing || 0), alignment: 'right' }]);
-      fundsBody.push([{ text: 'Total Due from Borrower (K)', bold: true }, { text: fmt(data.totalDue || 0), alignment: 'right', bold: true }]);
+      if (data.discount) fundsBody.push(['Discount', { text: fmt(data.discount), alignment: 'right' }]);
+      fundsBody.push([{ text: 'Total Due from Borrower at Closing (K)', bold: true }, { text: fmt(data.totalDue || 0), alignment: 'right', bold: true }]);
       fundsBody.push(['Loan Amount', { text: fmt(data.summaryLoanAmt || 0), alignment: 'right' }]);
       fundsBody.push(['Total Paid by/on Behalf of Borrower (L)', { text: fmt(data.totalPaid || 0), alignment: 'right' }]);
-      if (data.sellerCredits) fundsBody.push(['Seller Credits', { text: fmt(data.sellerCredits), alignment: 'right' }]);
-      if (data.lenderCredits) fundsBody.push(['Lender Credits', { text: fmt(data.lenderCredits), alignment: 'right' }]);
+      fundsBody.push(['Seller Credits', { text: fmt(data.sellerCredits || 0), alignment: 'right' }]);
+      fundsBody.push(['Lender Credits', { text: fmt(data.lenderCredits || 0), alignment: 'right' }]);
       content.push({ table: { headerRows: 1, widths: ['*', 110], body: fundsBody }, layout: 'lightHorizontalLines' });
       content.push({ columns: [{ text: 'Total Estimated Funds From You', bold: true, fontSize: 11, color: '#2d6a4f' }, { text: data.fundsFromYou, alignment: 'right', bold: true, fontSize: 11, color: '#2d6a4f' }], margin: [0, 4, 0, 8] });
 
       var monthlyBody = [[{ text: 'Monthly Housing Payment', style: 'tableHeader' }, { text: '', style: 'tableHeader' }]];
-      monthlyBody.push(['First Mortgage (P&I)', { text: fmt(data.monthlyPI), alignment: 'right' }]);
+      monthlyBody.push(['First Mortgage', { text: fmt(data.monthlyPI), alignment: 'right' }]);
       monthlyBody.push(['Hazard Insurance', { text: fmt(data.monthlyIns), alignment: 'right' }]);
       monthlyBody.push(['Property Tax', { text: fmt(data.monthlyTax), alignment: 'right' }]);
-      if (data.monthlyMI) monthlyBody.push(['MI', { text: fmt(data.monthlyMI), alignment: 'right' }]);
-      if (data.monthlyHOA) monthlyBody.push(['HOA', { text: fmt(data.monthlyHOA), alignment: 'right' }]);
+      monthlyBody.push(['Mortgage Insurance', { text: fmt(data.monthlyMI || 0), alignment: 'right' }]);
+      monthlyBody.push(['HOA', { text: fmt(data.monthlyHOA || 0), alignment: 'right' }]);
       content.push({ table: { headerRows: 1, widths: ['*', 110], body: monthlyBody }, layout: 'lightHorizontalLines' });
       content.push({ columns: [{ text: 'Total Monthly Payment', bold: true, fontSize: 11, color: '#2d6a4f' }, { text: data.totalMonthly, alignment: 'right', bold: true, fontSize: 11, color: '#2d6a4f' }], margin: [0, 4, 0, 4] });
 
@@ -431,7 +437,8 @@
           monthlyInsurance: val(doc, 'cmpMonthlyInsurance_' + i),
           monthlyMI: val(doc, 'cmpMonthlyMI_' + i),
           monthlyHOA: val(doc, 'cmpMonthlyHOA_' + i),
-          apr: val(doc, 'cmpAPR_' + i)
+          apr: val(doc, 'cmpAPR_' + i),
+          notes: txt(doc, 'cmpNotes_' + i)
         });
       }
 
@@ -618,6 +625,16 @@
 
       html += fmtRow('APR', 'apr', ratePct, true);
 
+      var hasNotes = false;
+      for (i = 0; i < n; i++) { if (loans[i].notes) hasNotes = true; }
+      if (hasNotes) {
+        html += '<tr><td>Notes</td>';
+        for (i = 0; i < n; i++) {
+          html += '<td style="font-size:0.82em;white-space:pre-wrap;text-align:left">' + MSFG.escHtml(loans[i].notes || '') + '</td>';
+        }
+        html += '</tr>';
+      }
+
       html += '</tbody></table>';
       return html;
     },
@@ -751,6 +768,12 @@
 
       body.push(dataRow('APR', loans.map(function (l) { return ratePct(l.apr); }), { highlight: true, bestIdx: bestOf('apr') }));
 
+      var hasNotes2 = false;
+      for (var ni = 0; ni < n; ni++) { if (loans[ni].notes) hasNotes2 = true; }
+      if (hasNotes2) {
+        body.push(dataRow('Notes', loans.map(function (l) { return l.notes || ''; })));
+      }
+
       content.push({
         table: { headerRows: 1, widths: widths, body: body },
         layout: {
@@ -763,6 +786,241 @@
           paddingBottom: function () { return 3; }
         }
       });
+
+      return content;
+    }
+  );
+  /* =========================================================
+     LLPM Tool (LLPA / LLPM Calculator)
+     ========================================================= */
+
+  /* Helper: read checked radio value by name */
+  function radioVal(doc, name) {
+    var el = doc.querySelector('input[type="radio"][name="' + name + '"]:checked');
+    return el ? el.value : '';
+  }
+
+  /* Helper: read checkbox state by id */
+  function chk(doc, id) {
+    var el = doc.getElementById(id);
+    return el ? !!el.checked : false;
+  }
+
+  RT.register('llpm',
+    /* ---- Extractor ---- */
+    function (doc) {
+      // Inputs
+      var inputs = {
+        loanAmount: val(doc, 'loanAmount'),
+        propertyValue: val(doc, 'propertyValue'),
+        creditScore: val(doc, 'creditScore'),
+        termYears: txt(doc, 'termYears'),
+        baseRate: val(doc, 'baseRate'),
+        startingPoints: val(doc, 'startingPoints'),
+        units: txt(doc, 'units'),
+        purpose: radioVal(doc, 'purpose'),
+        productType: radioVal(doc, 'productType'),
+        occupancy: radioVal(doc, 'occupancy'),
+        isCondo: chk(doc, 'isCondo'),
+        isManufacturedHome: chk(doc, 'isManufacturedHome'),
+        isHighBalance: chk(doc, 'isHighBalance'),
+        hasSubordinateFinancing: chk(doc, 'hasSubordinateFinancing'),
+        isHighLTVRefi: chk(doc, 'isHighLTVRefi'),
+        applyMMI: chk(doc, 'applyMMI')
+      };
+
+      // Results
+      var results = {
+        grossLTV: txt(doc, 'chipLTV'),
+        totalLLPAs: txt(doc, 'chipTotal'),
+        finalPoints: txt(doc, 'kvFinalPoints'),
+        finalPrice: txt(doc, 'kvFinalPrice'),
+        dollarImpact: txt(doc, 'kvDollarImpact')
+      };
+
+      // Breakdown table rows
+      var breakdown = [];
+      var tbody = doc.querySelector('#breakdownTable tbody');
+      if (tbody) {
+        var rows = tbody.querySelectorAll('tr');
+        for (var i = 0; i < rows.length; i++) {
+          var cells = rows[i].querySelectorAll('td');
+          if (cells.length >= 2) {
+            var name = (cells[0].textContent || '').trim();
+            var pts = (cells[1].textContent || '').trim();
+            var reason = cells.length >= 3 ? (cells[2].textContent || '').trim() : '';
+            if (name && name !== 'No adjustments') {
+              breakdown.push({ name: name, points: pts, reason: reason });
+            }
+          }
+        }
+      }
+      results.breakdown = breakdown;
+
+      // Warnings
+      var warnBox = doc.getElementById('warnings');
+      var warnings = [];
+      if (warnBox && warnBox.style.display !== 'none') {
+        var lis = warnBox.querySelectorAll('li');
+        for (var w = 0; w < lis.length; w++) {
+          warnings.push((lis[w].textContent || '').trim());
+        }
+      }
+      results.warnings = warnings;
+
+      return { inputs: inputs, results: results };
+    },
+
+    /* ---- HTML Renderer ---- */
+    function (data) {
+      var inp = data.inputs;
+      var res = data.results;
+      var html = '';
+
+      // Purpose / Product / Occupancy labels
+      var purposeLabels = { 'Purchase': 'Purchase', 'LimitedCashOut': 'Limited Cash-Out', 'CashOut': 'Cash-Out' };
+      var prodLabels = { 'Fixed': 'Fixed', 'ARM': 'ARM' };
+      var occLabels = { 'Primary': 'Primary', 'SecondHome': 'Second Home', 'Investment': 'Investment' };
+
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Loan Parameters</h4>';
+      html += '<div class="rpt-params">';
+      html += '<div class="rpt-param"><span>Loan Amount</span><span>' + fmt0(inp.loanAmount) + '</span></div>';
+      html += '<div class="rpt-param"><span>Property Value</span><span>' + fmt0(inp.propertyValue) + '</span></div>';
+      html += '<div class="rpt-param"><span>Credit Score</span><span>' + (inp.creditScore || '—') + '</span></div>';
+      html += '<div class="rpt-param"><span>Term</span><span>' + inp.termYears + ' years</span></div>';
+      html += '<div class="rpt-param"><span>Base Rate</span><span>' + ratePct(inp.baseRate) + '</span></div>';
+      html += '<div class="rpt-param"><span>Starting Points</span><span>' + parseFloat(inp.startingPoints || 0).toFixed(3) + '</span></div>';
+      if (parseInt(inp.units) > 1) html += '<div class="rpt-param"><span>Units</span><span>' + inp.units + '</span></div>';
+      html += '<div class="rpt-param"><span>Purpose</span><span>' + (purposeLabels[inp.purpose] || inp.purpose) + '</span></div>';
+      html += '<div class="rpt-param"><span>Product</span><span>' + (prodLabels[inp.productType] || inp.productType) + '</span></div>';
+      html += '<div class="rpt-param"><span>Occupancy</span><span>' + (occLabels[inp.occupancy] || inp.occupancy) + '</span></div>';
+      html += '</div>';
+
+      // Flags
+      var flags = [];
+      if (inp.isCondo) flags.push('Condo');
+      if (inp.isManufacturedHome) flags.push('Manufactured Home');
+      if (inp.isHighBalance) flags.push('High-Balance');
+      if (inp.hasSubordinateFinancing) flags.push('Subordinate Financing');
+      if (inp.isHighLTVRefi) flags.push('High LTV Refinance');
+      if (inp.applyMMI) flags.push('MMI Applied');
+      if (flags.length) {
+        html += '<div class="rpt-param"><span>Flags</span><span>' + MSFG.escHtml(flags.join(', ')) + '</span></div>';
+      }
+      html += '</div>';
+
+      // Results summary
+      html += '<div class="rpt-section"><h4 class="rpt-section-title">Pricing Summary</h4>';
+      html += '<div class="rpt-params">';
+      html += '<div class="rpt-param"><span>Final Points</span><span>' + res.finalPoints + '</span></div>';
+      html += '<div class="rpt-param"><span>Final Price</span><span>' + res.finalPrice + '</span></div>';
+      html += '<div class="rpt-param"><span>Dollar Impact</span><span>' + res.dollarImpact + '</span></div>';
+      html += '</div></div>';
+
+      // Breakdown table
+      if (res.breakdown && res.breakdown.length) {
+        html += '<div class="rpt-section"><h4 class="rpt-section-title">LLPA Breakdown</h4>';
+        html += '<table class="rpt-table"><thead><tr><th>Adjustment</th><th class="rpt-num">Points</th><th>Reason</th></tr></thead><tbody>';
+        res.breakdown.forEach(function (row) {
+          html += '<tr><td>' + MSFG.escHtml(row.name) + '</td><td class="rpt-num">' + MSFG.escHtml(row.points) + '</td><td>' + MSFG.escHtml(row.reason) + '</td></tr>';
+        });
+        html += '</tbody></table></div>';
+      }
+
+      // Warnings
+      if (res.warnings && res.warnings.length) {
+        html += '<div class="rpt-section" style="background:#fff7e6;padding:.75rem 1rem;border-radius:8px;border:1px solid #ffe0a3;color:#8a5a00">';
+        html += '<strong>Heads up:</strong><ul style="margin:.5rem 0 0 1.2rem">';
+        res.warnings.forEach(function (w) {
+          html += '<li>' + MSFG.escHtml(w) + '</li>';
+        });
+        html += '</ul></div>';
+      }
+
+      return html;
+    },
+
+    /* ---- PDF Generator ---- */
+    function (data) {
+      var inp = data.inputs;
+      var res = data.results;
+      var content = [];
+
+      var purposeLabels = { 'Purchase': 'Purchase', 'LimitedCashOut': 'Limited Cash-Out', 'CashOut': 'Cash-Out' };
+      var prodLabels = { 'Fixed': 'Fixed', 'ARM': 'ARM' };
+      var occLabels = { 'Primary': 'Primary', 'SecondHome': 'Second Home', 'Investment': 'Investment' };
+
+      // Loan parameters
+      var params = [
+        ['Loan Amount', fmt0(inp.loanAmount)],
+        ['Property Value', fmt0(inp.propertyValue)],
+        ['Credit Score', String(inp.creditScore || '—')],
+        ['Term', inp.termYears + ' years'],
+        ['Base Rate', ratePct(inp.baseRate)],
+        ['Starting Points', parseFloat(inp.startingPoints || 0).toFixed(3)],
+        ['Purpose', purposeLabels[inp.purpose] || inp.purpose],
+        ['Product', prodLabels[inp.productType] || inp.productType],
+        ['Occupancy', occLabels[inp.occupancy] || inp.occupancy]
+      ];
+      if (parseInt(inp.units) > 1) params.splice(5, 0, ['Units', inp.units]);
+
+      var flags = [];
+      if (inp.isCondo) flags.push('Condo');
+      if (inp.isManufacturedHome) flags.push('Manufactured Home');
+      if (inp.isHighBalance) flags.push('High-Balance');
+      if (inp.hasSubordinateFinancing) flags.push('Subordinate Financing');
+      if (inp.isHighLTVRefi) flags.push('High LTV Refinance');
+      if (inp.applyMMI) flags.push('MMI Applied');
+      if (flags.length) params.push(['Flags', flags.join(', ')]);
+
+      // Results
+      var results = [
+        ['Final Points', res.finalPoints],
+        ['Final Price', res.finalPrice],
+        ['Dollar Impact', res.dollarImpact]
+      ];
+
+      content.push(h.pdfKeyValue(data, params, results));
+
+      // Breakdown table
+      if (res.breakdown && res.breakdown.length) {
+        content.push({ text: 'LLPA Breakdown', style: 'sectionHeader', margin: [0, 10, 0, 4] });
+
+        var body = [
+          [
+            { text: 'Adjustment', style: 'tableHeader' },
+            { text: 'Points', style: 'tableHeader', alignment: 'right' },
+            { text: 'Reason', style: 'tableHeader' }
+          ]
+        ];
+        res.breakdown.forEach(function (row) {
+          body.push([
+            { text: row.name, fontSize: 8 },
+            { text: row.points, fontSize: 8, alignment: 'right' },
+            { text: row.reason || '', fontSize: 8, color: '#666' }
+          ]);
+        });
+
+        content.push({
+          table: { headerRows: 1, widths: ['*', 50, '*'], body: body },
+          layout: {
+            hLineWidth: function () { return 0.5; },
+            vLineWidth: function () { return 0; },
+            hLineColor: function () { return '#e0e0e0'; },
+            paddingLeft: function () { return 6; },
+            paddingRight: function () { return 6; },
+            paddingTop: function () { return 3; },
+            paddingBottom: function () { return 3; }
+          }
+        });
+      }
+
+      // Warnings
+      if (res.warnings && res.warnings.length) {
+        content.push({ text: 'Warnings', style: 'sectionHeader', margin: [0, 10, 0, 4] });
+        var warnList = res.warnings.map(function (w) { return { text: w, fontSize: 8, color: '#8a5a00' }; });
+        content.push({ ul: warnList, margin: [10, 0, 0, 0] });
+      }
 
       return content;
     }
