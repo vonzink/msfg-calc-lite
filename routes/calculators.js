@@ -25,6 +25,7 @@ const generalCalcs = [
     ]
   },
   { slug: 'reo',             view: 'calculators/reo',             title: 'REO Investment ROI' },
+  { slug: 'budget',          view: 'calculators/budget',          title: 'Budgeting Calculator',       css: 'budget', preScripts: ['/js/shared/mismo-parser.js'] },
   { slug: 'compare',        view: 'calculators/compare',        title: 'Loan Comparison',            css: 'compare' },
   {
     slug: 'amortization',
@@ -48,7 +49,9 @@ generalCalcs.forEach(gc => {
       title: gc.title,
       calc: findCalc(gc.slug),
       extraHead: extraHeadParts.length ? extraHeadParts.join('') : undefined,
-      extraScripts: `<script src="/js/calculators/${gc.slug}.js?v=${ver}"></script>`
+      extraScripts:
+        (gc.preScripts ? gc.preScripts.map(s => `<script src="${s}?v=${ver}"></script>`).join('') : '') +
+        `<script src="/js/calculators/${gc.slug}.js?v=${ver}"></script>`
     });
   });
 });

@@ -171,6 +171,60 @@
     return baseDoc;
   }
 
+  /* ---- Lazy-load report templates on first capture ---- */
+  var _templatesLoaded = false;
+  var _templatesPromise = null;
+
+  function loadScript(src) {
+    return new Promise(function(resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = function() { reject(new Error('Failed to load ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  function loadTemplates() {
+    if (_templatesLoaded || (MSFG.ReportTemplates && MSFG.ReportTemplates.extractors && Object.keys(MSFG.ReportTemplates.extractors).length > 0)) {
+      _templatesLoaded = true;
+      return Promise.resolve();
+    }
+    if (_templatesPromise) return _templatesPromise;
+
+    var ver = '';
+    var main = document.querySelector('.site-main');
+    if (main && main.dataset.ver) ver = '?v=' + main.dataset.ver;
+    var ext = (main && main.dataset.jsExt) || '.js';
+
+    // Detect base path prefix from the report.js script tag already on the page.
+    // On dashboard.msfgco.com, nginx rewrites paths to /calc/js/..., so we need
+    // to use the same prefix for dynamically loaded scripts.
+    var basePath = '';
+    var reportScript = document.querySelector('script[src*="report"]');
+    if (reportScript && reportScript.src) {
+      var match = reportScript.src.match(/^https?:\/\/[^/]+(\/.*?)\/js\/shared\/report/);
+      if (match && match[1]) basePath = match[1];
+    }
+
+    // Load registry first, then sub-templates in parallel
+    _templatesPromise = loadScript(basePath + '/js/shared/report-templates' + ext + ver).then(function() {
+      return Promise.all([
+        loadScript(basePath + '/js/shared/report-templates/income-standard' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/income-special' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/general-analysis' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/general-simple' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/government' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/tools' + ext + ver),
+        loadScript(basePath + '/js/shared/report-templates/mismo' + ext + ver)
+      ]);
+    }).then(function() {
+      _templatesLoaded = true;
+    });
+
+    return _templatesPromise;
+  }
+
   /* ---- Public API ---- */
   MSFG.Report = {
 
@@ -283,26 +337,28 @@
     captureStructured: function(slug, calcName, calcIcon, baseDoc) {
       var self = this;
 
-      if (!MSFG.ReportTemplates || !MSFG.ReportTemplates.extractors[slug]) {
-        showToast('No report template for this calculator', 'error');
-        return Promise.reject(new Error('No extractor for: ' + slug));
-      }
+      return loadTemplates().then(function() {
+        if (!MSFG.ReportTemplates || !MSFG.ReportTemplates.extractors[slug]) {
+          showToast('No report template for this calculator', 'error');
+          return Promise.reject(new Error('No extractor for: ' + slug));
+        }
 
-      var calcDoc = resolveCalcDocument(baseDoc);
-      var data = MSFG.ReportTemplates.extract(slug, calcDoc);
+        var calcDoc = resolveCalcDocument(baseDoc);
+        var data = MSFG.ReportTemplates.extract(slug, calcDoc);
 
-      if (!data) {
-        showToast('Could not extract data', 'error');
-        return Promise.reject(new Error('Extraction returned null'));
-      }
+        if (!data) {
+          showToast('Could not extract data', 'error');
+          return Promise.reject(new Error('Extraction returned null'));
+        }
 
-      return self.addItem({
-        name: calcName,
-        icon: calcIcon,
-        slug: slug,
-        data: data
-      }).then(function() {
-        showToast('Added to report');
+        return self.addItem({
+          name: calcName,
+          icon: calcIcon,
+          slug: slug,
+          data: data
+        }).then(function() {
+          showToast('Added to report');
+        });
       }).catch(function(err) {
         console.error('Report save failed:', err);
         showToast('Failed to save — try again', 'error');
@@ -314,15 +370,21 @@
      * Capture from the current standalone page.
      */
     captureCurrentCalculator: function(calcName, calcIcon) {
+      var self = this;
       var slug = window.__calcSlug || '';
 
-      if (slug && MSFG.ReportTemplates && MSFG.ReportTemplates.extractors[slug]) {
-        var baseDoc = document;
-        return this.captureStructured(slug, calcName, calcIcon, baseDoc);
+      if (!slug) {
+        showToast('No report template available', 'error');
+        return Promise.reject(new Error('No extractor available for slug: ' + slug));
       }
 
-      showToast('No report template available', 'error');
-      return Promise.reject(new Error('No extractor available for slug: ' + slug));
+      return loadTemplates().then(function() {
+        if (MSFG.ReportTemplates && MSFG.ReportTemplates.extractors[slug]) {
+          return self.captureStructured(slug, calcName, calcIcon, document);
+        }
+        showToast('No report template available', 'error');
+        return Promise.reject(new Error('No extractor available for slug: ' + slug));
+      });
     }
   };
 

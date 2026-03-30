@@ -73,6 +73,7 @@ app.use((req, res, next) => {
   res.locals.categories = calcConfig.categories;
   res.locals.currentPath = req.path;
   res.locals.v = ASSET_VERSION;
+  res.locals.jsExt = process.env.NODE_ENV === 'production' ? '.min.js' : '.js';
   next();
 });
 

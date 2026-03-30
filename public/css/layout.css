@@ -245,12 +245,6 @@
   border-top: 1px solid var(--color-gray-700);
 }
 
-.site-footer__tradename {
-  font-size: 0.8rem;
-  color: var(--color-gray-400);
-  margin-bottom: var(--space-xs);
-}
-
 .site-footer__company {
   font-family: var(--font-heading);
   font-weight: 600;
@@ -263,7 +257,6 @@
     flex-direction: column;
     text-align: center;
   }
-
   .site-footer__ehl {
     height: 50px;
   }
