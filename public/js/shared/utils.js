@@ -99,6 +99,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (main.dataset.calcIcon) window.__calcIcon = main.dataset.calcIcon;
     if (main.dataset.calcSlug) window.__calcSlug = main.dataset.calcSlug;
   }
+
+  // Apply dynamic colors from data attributes (CSP-safe)
+  document.querySelectorAll('[data-color]').forEach(function(el) {
+    el.style.backgroundColor = el.dataset.color;
+  });
+  document.querySelectorAll('[data-border-color]').forEach(function(el) {
+    el.style.borderLeftColor = el.dataset.borderColor;
+  });
+  document.querySelectorAll('[data-max-width]').forEach(function(el) {
+    el.style.maxWidth = el.dataset.maxWidth + 'px';
+  });
 });
 
 /* ---- Default-value helpers ---- */
@@ -167,5 +178,10 @@ MSFG.escHtml = function(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 };
+
+MSFG.el = function(id) { return document.getElementById(id); };
+MSFG.qs = function(sel, ctx) { return (ctx || document).querySelector(sel); };
+MSFG.qsa = function(sel, ctx) { return (ctx || document).querySelectorAll(sel); };
+MSFG.daysBetween = function(d1, d2) { return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24)); };
 
 window.MSFG = MSFG;
