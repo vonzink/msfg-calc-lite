@@ -85,6 +85,7 @@ app.use('/', require('./routes/index'));
 app.use('/calculators', require('./routes/calculators'));
 app.use('/workspace', require('./routes/workspace'));
 app.use('/report', require('./routes/report'));
+app.use('/api', require('./routes/api'));
 
 // Serve legacy calculator files (iframe stubs)
 app.use('/legacy/gen-calc', express.static(path.join(__dirname, 'gen-calc')));

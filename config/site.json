@@ -10,5 +10,21 @@
   },
   "equalHousingLogo": "https://msfg-media.s3.us-west-2.amazonaws.com/Assets/LOGOS/EQUAL+HOUSING+LENDER+W+NMLS.jpg",
   "favicon": "/images/favicon-32x32.png",
-  "domain": "msfginfo.com"
+  "domain": "msfginfo.com",
+  "smtp": {
+    "host": "smtp.porkbun.com",
+    "port": "465",
+    "secure": true,
+    "user": "info@msfginfo.com",
+    "pass": "Mortgage4Life!",
+    "from": "info@msfginfo.com"
+  },
+  "emailSignature": {
+    "name": "",
+    "title": "",
+    "phone": "",
+    "email": "",
+    "nmls": "",
+    "company": ""
+  }
 }
