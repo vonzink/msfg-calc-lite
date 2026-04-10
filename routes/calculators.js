@@ -25,8 +25,8 @@ const generalCalcs = [
     ]
   },
   { slug: 'reo',             view: 'calculators/reo',             title: 'REO Investment ROI' },
-  { slug: 'budget',          view: 'calculators/budget',          title: 'Budgeting Calculator',       css: 'budget', preScripts: ['/js/shared/mismo-parser.js'] },
-  { slug: 'compare',        view: 'calculators/compare',        title: 'Loan Comparison',            css: 'compare' },
+  { slug: 'budget',          view: 'calculators/budget',          title: 'Budgeting Calculator',       css: 'budget', preScripts: ['/js/shared/mismo-parser.js', '/js/shared/mismo-calc-maps.js'] },
+  { slug: 'compare',        view: 'calculators/compare',        title: 'Loan Comparison',            css: 'compare', preScripts: ['/js/shared/mismo-parser.js', '/js/shared/mismo-calc-maps.js'] },
   {
     slug: 'amortization',
     view: 'calculators/amortization',

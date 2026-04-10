@@ -225,7 +225,7 @@ const AmortCalc = (() => {
     dom.extraPaymentToggle.addEventListener('click', () => {
       const section = dom.extraPaymentSection;
       const isOpen = !section.classList.contains('u-hidden');
-      section.classList.toggle('u-hidden');
+      section.classList.toggle('u-hidden', isOpen);
       dom.extraPaymentToggle.classList.toggle('open', !isOpen);
     });
 
@@ -845,7 +845,7 @@ const AmortCalc = (() => {
     const isOpen = monthRows[0] && !monthRows[0].classList.contains('u-hidden');
 
     monthRows.forEach(row => {
-      row.classList.toggle('u-hidden');
+      row.classList.toggle('u-hidden', isOpen);
     });
     yearHeader.classList.toggle('open', !isOpen);
   };
@@ -990,4 +990,33 @@ document.addEventListener('DOMContentLoaded', function() {
   AmortCalc.init();
   MSFG.markDefaults('.calc-page');
   MSFG.bindDefaultClearing('.calc-page');
+
+  if (MSFG.CalcActions) {
+    MSFG.CalcActions.register(function () {
+      const g = function (id) { const e = document.getElementById(id); return e ? e.textContent || e.value : ''; };
+      return {
+        title: 'Amortization Calculator',
+        sections: [
+          {
+            heading: 'Loan Details',
+            rows: [
+              { label: 'Monthly P&I', value: g('resultMonthlyPI') },
+              { label: 'Total Monthly Payment', value: g('resultTotalMonthly') },
+              { label: 'Total Interest', value: g('resultTotalInterest') },
+              { label: 'Total Cost of Loan', value: g('resultTotalCost') },
+              { label: 'Payoff Date', value: g('resultPayoffDate') },
+              { label: 'Starting LTV', value: g('resultStartingLTV') }
+            ]
+          },
+          {
+            heading: 'Extra Payment Savings',
+            rows: [
+              { label: 'Interest Saved', value: g('resultInterestSaved') || '$0' },
+              { label: 'Time Saved', value: g('resultTimeSaved') || '--' }
+            ]
+          }
+        ]
+      };
+    });
+  }
 });
