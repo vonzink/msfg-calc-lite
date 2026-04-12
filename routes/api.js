@@ -137,6 +137,12 @@ function buildEmailHTML(calcData, personalMessage, siteConfig) {
 
 </table>
 </td></tr></table>
+
+<!-- Spacer below content — gives Outlook a cursor landing zone when forwarding -->
+<div style="padding:8px 0;">&nbsp;</div>
+<div style="padding:8px 0;">&nbsp;</div>
+<div style="padding:8px 0;">&nbsp;</div>
+
 </body></html>`;
 
   return html;
